@@ -1,0 +1,8 @@
+---
+title: "Introduction"
+output: html_document
+---
+
+# Introduction
+
+Welcome to adventures in linear modelling.  Linear models are one of the key statistical tools used to enable us to explain the variation in one variable by using one or more other variables.  Our adventures will take us from simple linear regression, which you will have no doubt seen before, through the extensions to multiple linear regression and analysis of variance, until we reach the General Linear Model. Along the way we'll see the assumptions we make when we fit a linear model to data, and understand what it means when these assumptions are (inevitably!) not satisfied, and what we can do to fix things.

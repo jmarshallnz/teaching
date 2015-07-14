@@ -1,0 +1,8 @@
+---
+title: "Simple linear regression"
+output: pdf_document
+---
+
+# Simple Linear Regression
+
+We'll start our adventure in linear modelling by looking at the simplest possible case: The case where we wish to describe the relationship between two numeric variables.
