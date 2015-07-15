@@ -1,0 +1,14 @@
+Lab 1: Introduction to RProjects, R notebooks, Simple linear regression
+
+Lecture 1: The linear model, R^2, prediction, assumptions, diagnostics, transformations?
+
+Lab 2: Diagnostics, transformations (donkey), Multiple linear regression (donkey)
+
+Lecture 2: Multiple linear regression (what t-statistic gives), F statistic, Adding factors (ANOVA).
+
+Lab 3: Analysis of variance, nested models.
+
+Lecture 3: Nested models, Two-way ANOVA, interactions, model selection.
+
+Lab 4: A mixed effects model? Or two-way models or grouped-regression interactions? Or?
+
