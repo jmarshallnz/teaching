@@ -17,10 +17,10 @@ plot(Bodywt ~ Heartgirth, data=donkey)
 lm1 <- lm(Bodywt ~ Heartgirth, data=donkey)
 summary(lm1)
 
-#' The equation is $\mathsf{Bodywt} = -197.3 + 2.86 \times \mathsf{Heartgirth}$.
+#' The equation is $\mathsf{Bodywt} = -194.5 + 2.83 \times \mathsf{Heartgirth}$.
 
 #' The P-value for `Heartgirth` is really tiny. The null hypothesis being tested is whether this is 0 in the population. If it was
-#' zero in the population, it would be really unlikely that we'd get the value of 2.86 in our sample. Thus we'd conclude that
+#' zero in the population, it would be really unlikely that we'd get the value of 2.83 in our sample. Thus we'd conclude that
 #' it is unlikely to be zero in the population! Therefore, there's evidence that there is a relationship between body weight
 #' and heart girth.
 
@@ -29,8 +29,8 @@ summary(lm1)
 
 #' Using the equation, we can work out the average body weight for donkeys that have heartgirth equal to 110cm by substitution 110
 #' into the equation above:
--197.3 + 2.86 * 110
-#' Our best guess is 117.3 kg.
+-194.5 + 2.83 * 110
+#' Our best guess is 116.8 kg.
 
 #' Using R to do this instead via the predict function we have
 new_data <- data.frame(Heartgirth = 110)
@@ -41,7 +41,7 @@ predict(lm1, new_data, interval="confidence")
 predict(lm1, new_data, interval="prediction")
 
 #' The first gives us a 95% confidence interval for the **average** donkey weight for donkeys whose heartgirth is 110cm.
-#' i.e. we're 95% confident that average donkey weight is between 115.6kg and 117.9kg for those donkeys whose heartgirth is 110cm.
+#' i.e. we're 95% confident that average donkey weight is between 115.6kg and 117.8kg for those donkeys whose heartgirth is 110cm.
 #' The second gives us a 95% prediction interval for the weight of **individual** donkeys whose heartgirth is 110cm.
-#' i.e. we're 95% confident that a donkey with heartgirth 110cm will have a weight between 95.0kg and 138.4kg.
+#' i.e. we're 95% confident that a donkey with heartgirth 110cm will have a weight between 95.4kg and 138.0kg.
 #' (95% of individual donkeys will be in this range).
