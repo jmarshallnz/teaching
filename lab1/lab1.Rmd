@@ -2,10 +2,10 @@
 title: "227.215 Biostats Lab 1"
 author: "Jonathan Marshall"
 date: "15 July 2015"
+graphics: yes
 output:
   pdf_document: null
   html_document: default
-graphics: yes
 ---
 
 ## Introduction ##
@@ -22,11 +22,11 @@ In this exercise we'll get to know about RStudio projects. RStudio projects are 
 2. Next, create a new RStudio project by going to `File->New Project...`.
 3. When prompted, select `New Directory`.
 4. Next, select `Empty Project`.
-5. Type in the name of the project (e.g. "Lab1") and select the folder you want it to be in (by default it will go into your "Documents" folder).
+5. Type in the name of the project (e.g. "BiostatsLabs") and select the folder you want it to be in (by default it will go into your "Documents" folder).
 
 You'll see that RStudio will restart, and the Files pane down the bottom left will be inside the folder you created (and there'll be a Lab1.rproj file there).
 
-Now, go and shut down RStudio, then navigate to `Documents/Lab1` in the Windows Explorer and open the `Lab1.Rproj` file. RStudio will re-start and you'll be back where you were.
+Now, go and shut down RStudio, then navigate to `Documents/BiostatsLabs` in the Windows Explorer and open the `BiostatsLabs.Rproj` file. RStudio will re-start and you'll be back where you were.
 
 ## Exercise 2: Creating an R notebook from an R script ##
 
@@ -37,9 +37,9 @@ In this exercise we'll create a new R script, do some simple exploratory analysi
 2. Now type (or copy/paste) the following into the RScript file.
 
     ```
-    #' 227.215 Biostats Lab 1.
+    #' 227.215 Biostats.
     
-    #' In this lab we'll take another look at data on Moroccan donkeys that we looked at
+    #' In this notebook we'll take another look at data on Moroccan donkeys that we looked at
     #' in semester 1.
     donkey <- read.csv("http://www.massey.ac.nz/~jcmarsha/227215/data/donkey.csv")
     
@@ -55,14 +55,14 @@ plot(donkey[,3:7])
 ```
 
 5. Run that code to make sure you get the plot you want.
-6. Now we'll produce an R notebook. Click on the little spiral-bound notebook on the toolbar (it will say `Compile Notebook` when you hover over it). It will prompt you to first save your R script - call it something like `Lab1.R`. Once done, select `HTML` as the type of notebook to compile. It will do it's thing, and produce an HTML document that should look something like what is below.
+6. Now we'll produce an R notebook. Click on the little spiral-bound notebook on the toolbar (it will say `Compile Notebook` when you hover over it). It will prompt you to first save your R script - call it something like `donkey.R`. Once done, select `HTML` as the type of notebook to compile. It will do it's thing, and produce an HTML document that should look something like what is below.
 
-```{r, echo=FALSE, fig.width=3, fig.height=4, fig.align='center'}
+```{r, echo=FALSE, fig.width=3, fig.height=5, fig.align='center'}
 library(png)
 fig <- readPNG("r_notebook.png")
 p <- par("fin")
 par(mar=rep(0,4), fin=c(p[1], dim(fig)[1]/dim(fig)[2]*p[1]))
-plot(c(0,dim(fig)[2]), c(0,dim(fig)[1]), type="n", xaxt="n", yaxt="n",xlab="", ylab="", xaxs="i", yaxs="i", bty="n")
+plot(c(0,dim(fig)[2]), c(0,dim(fig)[1]), type="n", xaxt="n", yaxt="n",xlab="", ylab="", xaxs="i", yaxs="i")
 rasterImage(fig, 0, 0, dim(fig)[2], dim(fig)[1])
 ```
 
