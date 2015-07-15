@@ -99,18 +99,17 @@ This gives you a linear model object. To see what it contains, type the name of 
     * The `Estimate` column gives us the values of each of these parameters might be in the population.
     * The `Std. Error` column is a measure of how much out we might be in the estimation. The reason we have this is we have just a sample of donkeys - we haven't measured all possible Moroccan donkeys! So, just like a sample mean might be a bit out (and we use a confidence interval to estimate how much out we might be) the estimates of the intercept and slope might also be a bit out. The standard error is the standard deviation of those estimates. A 95% confidence interval for the slope would be:
 $$
-2.86 \pm 2 \times 0.072,
+2.82 \pm 2 \times 0.071,
 $$
 just like the confidence interval for a mean.
-    * The `t value` column is giving the number of standard deviations away from 0 the slope and intercept estimates are (i.e. $39.63 = 2.85517 / 0.07205$).
+    * The `t value` column is giving the number of standard deviations away from 0 the slope and intercept estimates are (i.e. $39.74 = 2.82883 / 0.07118$).
     * The `Pr(>|t|)` column is the P-values for each of these estimates. The null hypothesis being tested is whether the slope (or intercept) is zero.
-    * Finally, in the bit underneath, notice the `Multiple R-squared` value of 0.80. This means that 80% of the variation in the body weight is explained by the linear model.
 
 4. Write down the equation that relates the Body weight to the Heartgirth.
 
 5. Think about what the P-value for the slope means. What would be your conclusion for this? Write some notes about this into your R-script as comments (i.e. pre-fixed using hash-quote `#' `) If you're not sure, discuss with those around you, or with Jonathan, Penny or Khair.
 
-6. Think about what the $R^2$ value means for the relationship between body weight and heartgirth. Write some notes about this into your R-script as comments.
+6. Think about what the $R^2$ value (at the bottom of the summary output) means for the relationship between body weight and heartgirth. Write some notes about this into your R-script as comments.
 
 7. Suppose you wanted to predict the weight of a donkey. You measure the girth at the heart and find it is 110cm. What is your best guess as to the body weight?  *Hint: Use the equation to work this out.*
 
