@@ -55,12 +55,7 @@ plot(donkey[,3:7])
 ```
 
 5. Run that code to make sure you get the plot you want.
-6. Now we'll produce an R notebook. Before we do this we'll need to make sure the machine is setup properly (by default, unfortunately the Massey computers are not setup correctly) - you'll only need do this once! Copy and paste the following into the `Console` window.
-```
-install.packages("rmarkdown", "knitr")
-```
-
-7. Right, we're now ready to go. Click on the little spiral-bound notebook on the toolbar (it will say `Compile Notebook` when you hover over it). When prompted, select `HTML` as the type of notebook to compile. It will do it's thing, and produce an HTML document that should look something like what is below.
+6. Now we'll produce an R notebook. Click on the little spiral-bound notebook on the toolbar (it will say `Compile Notebook` when you hover over it). It will prompt you to first save your R script - call it something like `Lab1.R`. Once done, select `HTML` as the type of notebook to compile. It will do it's thing, and produce an HTML document that should look something like what is below.
 
 ```{r, echo=FALSE, fig.width=3, fig.height=4, fig.align='center'}
 library(png)
@@ -71,7 +66,7 @@ plot(c(0,dim(fig)[2]), c(0,dim(fig)[1]), type="n", xaxt="n", yaxt="n",xlab="", y
 rasterImage(fig, 0, 0, dim(fig)[2], dim(fig)[1])
 ```
 
-8. Try re-building the notebook and this time selecting `Word` as the type of notebook. It will generate a word document for you :)
+7. Try re-building the notebook and this time selecting `Word` as the type of notebook. It will generate a word document for you :)
 
 ## Exercise 3: The linear model ##
 
