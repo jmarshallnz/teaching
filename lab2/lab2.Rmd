@@ -16,7 +16,7 @@ In this lab we'll cover linear model diagnostics, transformations for linearity,
 
 1. Start by reloading your R project file (remember it's stored in under your Documents folder).
 
-2. It should start with the `Donkey.R` script loaded from last time. If not, you should be able to select that script from the `Files` tab on the bottom right. In case you weren't here last week, you should first go through Exercise 1 of the Lab 1, and then download `Donkey.R` from stream and place it in your folder.
+2. It should start with the `donkey.R` script loaded from last time. If not, you should be able to select that script from the `Files` tab on the bottom right. In case you weren't here last week, you should first go through Exercise 1 of the Lab 1, and then download `donkey.R` from stream and place it in your folder.
 
 ## Exercise 2: Model diagnostics ##
 
