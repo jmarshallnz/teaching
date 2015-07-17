@@ -66,6 +66,6 @@ In this exercise, we'll extend our linear model to take into account some of the
 
 5. Now add in both `Length` and `Height` to your linear model, and check the model summary. What is your conclusion about the relationship between `Bodywt` and `Height` ?
 
-6. Do a linear model relating `Bodywt` to only `Height`. You should find that `Height` is highly significant. Why is it not significant in the larger model?
+6. Do a linear model relating `Bodywt` to only `Height`. You should find that `Height` is highly significant. Why is it not significant in the larger model? *Hint: You might want to take a look at the pairs plot we did in lab 1*.
 
 7. Make sure you add some more comments to your R script and re-compile it so you can refer to it later.
