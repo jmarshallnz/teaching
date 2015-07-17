@@ -1,0 +1,106 @@
+---
+title: "Linear models"
+author: "Jonathan Marshall"
+date: "18 June 2015"
+output: 
+  ioslides_presentation: 
+    highlight: tango
+    smaller: no
+    css: ../jm.css
+---
+
+## Learning outcomes
+
+- Relationships between variables
+- The linear model
+- Least squares
+- Linear model assumptions
+
+## Example: Donkeys
+
+We have data on 385 Moroccan donkeys.
+
+Variable   Description
+--------   -----------
+Sex        Sex (Female/Male)
+Age        Age (years)
+Bodywt     Weight (kg)
+Heartgirth Girth at the heart (cm)
+Umbgirth   Girth at the umbilicus (cm)
+Length     Length from elbow to hind (cm)
+Height     Height to the withers (cm)
+
+## Relationships: Donkeys
+
+```{R,echo=FALSE, fig.align="center"}
+donkey <- read.csv("http://www.massey.ac.nz/~jcmarsha/227215/data/donkey.csv")
+par(mfrow=c(2,2), mar=c(4,4,1,1))
+plot(Bodywt ~ Heartgirth, data=donkey, col="#7f577492", pch=19)
+plot(Bodywt ~ Umbgirth, data=donkey, col="#7f577492", pch=19)
+plot(Bodywt ~ Length, data=donkey, col="#7f577492", pch=19)
+plot(Bodywt ~ Height, data=donkey, col="#7f577492", pch=19)
+```
+
+## Relationships: Donkeys
+
+```{R,echo=FALSE, fig.align="center"}
+plot(Bodywt ~ Sex, data=donkey, horizontal=TRUE)
+```
+
+## Relationships: Donkeys
+
+- There are reasonably strong increasing relationships between body weight and hearth girth, umbilical girth, length and height.
+- There doesn't seem much difference between the sexes.
+- The *strongest* relationship is with heart girth. **Why?**
+- We'll look at **modelling** this relationship using a straight line.
+
+## Linear modelling
+
+- Try to explain the variation in one measurement using other measurements.
+- Key is to model the mean of one variable conditional on the values of other variables.
+- Simplest case is where we have just two numeric measures.
+
+## Definitions
+
+- The **response**, or **dependent variable**, is the numeric variable we wish to model (the $y$ variable).
+- The **explanatory** variable(s), or **predictors**, **covariates**, or **independent variables** are the $x$ variables
+we use to explain the response. They needn't be numeric.
+- The **regression line** or **linear model** is the way we relate $y$ to the explanatory variables $x$.
+- For the simple case of a single numeric predictor, the equation is
+$$
+y = \alpha + \beta x
+$$
+where $\alpha$ is the **intercept** or **baseline**, and $\beta$ is the **slope**, or **gradient**.
+
+## Definitions
+
+```{r, echo=FALSE, fig.align="center"}
+# generate some data for a generic plot
+set.seed(2015)
+x <- rnorm(100, 3, 1)
+y <- 0.5 + 0.5*x + rnorm(100, 0, 0.3)
+par(mar=c(2,1,1,1), cex=1.5)
+plot(y ~ x, col="#00000020", xlim=c(0, max(x)), ylim=c(0, max(y)), pch=19, xlab="", ylab="", xaxt="n", yaxt="n", xaxs="i", yaxs="i")
+line <- lm(y ~ x) 
+abline(line, lwd=2)
+xv <- c(1,5)
+yv <- predict(line, data.frame(x=xv))
+lines(xv, rep(yv[1], 2), lty="dotted")
+lines(rep(xv[2], 2), yv, lty="dotted")
+text(mean(xv), yv[1], "run", adj=c(0.5,1.2), col="grey30")
+text(xv[2], mean(yv), "rise", adj=c(-0.2,0.5), col="grey30")
+mtext(expression(alpha), side=2, line=0.5, at = coef(line)[1], las=1, cex=1.5)
+text(4, yv[1]-0.5, expression(beta==over(rise,run)))
+axis(1, at=0, line=0)
+```
+
+## Sample versus Population
+
+- Combined, the $\alpha$ and $\beta$ are known as **coefficients** of the linear model in the population. Linear modelling is the process of fitting this model to data, where we **estimate** these coefficients.
+
+- We only ever have a sample of data, thus our estimates are sample statistics, which we hope will be representative of
+the true parameters $\alpha$ and $\beta$ in the population.
+
+## Estimation of parameters
+
+TODO: Add a picture demonstrating true value, fitted value, residual.

@@ -1,0 +1,14 @@
+b,strong {
+  color: #404040;
+  font-weight: bold;
+}
+
+hgroup,h2 {
+  font-weight: bold;
+  color: #577492;
+}
+
+.mi {
+  color: #404040;
+  font-size: 95%;
+}
