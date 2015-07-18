@@ -10,5 +10,13 @@ hgroup,h2 {
 
 .mi {
   color: #404040;
-  font-size: 95%;
+/*  font-size: 95%; */
+}
+
+.math {
+  color: #404040;
+}
+
+.bigequation {
+  font-size: 300%;
 }
