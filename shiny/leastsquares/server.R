@@ -26,7 +26,7 @@ shinyServer(function(input, output, session) {
     # plot the points, residuals as lines, model fit and (mean(x),mean(y))
     par(mar=c(2,2,0,0), cex=2)
     plot(NULL, xlim=range(x), ylim=c(min(y)-0.5, max(y)+0.5), xaxt="n", yaxt="n", xlab="", ylab="")
-    segments(x, yhat, x, ifelse(y > yhat, y-0.05, y+0.05), col="#00000040")
+    segments(x, yhat, x, ifelse(y > yhat, y-0.05, y+0.05), col="#b0b0b0", lwd=2)
     points(x, y, col="#00000050", pch=19, xlab="", ylab="", xaxt="n", yaxt="n")
     points(mx, my, pch=19)
     abline(alpha, input$beta, lwd=2)
