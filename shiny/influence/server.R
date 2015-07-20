@@ -49,7 +49,7 @@ shinyServer(function(input, output, session) {
   output$cooks <- renderPlot({
 
     # plot the points, residuals as lines, model fit and (mean(x),mean(y))
-    par(mar=c(0,0,0,1), cex=2)
+    par(mar=c(0,0,0,1.5), cex=2)
     lev_max <- 0.08
     plot(NULL, xlim=c(0, lev_max), ylim=c(-6,6), xaxt="n", yaxt="n", xlab="Leverage", ylab="Residuals", xaxs="i")
     text(0.04, -6, "Leverage", cex=1, col="grey50")
