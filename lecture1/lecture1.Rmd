@@ -7,7 +7,6 @@ output:
     highlight: tango
     widescreen: true
     css: jm.css
-runtime: shiny
 ---
 
 ```{r setup, echo=FALSE}
@@ -134,15 +133,7 @@ $$
 
 ## Estimation of parameters
 
-```{r, echo = FALSE}
-library(shiny)
-shinyAppDir(
-  "../shiny/leastsquares",
-  options=list(
-    width="100%", height=200
-  )
-)
-```
+<iframe src="http://it056230.massey.ac.nz:8080/227215/shiny/leastsquares/" style="border: none"></iframe>
 
 # Linear models in RStudio
 
@@ -338,15 +329,7 @@ plot(mod, which=5, pch=19, col="#00000040")
 
 ## Influential outliers
 
-```{r, echo = FALSE}
-library(shiny)
-shinyAppDir(
-  "../shiny/influence",
-  options=list(
-    width="100%", height=180
-  )
-)
-```
+<iframe src="http://it056230.massey.ac.nz:8080/227215/shiny/influence/" style="border: none"></iframe>
 
 ## When assumptions don't hold
 
