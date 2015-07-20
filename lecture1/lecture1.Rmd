@@ -10,6 +10,8 @@ output:
 ---
 
 ```{r setup, echo=FALSE}
+library(knitr)
+opts_chunk$set(dev.args=list(bg='transparent'))
 col_points <- "#7f577492"
 col_dark   <- "#5f4354"
 ```
