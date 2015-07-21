@@ -1,0 +1,101 @@
+---
+title: "227.215 Biostats Lab 3"
+author: "Jonathan Marshall"
+date: "15 July 2015"
+output:
+  pdf_document: null
+  html_document: default
+graphics: yes
+---
+
+## Introduction ##
+
+In this lab we'll look at a set of data on the birth weight of lambs, based on the data from last year's project. This will therefore be good practice for part A of your project this year!
+
+Lamb birth weight is the single largest influence on survival of lambs in the first few days of life.  For this assignment we'll be looking at a dataset on the birth weight of lambs collected during a trial at Massey in late 1990s.
+
+Mixed-aged, Border Leicester x Romney ($n=160$) ewes were randomly allocated after preganancy diagnosis to a factorial experiment involving two shearing treatments (shorn on day 70 vs not); two pregnancy ranks (single or twin); and four feeding regimes (HH, HM, MH, MM), where the first letter refers to feed during days 70-101 of pregancy, and the second during days 102-140.  The M (maintenance) feeding group were fed at a level calculated to maintain maternal conceptus-free weight, while the H (high) feeding group were fed to gain around 100g per day above this during the relevant period.
+
+Of particular interest is how feed management and shearing during pregnancy influence lamb birth weight.  The data set consists of the following variables from 204 lambs.
+
+Variable      Description
+--------      -----------
+`DamID`       Identifying number for the ewe.
+`LambID`      Identifying number for the lamb.
+`DateBirth`   Date of birth of the lamb.
+`Rank`        Whether the lamb was Single or a Twin.
+`Sex`         The sex of the lamb (Male, Female).
+`BirthWeight` The weight of the lamb at birth (in kg).
+`Feed`        The feed regime of the ewe (HH, HM, MH, HH).
+`Shorn`       Whether the ewe was shorn during pregnancy (Yes, No).
+
+## Exercise 1: Create a new R script file
+
+1. You can create a new RStudio project for this lab if you like (or use a previous one - up to you).
+
+2. Create a new R script for todays lab.
+
+3. We'll add a special 'metadata' block to the top of the script that allows you to set the title and author. Copy and paste the following code block, then change the author as appropriate.
+
+    ```
+    #' ---
+    #' title:  227.215 Biostats, Lamb birthweight analysis
+    #' author: Joanne Blogs
+    #' date:   4 August 2015
+    #' ---
+    ```
+    
+4. Add the following code to read the dataset in and take a look at the first few rows.
+
+    ```
+    #' Read in the lamb birthweight data
+    births <- read.csv("http://www.massey.ac.nz/~jcmarsha/227215/data/birthweight.csv")
+    head(births)
+    ```
+
+5. Compile your notebook and make sure the title and author etc. have been correctly set in the HTML or Word document.
+
+## Exercise 2: Exploratory analysis of birthweight data
+
+1. Add some code and comments to your R script to produce some plots of `BirthWeight` versus the covariates `Rank`, `Sex`, `Feed` and `Shorn`.
+
+2. Is there any graphical evidence for a relationship between `BirthWeight` and these variables?
+
+3. What does the distribution of `BirthWeight` look like within each of the categories? Do you think the linear model assumptions will hold for these data?
+
+## Exercise 3: Linear modelling of birthweight data
+
+In this exercise we'll look at analysing the average birthweight with a linear model. **Remember to add comments to your R script so that when you compile the notebook you have some commentary to look back on later.**
+
+1. Fit a linear model to the data using only the `Shorn` variable.
+
+    a. What is the linear model equation?
+    
+    b. Produce an ANOVA table and model summary table.
+    
+    c. Is the ewe being shorn important for birthweight according to this model?
+
+2. Fit a linear model to the data using only the `Feed` variable.
+
+    a. How has `Feed` been incorporated into the linear model?
+    
+    b. Produce an ANOVA table and model summary table.
+    
+    c. Is the ewes feeding treatment important for birthweight according to this model?
+
+3. Fit a multivariable linear model using the four covariates `Sex`, `Rank`, `Feed` and `Shorn`.
+
+    a. Produce an ANOVA table and model summary table.
+    
+    b. Which variables (if any) are important for birth weight?
+    
+    c. Interpret the summary table coefficients and write some comments into your R script about this.
+    
+    d. Are your results consistent with part 1 and 2? If not, why not?
+    
+    e. Produce a prediction, with 95% interval, for the weight of a male twin, born to an unshorn ewe on the HM feeding treatment.
+    
+    f. Produce a prediction, with 95% interval, for the average weight of a female singles, born to an unshorn ewes on the MM feeding treatment.
+    
+    g. Take a look at the model diagnostics for the model. Do the linear model assumptions seem to hold?
+
