@@ -18,6 +18,8 @@ In this lab we'll cover linear model diagnostics, transformations for linearity,
 
 2. It should start with the `donkey.R` script loaded from last time. If not, you should be able to select that script from the `Files` tab on the bottom right. In case you weren't here last week, you should first go through Exercise 1 of the Lab 1, and then download `donkey.R` from stream and place it in your folder.
 
+3. If you haven't already done so, now would be a good time to go through the script from last week and **add some comments** so you remember what each line of R code is doing, and what your conclusions are about the output.
+
 ## Exercise 2: Model diagnostics ##
 
 1. Add the following code to produce diagnostic plots for the linear model we fitted last time.
@@ -28,7 +30,8 @@ In this lab we'll cover linear model diagnostics, transformations for linearity,
     plot(lm1)
     ```
 
-2. Take a good look at the diagnostic plots. Recall what the 4 assumptions of the linear model are, and see whether each of them is satistifed or not. Discuss this with those around you.
+2. Take a good look at the diagnostic plots. Recall what the 4 assumptions of the linear model are, and see whether each of them is satistifed or not. Discuss this with those around you and **add a comment to your R script about each assumption**
+
 3. A transformation is one way to deal with the non-linearity of the model. Instead of modelling the body weight in terms of the heart girth directly, we could instead take log-transforms of both body weight and heart girth to get rid of the curvature in the relationship.
 
     ```
@@ -38,13 +41,13 @@ In this lab we'll cover linear model diagnostics, transformations for linearity,
     summary(lm2)
     ```
 
-4. Add the necessary code to include model diagnostics for this new model. How is the assumption of linearity now? What about the other assumptions?
+4. Add the necessary code to include model diagnostics for this new model. How is the assumption of linearity now? What about the other assumptions? *remember to add comments to your R script so they appear in your Word document at the end*
 
 5. Compare the summary output of the two models you have. Which do you think is better? Why?
 
 6. In the last lab we produced confidence and prediction intervals for a donkey with heartgirth equal to 110cm. Re-do these using your model. Remember that you'll need to exponentiate the resulting intervals! (Why?)
 
-7. How do these intervals compare with your previous ones? Add some comments to your R script about this.
+7. How do these intervals compare with your previous ones? *Add some comments to your R script about this.*
 
 ## Exercise 3: Multiple regression ##
 
@@ -60,7 +63,7 @@ In this exercise, we'll extend our linear model to take into account some of the
     * The estimate for `Heartgirth` will have changed.
     * There is a new row for `Umbgirth`.
 
-3. Why do you think the estimate (and thus P-values etc) for `Heartgirth` changed?  What is the P-value here testing?
+3. Why do you think the estimate (and thus P-values etc) for `Heartgirth` changed?  What is the P-value here testing? *add some notes to your R-script about this*.
 
 4. What is your conclusion about the relationship between `Bodywt`, `Heartgirth` and `Umbgirth`?
 
@@ -68,4 +71,6 @@ In this exercise, we'll extend our linear model to take into account some of the
 
 6. Do a linear model relating `Bodywt` to only `Height`. You should find that `Height` is highly significant. Why is it not significant in the larger model? *Hint: You might want to take a look at the pairs plot we did in lab 1*.
 
-7. Make sure you add some more comments to your R script and re-compile it so you can refer to it later.
+7. Finally, take a look at the model diagnostics for the model with all covariates. *Add some notes to your R script as to whether the model assumptions are satisfied*.
+
+8. Re-build your Word document and make sure it includes everything you want it to. You'll be wanting to refer back to it later.
