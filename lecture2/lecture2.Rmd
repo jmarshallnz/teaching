@@ -56,7 +56,7 @@ $$
 - As the model assumptions are defined in terms of the residuals, the complexity of the model doesn't really matter.
 - We get additional lines in our output for each covariate we add to the model.
 
-## Multiple covariates
+## Matrix version of the linear model
 
 We can formulate the linear model in terms of a **matrix equation**
 $$
@@ -73,7 +73,7 @@ X = \left[\begin{array}{c c c c}
 $$
 where $p$ is the number of covariates, and $n$ is the number of observations.
 
-## Multiple covariates
+## Testing multiple covariates
 
 - We don't want to just answer the question **"Which of the variables are important?"**
 
@@ -81,7 +81,7 @@ where $p$ is the number of covariates, and $n$ is the number of observations.
 
 - This is equivalent to: **"Which of the $\beta$'s are non-zero?"**
 
-## Multiple covariates {.smaller}
+## Summary output for covariates {.smaller}
 
 ```{r, echo=FALSE}
 mod <- lm(Bodywt ~ Heartgirth + Umbgirth + Length + Height, data=donkey)
@@ -90,7 +90,7 @@ fv <- round(summary(mod)$fstatistic[1],1)
 summary(mod)
 ```
 
-## Multiple covariates
+## Summary output for covariates
 
 - Heartgirth, umbilical girth and length are all significant after adjusting for other covariates.
 
@@ -252,10 +252,11 @@ $$
 
 ## Example: Petrels
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, fig.width=9.5}
 petrels <- read.csv("http://www.massey.ac.nz/~jcmarsha/227212/data/petrels.csv")
 petrels$Area <- as.factor(petrels$Area)
 petrels$Sex <- as.factor(petrels$Sex)
+par(mar=c(5,5,1,0), cex.axis=1.5, cex.lab=1.5)
 plot(R.Wing.Lth ~ Area, data=petrels, ylab="Right wing length (cm)")
 ```
 
@@ -271,9 +272,9 @@ summary(mod)
 
 - Omnibus F-test suggests the average right wing length differs between areas.
 
-- Summary table suggests that Area 5 has largest birds, being 4.14cm larger than those in Area 1.
+- Summary table suggests that Area 5 has largest birds, having 4.14cm larger ring wing lengths compared to those in Area 1.
 
-- Birds in Area 6 are smallest, being 9.27 cm smaller right wing length than those in Area 1.
+- Birds in Area 6 are smallest, having 9.27 cm smaller right wing lengths compared to those in Area 1.
 
 ## The F-statistic for factors
 
@@ -295,13 +296,13 @@ fit, which is the group mean).
 
 ## What if we have more than one factor?
 
-- We just include a block of indicator variables for each factor.
+- We include a block of indicator variables for each factor.
 
-- The first level (baseline) of each of the factors is what makes up the intercept.
+- The first level, or **baseline** of each of the factors is what contributes to the intercept.
 
-- Subsequent levels give coefficients compared to the baseline level.
+- Subsequent levels are treated as differences compared to the baseline level.
 
-- The Omnibus F-test is for all factors.
+- The overall F-test and P-value for the model is testing whether any of the factors in the model are important.
 
 - We need another way to compute P-values for each factor separately.
 
@@ -333,12 +334,18 @@ anova(mod.2)
 
 - Multiple testing problem on the latter, which is why we do the overall test first.
 
-- Order can be important: Each row's P-values are adjusting for previous rows.
+- **Order can be important in the anova table.**
 
-## Example: Order matters {.smaller}
+- Each row's P-values are adjusting for previous rows.
+
+## Example: Order matters
 
 ```{r}
 anova(lm(R.Wing.Lth ~ Sex + Area, data=petrels))
-anova(lm(R.Wing.Lth ~ Area + Sex, data=petrels))
 ```
 
+## Example: Order matters
+
+```{r}
+anova(lm(R.Wing.Lth ~ Area + Sex, data=petrels))
+```
