@@ -305,11 +305,19 @@ TODO: Add in shiny app for factors...
 
 - We need another way to compute P-values for each factor separately.
 
-## Example: Two factors summary output
+## Example: Summary output for two factors {.smaller}
 
+```{r, echo=FALSE}
+mod.2 <- lm(R.Wing.Lth ~ Sex + Area, data=petrels)
+summary(mod.2)
+```
 
 ## Example: The anova function
 
+```{r}
+mod.2 <- lm(R.Wing.Lth ~ Sex + Area, data=petrels)
+anova(mod.2)
+```
 
 - Each row in the anova table corresponds to a factor (or numeric covariate).
 
@@ -325,6 +333,12 @@ TODO: Add in shiny app for factors...
 
 - Multiple testing problem on the latter, which is why we do the overall test first.
 
+- Order can be important: Each row's P-values are adjusting for previous rows.
 
-- WARNING: Order is important in some cases.
+## Example: Order matters {.smaller}
+
+```{r}
+anova(lm(R.Wing.Lth ~ Sex + Area, data=petrels))
+anova(lm(R.Wing.Lth ~ Area + Sex, data=petrels))
+```
 
