@@ -18,7 +18,9 @@ col_dark   <- "#5f4354"
 ## Learning outcomes
 
 - Adding more covariates.
+
 - The Omnibus $F$-statistic.
+
 - Models with factor variables.
 
 # Example: Donkeys
@@ -53,7 +55,9 @@ $$
 \mathsf{mean}(y) = \alpha + \beta_1 x_1 + \beta_2 x_2 + \cdots
 $$
 - We find least squares estimates for $\alpha$, $\beta_1, \beta_2, \ldots$ in the same way, by minimising the variance of residuals.
+
 - As the model assumptions are defined in terms of the residuals, the complexity of the model doesn't really matter.
+
 - We get additional lines in our output for each covariate we add to the model.
 
 ## Matrix version of the linear model
