@@ -65,10 +65,10 @@ $$
 where $Y$ is a vector of the dependent variable measurements, $X$ is a matrix of covariate values, $\beta$ is a vector of coefficients (to be estimated) and $\epsilon$ is a vector of residuals. The form $X$ takes is
 $$
 X = \left[\begin{array}{c c c c}
-1 x_{11} \cdots x_{p1}\\
-1 x_{12} \cdots x_{p2}\\
-\vdots \vdots \ddots \vdots\\
-1 x_{1n} \cdots x_{pn}
+1 & x_{11} & \cdots & x_{p1}\\
+1 & x_{12} & \cdots & x_{p2}\\
+\vdots & \vdots & \ddots & \vdots\\
+1 & x_{1n} & \cdots & x_{pn}
 \end{array}\right]
 $$
 where $p$ is the number of covariates, and $n$ is the number of observations.
