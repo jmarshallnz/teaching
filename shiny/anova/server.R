@@ -29,6 +29,7 @@ get_data <- function(g, n) {
 # sub-sample stuff
 max_groups  <- 10
 max_samples <- 100
+min_samples <- 5
 
 set.seed(2015)
 subsample <- list()
