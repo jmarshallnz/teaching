@@ -33,8 +33,8 @@ shinyServer(function(input, output, session) {
     axis(1, at=mx, labels = expression(bar(x)))
     axis(2, at=my, labels = expression(bar(y)), las=1)
     # variance of the residuals
-    sigma2 <- var(y - yhat)
-    text(max(x), min(y)-0.5, bquote(sigma[Residuals]^2 == .(round(sigma2,4))), adj=c(1,0))
+    sigma2 <- sum((y - yhat)^2)
+    text(max(x), min(y)-0.5, bquote(SS[Residuals] == .(round(sigma2,4))), adj=c(1,0))
   })
 
 })
