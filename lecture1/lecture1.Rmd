@@ -76,7 +76,7 @@ we use to explain the response. They needn't be numeric.
 - The **regression line** or **linear model** is the way we relate $y$ to the explanatory variables $x$.
 - For the simple case of a single numeric predictor, the equation is
 $$
-y = \alpha + \beta x
+\mathsf{mean}(y) = \alpha + \beta x
 $$
 where $\alpha$ is the **intercept** or **baseline**, and $\beta$ is the **slope**, or **gradient**.
 
@@ -158,7 +158,7 @@ summary(mod)
 s <- summary(mod)$coefficients
 ```
 - The `Estimate` column gives us the values of our coefficients.
-    - The estimate for `Heartgirth` means a 1 unit increase in heart girth corresponds to a `r round(coef(mod)[2],2)` unit increase in body weight.
+    - The estimate for `Heartgirth` means a 1 unit increase in heart girth corresponds to a `r round(coef(mod)[2],2)` unit increase in mean body weight.
 
 - The `Std. Error` column is the standard error of our estimates. We can use this to find confidence intervals.
     - For heart girth, we're 95% confident that the coefficient of heartgirth is within
@@ -185,7 +185,7 @@ $$
 
 ## Prediction
 
-- We can predict the average of $y$ for any given value of $x$ by just substituting values into the estimated linear model equation.
+- We can predict the mean of $y$ for any given value of $x$ by just substituting values into the estimated linear model equation.
 - We can utilise the standard errors of our estimates to give uncertainty for the predicted average.
     - This is a **confidence interval**.
 - We can combine this with the variance of the residuals to give a prediction of the spread of individual values around the average.
