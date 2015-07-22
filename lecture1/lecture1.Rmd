@@ -21,7 +21,6 @@ col_dark   <- "#5f4354"
 - Using RStudio to fit linear models.
 - Prediction.
 - Assumptions of the linear model.
-- Adding more covariates.
 
 # Example: Donkeys
 
@@ -344,37 +343,3 @@ plot(mod, which=5, pch=19, col="#00000040")
 - **Equal variance**. Estimates will be unbiased, but standard errors will be wrong. P-values may be underestimated.
 
 - *A log transformation often fixes linearity or unequal variance*.
-
-# Additional covariates
-
-## Additional covariates
-
-```{r, echo=FALSE, fig.align="center", fig.width=8, fig.height=3}
-donkey <- read.csv("http://www.massey.ac.nz/~jcmarsha/227215/data/donkey.csv")
-par(mfrow=c(1,2), mar=c(4,4,1,1))
-plot(Bodywt ~ Heartgirth, data=donkey, col=col_points, pch=19)
-plot(Bodywt ~ Height, data=donkey, col=col_points, pch=19)
-```
-
-- More than one measurement is related to body weight.
-- We should model average body weight conditional on all the variables.
-- That way we explain more variation and get more precise predictions.
-
-## Additional covariates
-
-- Adding other covariates is as simple as adding another term to the linear model equation.
-$$
-y = \alpha + \beta_1 x_1 + \beta_2 x_2 + \cdots
-$$
-- We find least squares estimates for $\alpha$, $\beta_1, \beta_2, \ldots$ in the same way, by minimising the variance of residuals.
-- As the model assumptions are defined in terms of the residuals, the complexity of the model doesn't really matter.
-- We get additional lines in our output for each covariate we add to the model.
-
-## Additional covariates
-
-```{r, comment="", echo=FALSE}
-mod <- lm(Bodywt ~ Heartgirth + Height, data=donkey)
-summary(mod)
-```
-
-# More in Lab 2...
