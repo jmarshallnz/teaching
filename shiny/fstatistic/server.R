@@ -1,13 +1,9 @@
 library(shiny)
 
-get_x <- function(n) {
+get_data <- function(n) {
   x <- jitter(1:n)
-  x - mean(x)
-}
-
-get_r <- function(n) {
   r <- rnorm(n)
-  r - mean(r)
+  data.frame(x=x-mean(x), r=r-mean(r))
 }
 
 # sub-sample stuff
@@ -19,30 +15,28 @@ for (n in 99:2)
 
 shinyServer(function(input, output, session) {
 
-  dat <- reactiveValues(x=get_x(100), r=get_r(100))
+  dat <- reactiveValues(data=get_data(100))
 
   observeEvent(input$new_data, {
     # generate some new data
-    dat$x <- get_x(100)
-    dat$r <- get_r(100)
+    dat$data <- get_data(100)
   })
 
   val <- reactive({
-    x <- dat$x[ subsample[[input$n]] ]
-    r <- dat$r[ subsample[[input$n]] ]
-    y <- input$strength / 50 * x+ r * input$resid
+    data <- dat$data[ subsample[[input$n]], ]
+    data$y <- input$strength / 50 * data$x + data$r * input$resid
     # subtract off the slope of this model
-    c <- coef(lm(y ~ x))
-    y <- y - (c[2] - input$strength/50) * x - c[1]
-    list(x=x, y=y, lm=lm(y ~ x))
+    c <- coef(lm(y ~ x, data=data))
+    data$y <- data$y - (c[2] - input$strength/50) * data$x - c[1]
+    list(x=data$x, y=data$y, lm=lm(y ~ x, data=data))
   })
 
   output$data <- renderPlot({
     # plot the points and model fit
     par(mar=c(1,0,0,0), cex=2)
-    plot(NULL, xlim=range(dat$x), ylim=c(-2,2), xaxt="n", yaxt="n", xlab="", ylab="")
+    plot(NULL, xlim=range(dat$data$x), ylim=c(-2,2), xaxt="n", yaxt="n", xlab="", ylab="")
     points(val()$x, val()$y, col="#00000050", pch=19, xlab="", ylab="", xaxt="n", yaxt="n")
-    abline(coef(val()$lm), col="#00000080", lwd=2)
+    abline(coef(val()$lm), lwd=3, col="red")
   })
 
   output$fdist <- renderPlot({
