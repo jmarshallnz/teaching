@@ -19,7 +19,7 @@ col_dark   <- "#5f4354"
 
 - Adding more covariates.
 
-- The Omnibus $F$-statistic.
+- The $F$-test.
 
 - Models with factor variables.
 
@@ -54,9 +54,9 @@ plot(Bodywt ~ Height, data=donkey, col=col_points, pch=19)
 $$
 \mathsf{mean}(y) = \alpha + \beta_1 x_1 + \beta_2 x_2 + \cdots
 $$
-- We find least squares estimates for $\alpha$, $\beta_1, \beta_2, \ldots$ in the same way, by minimising the variance of residuals.
+- We find least squares estimates for $\alpha$, $\beta_1, \beta_2, \ldots$ in the same way, by minimising the residual sum of squares.
 
-- As the model assumptions are defined in terms of the residuals, the complexity of the model doesn't really matter.
+- As the model assumptions are defined in terms of the residuals, the complexity of the model equation doesn't change things much.
 
 - We get additional lines in our output for each covariate we add to the model.
 
@@ -66,7 +66,7 @@ We can formulate the linear model in terms of a **matrix equation**
 $$
 Y = X \beta + \epsilon
 $$
-where $Y$ is a vector of the dependent variable measurements, $X$ is a matrix of covariate values, $\beta$ is a vector of coefficients (to be estimated) and $\epsilon$ is a vector of residuals. The form $X$ takes is
+where $Y$ is a vector of the dependent variable measurements, $X$ is the **design matrix** of covariate values, $\beta$ is a vector of coefficients (to be estimated) and $\epsilon$ is a vector of residuals. The form $X$ takes is
 $$
 X = \left[\begin{array}{c c c c}
 1 & x_{11} & \cdots & x_{p1}\\
@@ -85,7 +85,7 @@ where $p$ is the number of covariates, and $n$ is the number of observations.
 
 - This is equivalent to: **"Which of the $\beta$'s are non-zero?"**
 
-## Summary output for covariates {.smaller}
+## Summary output for multiple covariates {.smaller}
 
 ```{r, echo=FALSE}
 mod <- lm(Bodywt ~ Heartgirth + Umbgirth + Length + Height, data=donkey)
@@ -94,9 +94,9 @@ fv <- round(summary(mod)$fstatistic[1],1)
 summary(mod)
 ```
 
-## Summary output for covariates
+## Summary output for multiple covariates
 
-- Heartgirth, umbilical girth and length are all significant after adjusting for other covariates.
+- Heart girth, umbilical girth and length are all significant after accounting for other covariates.
 
 - Height is not significant after accounting for the other covariates.
 
@@ -104,23 +104,23 @@ summary(mod)
 
 - What is the overall P-value telling us?
 
-# The Omnibus F-test
+# The F-test
 
-## The Omnibus F-test
+## The F-test
 
 - One of the first things we want to know is whether anything at all in our model is useful.
 
-- The hypothesis to test is "Are any of the $\beta$'s non-zero?"
+- The hypothesis to test is **"Are any of the $\beta$'s non-zero?"**
 
 - We can do this by comparing the variation in the residuals to the total variation in $y$.
 
-- We use the F-statistic for this.
+- We use the **F-statistic** for this.
 $$
 F = \frac{(SS_\mathsf{total} - SS_\mathsf{res})/p}{SS_\mathsf{res}/(n-p-1)}
 $$
 where $p$ is the number of covariates, and $n$ the number of observations.
 
-## The Omnibus F-test
+## The F-test
 $$
 F = \frac{(SS_\mathsf{total} - SS_\mathsf{res})/p}{SS_\mathsf{res}/(n-p-1)}
 $$
@@ -133,10 +133,10 @@ $$
 
 - Under the null hypothesis, the model doesn't explain anything, so we'd expect $F=0$.
 
-- We can use the $F$&nbsp;distribution to figure out how likely the $F$ from our sample
+- We can use the **F-distribution** to figure out how likely the $F$ from our sample
 would arise by chance, giving us the P-value.
 
-## The Omnibus F-test
+## The F-statistic in summary output
 
 ```
 Coefficients:
@@ -175,7 +175,7 @@ $$
 
 - When we have a factor, or categorical covariate, the linear model will estimate the mean within each group.
 
-## Factors with two levels.
+## Factors with two levels
 
 - For a factor with two levels, we can do this by introducing an **indicator variable** $z$ as a covariate, where
 $$
@@ -190,17 +190,17 @@ $$
 \mathsf{mean}(y) = \alpha + \beta z
 $$
 
-## Factors with two levels.
+## Factors with two levels
 
 - The equation is then
 $$
 \mathsf{mean}(y) = \alpha + \beta z
 $$
-- For observations in level 1, $z=0$ so the equation is just
+- For observations in level 1 we know $z=0$, so the equation gives
 $$
 \mathsf{mean}(y) = \alpha
 $$
-- For observations in level 2, $z=1$, so the equation is
+- For observations in level 2 we know $z=1$, so the equation gives
 $$
 \mathsf{mean}(y) = \alpha + \beta
 $$
@@ -252,7 +252,7 @@ $$
 
 - This is the same as "Are any of the $\beta$'s non-zero?"
 
-- The Omnibus F-test!
+- The F-test!
 
 ## Example: Petrels
 
@@ -267,14 +267,14 @@ plot(R.Wing.Lth ~ Area, data=petrels, ylab="Right wing length (cm)")
 
 ## Example: Petrels {.smaller}
 
-```{r}
+```{r, echo=FALSE}
 mod <- lm(R.Wing.Lth ~ Area, data=petrels)
 summary(mod)
 ```
 
 ## Example: Petrels
 
-- Omnibus F-test suggests the average right wing length differs between areas.
+- The F-test suggests the average right wing length differs between areas.
 
 - Summary table suggests that Area 5 has largest birds, having 4.14cm larger ring wing lengths compared to those in Area 1.
 
@@ -292,7 +292,7 @@ is just giving a different mean to each group.
 - The denominator is residual variation, which in this case is variation within groups (residuals are values minus
 fit, which is the group mean).
 
-- It's a ratio of between-group variation to within-group variation.
+- Thus F is a ratio of between-group variation to within-group variation.
 
 ## The F-statistic for factors
 
