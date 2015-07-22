@@ -18,8 +18,11 @@ col_dark   <- "#5f4354"
 ## Learning outcomes
 
 - The linear model.
+
 - Using RStudio to fit linear models.
+
 - Prediction.
+
 - Assumptions of the linear model.
 
 # Example: Donkeys
@@ -56,8 +59,11 @@ plot(Bodywt ~ Sex, data=donkey, horizontal=TRUE)
 ## Relationships: Donkeys
 
 - There are reasonably strong increasing relationships between body weight and hearth girth, umbilical girth, length and height.
+
 - There doesn't seem much difference between the sexes.
+
 - The *strongest* relationship is with heart girth. **Why?**
+
 - We'll look at **modelling** this relationship using a straight line.
 
 # The Linear Model
@@ -65,15 +71,20 @@ plot(Bodywt ~ Sex, data=donkey, horizontal=TRUE)
 ## Linear modelling
 
 - Try to explain the variation in one measurement using other measurements.
+
 - Key is to model the mean of one variable conditional on the values of other variables.
+
 - Once we have a model, we can use that model for **prediction** or for quantifying the extent of the relationship.
 
 ## Definitions
 
 - The **response**, or **dependent variable**, is the numeric variable we wish to model (the $y$ variable).
+
 - The **explanatory** variable(s), or **predictors**, **covariates**, or **independent variables** are the $x$ variables
 we use to explain the response. They needn't be numeric.
+
 - The **regression line** or **linear model** is the way we relate $y$ to the explanatory variables $x$.
+
 - For the simple case of a single numeric predictor, the equation is
 $$
 \mathsf{mean}(y) = \alpha + \beta x
@@ -112,8 +123,11 @@ the true parameters $\alpha$ and $\beta$ in the population.
 ## Estimation of parameters
 
 - For each point $x_i$ we have the corresponding estimated value $\hat{y}_i = \alpha + \beta x_i$.
+
 - The difference between the real $y_i$ and fitted $\hat{y}_i$ is the **residual** $\epsilon_i = y_i - \hat{y}_i$.
+
 - We find the optimal $\alpha$ and $\beta$ by minimising the variance of the residuals.
+
 - This is called **least squares** estimation as the formula for variance contains a sum of squares
 $$
 \begin{align}
@@ -129,7 +143,9 @@ $$
 SS_\mathsf{res} = \sum_{i=1}^n (y_i - (\alpha + \beta x_i))^2
 $$
 - The values of $\alpha$ and $\beta$, found using calculus, are **least squares estimates**.
+
 - We often put hats on them ($\hat{\alpha}$, $\hat{\beta}$) to help us remember that they're sample statistics and not the true values from the population.
+
 - We'll add some assumptions later so we can our estimates to the population parameters.
 
 ## Estimation of parameters
@@ -169,9 +185,13 @@ $$
 ## Linear models in RStudio
 
 - The `t value` column is the test statistic for the hypothesis that the coefficient is 0.
+
 - The `Pr(>|t|)` column is the P-value for this hypothesis test.
+
 - This is equivalent to asking "Does body weight depend on heart girth?"
+
 - In this case, the P-value is very small, so there is very little chance that we'd observe an estimate as large as `r round(s[2,1],2)` if there was no relationship between body weight and heart girth in the population.
+
 - Our conclusion would be that body weight does depend on heart girth.
 
 ## Linear models in RStudio
@@ -186,9 +206,13 @@ $$
 ## Prediction
 
 - We can predict the mean of $y$ for any given value of $x$ by just substituting values into the estimated linear model equation.
+
 - We can utilise the standard errors of our estimates to give uncertainty for the predicted average.
+
     - This is a **confidence interval**.
+    
 - We can combine this with the variance of the residuals to give a prediction of the spread of individual values around the average.
+
     - This is a **prediction interval**.
 
 ## Prediction
@@ -265,50 +289,58 @@ $$
 ## Diagnostic plots: Residuals versus fits
 
 <div class="columns-2">
-```{r, echo=FALSE, fig.height=4, fig.width=4.5}
-par(mar=rep(0,4))
-plot(mod, which=1, pch=19, col="#00000040")
+```{r, echo=FALSE, fig.height=6, fig.width=4.5}
+par(omi=c(2,0,0,0), mar=rep(0,4))
+plot(mod, which=1, pch=19, col="#00000040", xaxt="n")
 ```
 
 - Allows us to assess **linearity**.
+
 - There should be no curve.
+
 - Also allows assessing **equal variance**.
+
 - The points shouldn't fan out.
+
 - When either of these fail, a log transform of $y$ and/or $x$ often straightens things out.
 </div>
 
 ## Diagnostic plots: Normal Q-Q plot
 
 <div class="columns-2">
-```{r, echo=FALSE, fig.height=4, fig.width=4.5}
-par(mar=rep(0,4))
-plot(mod, which=2, pch=19, col="#00000040")
+```{r, echo=FALSE, fig.height=6, fig.width=4.5}
+par(omi=c(2,0,0,0), mar=rep(0,4))
+plot(mod, which=2, pch=19, col="#00000040", xaxt="n")
 ```
 
 - Allows us to assess **normality**.
+
 - Ideally the points will lie on the straight line.
+
 - A slight S shaped curve is OK.
 </div>
 
 ## Diagnostic plots: Scale-location plot
 
 <div class="columns-2">
-```{r, echo=FALSE, fig.height=4, fig.width=4.5}
-par(mar=rep(0,4))
-plot(mod, which=3, pch=19, col="#00000040")
+```{r, echo=FALSE, fig.height=6, fig.width=4.5}
+par(omi=c(2,0,0,0), mar=rep(0,4))
+plot(mod, which=3, pch=19, col="#00000040", xaxt="n")
 ```
 
 - Allows us to assess **equal variance**.
+
 - Ideally should not be increasing or decreasing.
+
 - Residuals versus fit often tells you this just as well.
 </div>
 
 ## Diagnostic plots: Residuals versus Leverage
 
 <div class="columns-2">
-```{r, echo=FALSE, fig.height=4, fig.width=4.5}
-par(mar=rep(0,4))
-plot(mod, which=5, pch=19, col="#00000040")
+```{r, echo=FALSE, fig.height=6, fig.width=4.5}
+par(omi=c(2,0,0,0), mar=rep(0,4))
+plot(mod, which=5, pch=19, col="#00000040", xaxt="n")
 ```
 
 - Allows us to look for **influential outliers**.
@@ -321,7 +353,9 @@ plot(mod, which=5, pch=19, col="#00000040")
 ## Influential outliers
 
 - Points can be outliers in two ways:
+
     - They can have extreme $x$ values compared to the rest of the data. Such points are said to have high **leverage**.
+    
     - They can have extreme $y$ values, given their $x$ value (i.e. a large residual.)
 
 - Points have large **influence** if they exhibit both these properties.
