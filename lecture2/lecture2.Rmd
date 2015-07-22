@@ -81,7 +81,7 @@ where $p$ is the number of covariates, and $n$ is the number of observations.
 
 - This is equivalent to: **"Which of the $\beta$'s are non-zero?"**
 
-## Multiple covariates
+## Multiple covariates {.smaller}
 
 ```{r, comment="", echo=FALSE}
 mod <- lm(Bodywt ~ Heartgirth + Umbgirth + Length + Height, data=donkey)
@@ -123,7 +123,7 @@ $$
 
 - On the numerator we have a measure of variance explained by the model.
 
-- On the demoninator we have a measure of variance left over in the residuals.
+- On the denominator we have a measure of variance left over in the residuals.
 
 - The ratio of these, $F$ will increase as we explain more variation in the model.
 
@@ -178,10 +178,10 @@ $$
 
 - For a factor with two levels, we can do this by introducing an **indicator variable** $z$ as a covariate, where
 $$
-z_i = \left\{
+z = \left\{
 \begin{array}{ll}
-0 & \textrm{if }x_i\textrm{ is in level 1}\\
-1 & \textrm{if }x_i\textrm{ is in level 2}
+0 & \textrm{for observations in level 1}\\
+1 & \textrm{for observations in level 2}
 \end{array}\right.
 $$
 - The equation is then
@@ -249,7 +249,7 @@ $$
 
 - The primary hypothesis to test is "Is there any difference between the three levels?".
 
-- This is the same as "Are any of the $\beta$'s zero".
+- This is the same as "Are any of the $\beta$'s non-zero?"
 
 - The Omnibus F-test!
 
@@ -263,5 +263,38 @@ $$
 
 - Fourth step, perhaps an app for that?
 
-## The `anova` function
+## What if we have more than one factor?
+
+- We just include a block of indicator variables for each factor.
+
+- The first level (baseline) of each of the factors is what makes up the intercept.
+
+- Subsequent levels give coefficients compared to the baseline level.
+
+- The Omnibus F-test is for all factors.
+
+- We need another way to compute P-values for each factor separately.
+
+## Example: Two factors summary output
+
+
+## Example: The anova function
+
+
+- Each row in the anova table corresponds to a factor (or numeric covariate).
+
+- P-values thus can be read out.
+
+## Process of assessing a factor covariate
+
+- Fit linear model.
+
+- Do `anova()` to check the factor is significant.
+
+- If it is significant, look at the `summary()` to see how the levels differ.
+
+- Multiple testing problem on the latter, which is why we do the overall test first.
+
+
+- WARNING: Order is important in some cases.
 
