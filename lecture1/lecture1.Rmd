@@ -342,4 +342,6 @@ plot(mod, which=5, pch=19, col="#00000040")
 
 - **Equal variance**. Estimates will be unbiased, but standard errors will be wrong. P-values may be underestimated.
 
-- *A log transformation often fixes linearity or unequal variance*.
+<div class="centered">
+*A log transformation often fixes linearity or unequal variance.*
+</div>
