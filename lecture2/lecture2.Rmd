@@ -1,0 +1,267 @@
+---
+title: "Linear models 2"
+author: "Jonathan Marshall"
+date: "18 June 2015"
+output: 
+  ioslides_presentation: 
+    highlight: tango
+    widescreen: true
+    css: jm.css
+---
+
+```{r setup, echo=FALSE}
+library(knitr)
+opts_chunk$set(dev.args=list(bg='transparent'))
+col_points <- "#7f577492"
+col_dark   <- "#5f4354"
+```
+## Learning outcomes
+
+- Adding more covariates.
+- The Omnibus $F$-statistic.
+- Models with factor variables.
+
+# Example: Donkeys
+
+## Relationships: Donkeys
+
+```{r, echo=FALSE, fig.align="center", fig.width=8, fig.height=5}
+donkey <- read.csv("http://www.massey.ac.nz/~jcmarsha/227215/data/donkey.csv")
+par(mfrow=c(2,2), mar=c(4,4,1,1))
+plot(Bodywt ~ Heartgirth, data=donkey, col=col_points, pch=19)
+plot(Bodywt ~ Umbgirth, data=donkey, col=col_points, pch=19)
+plot(Bodywt ~ Length, data=donkey, col=col_points, pch=19)
+plot(Bodywt ~ Height, data=donkey, col=col_points, pch=19)
+```
+
+## Relationships: Donkeys
+
+- There are reasonably strong increasing relationships between body weight and hearth girth, umbilical girth, length and height.
+
+- It makes sense to use all of these variables to predict the body weight.
+
+- That way we're likely to explain more of the variation in body weight.
+
+- Predictions will be more precise (smaller confidence and prediction intervals).
+
+# The Linear model|Multiple covariates
+
+## Multiple covariates
+
+- Adding other covariates is as simple as adding another term to the linear model equation.
+$$
+\mathsf{mean}(y) = \alpha + \beta_1 x_1 + \beta_2 x_2 + \cdots
+$$
+- We find least squares estimates for $\alpha$, $\beta_1, \beta_2, \ldots$ in the same way, by minimising the variance of residuals.
+- As the model assumptions are defined in terms of the residuals, the complexity of the model doesn't really matter.
+- We get additional lines in our output for each covariate we add to the model.
+
+## Multiple covariates
+
+We can formulate the linear model in terms of a **matrix equation**
+$$
+Y = X \beta + \epsilon
+$$
+where $Y$ is a vector of the dependent variable measurements, $X$ is a matrix of covariate values, $\beta$ is a vector of coefficients (to be estimated) and $\epsilon$ is a vector of residuals. The form $X$ takes is
+$$
+X = \left[\begin{array}{c c c c}
+1 x_{11} \cdots x_{p1}\\
+1 x_{12} \cdots x_{p2}\\
+\vdots \vdots \ddots \vdots\\
+1 x_{1n} \cdots x_{pn}
+\end{array}\right]
+$$
+where $p$ is the number of covariates, and $n$ is the number of observations.
+
+## Multiple covariates
+
+- We don't want to just answer the question **"Which of the variables are important?"**
+
+- Rather, we want to answer **"Which of the variables are important *after accounting for the other variables*?"**
+
+- This is equivalent to: **"Which of the $\beta$'s are non-zero?"**
+
+## Multiple covariates
+
+```{r, comment="", echo=FALSE}
+mod <- lm(Bodywt ~ Heartgirth + Umbgirth + Length + Height, data=donkey)
+rs <- round(summary(mod)$r.squared,3)
+fv <- round(summary(mod)$fstatistic[1],1)
+summary(mod)
+```
+
+## Multiple covariates
+
+- Heartgirth, umbilical girth and length are all significant after adjusting for other covariates.
+
+- Height is not significant after accounting for the other covariates.
+
+- The $R^2$ for the model is `r rs`, so the model is explaining `r 100*rs`% of the variation in body weight.
+
+- What is the overall P-value telling us?
+
+# The Omnibus F-test
+
+## The Omnibus F-test
+
+- One of the first things we want to know is whether anything at all in our model is useful.
+
+- The hypothesis to test is "Are any of the $\beta$'s non-zero?"
+
+- We can do this by comparing the variation in the residuals to the total variation in $y$.
+
+- We use the F-statistic for this.
+$$
+F = \frac{(SS_\mathsf{total} - SS_\mathsf{res})/p}{SS_\mathsf{res}/(n-p-1)}
+$$
+where $p$ is the number of covariates, and $n$ the number of observations.
+
+## The Omnibus F-test
+$$
+F = \frac{(SS_\mathsf{total} - SS_\mathsf{res})/p}{SS_\mathsf{res}/(n-p-1)}
+$$
+
+- On the numerator we have a measure of variance explained by the model.
+
+- On the demoninator we have a measure of variance left over in the residuals.
+
+- The ratio of these, $F$ will increase as we explain more variation in the model.
+
+- Under the null hypothesis, the model doesn't explain anything, so we'd expect $F=0$.
+
+- We can use the $F$&nbsp;distribution to figure out how likely the $F$ from our sample
+would arise by chance, giving us the P-value.
+
+## The Omnibus F-test
+
+```
+Coefficients:
+              Estimate Std. Error t value Pr(>|t|)    
+(Intercept) -222.33956    8.01411 -27.744  < 2e-16 ***
+Heartgirth     1.76223    0.12784  13.784  < 2e-16 ***
+Umbgirth       0.37418    0.06726   5.563 5.01e-08 ***
+Length         0.87580    0.11531   7.595 2.41e-13 ***
+Height         0.25407    0.13749   1.848   0.0654 .  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 9.476 on 380 degrees of freedom
+Multiple R-squared:  0.8519,	Adjusted R-squared:  0.8503 
+### <b>
+F-statistic: 546.4 on 4 and 380 DF,  p-value: < 2.2e-16
+### </b>
+```
+
+An F value of `r fv` is really unlikely to arise by chance, so our model is telling us something about body weight.
+
+## The F distribution
+
+```{r, echo=FALSE}
+library(shiny)
+shinyAppDir("../shiny/fstatistic")
+```
+
+# Linear models with factors
+
+## Linear models with factors
+
+- The linear model equation is describing the **mean** of the outcome variable given the value of the covariates.
+
+- So we can use a linear model to estimate a mean just by not including any covariates, e.g. by using the model equation
+$$
+\mathsf{mean}(y) = \alpha
+$$
+
+- When we have a factor, or categorical covariate, the linear model will estimate the mean within each group.
+
+## Factors with two levels.
+
+- For a factor with two levels, we can do this by introducing an **indicator variable** $z$ as a covariate, where
+$$
+z_i = \left\{
+\begin{array}{ll}
+0 & \textrm{if }x_i\textrm{ is in level 1}\\
+1 & \textrm{if }x_i\textrm{ is in level 2}
+\end{array}\right.
+$$
+- The equation is then
+$$
+\mathsf{mean}(y) = \alpha + \beta z
+$$
+
+## Factors with two levels.
+
+- The equation is then
+$$
+\mathsf{mean}(y) = \alpha + \beta z
+$$
+- For observations in level 1, $z=0$ so the equation is just
+$$
+\mathsf{mean}(y) = \alpha
+$$
+- For observations in level 2, $z=1$, so the equation is
+$$
+\mathsf{mean}(y) = \alpha + \beta
+$$
+- Thus, $\beta$ represents the **difference** between level 1 and 2.
+
+- Testing for a difference between groups is then just testing whether $\beta = 0$.
+
+## Example: Donkeys {.smaller}
+
+```{r}
+mod <- lm(Bodywt ~ Sex, data=donkey)
+summary(mod)
+```
+
+## Example: Donkeys
+
+```{r}
+t.test(Bodywt ~ Sex, data=donkey, var.equal=TRUE)
+```
+
+<div class="centered">
+**Linear model gives same results!**
+</div>
+
+## What about three levels?
+
+- For two levels we introduced an indicator variable that was 1 when we were in level 2 and 0 otherwise.
+
+- For three levels we introduce two indicator variables:
+
+    - $z_2 = 1$ if the observation is in level 2, $z_2 = 0$ otherwise.
+
+    - $z_3 = 1$ if the observation is in level 3, $z_3 = 0$ otherwise.
+
+- The linear model is then
+$$
+\mathsf{mean}(y) = \alpha + \beta_2 z_{2} + \beta_3 z_{3}
+$$
+where $\beta_2$ is the difference between level 1 and level 2, and $\beta_3$ is the difference between level 1 and level 3.
+
+## What about three levels?
+
+- The linear model is then
+$$
+\mathsf{mean}(y) = \alpha + \beta_2 z_{2} + \beta_3 z_{3}
+$$
+
+- The primary hypothesis to test is "Is there any difference between the three levels?".
+
+- This is the same as "Are any of the $\beta$'s zero".
+
+- The Omnibus F-test!
+
+## Example: Petrels
+
+- First step, a plot.
+
+- Second step, what the model is estimating.
+
+- Third step, what the F-statistic represents.
+
+- Fourth step, perhaps an app for that?
+
+## The `anova` function
+
