@@ -291,7 +291,7 @@ fit, which is the group mean).
 
 ## The F-statistic for factors
 
-TODO: Add in shiny app for factors...
+<iframe src="http://it056230.massey.ac.nz:8080/227215/shiny/anova/" style="border: none"></iframe>
 
 ## What if we have more than one factor?
 
