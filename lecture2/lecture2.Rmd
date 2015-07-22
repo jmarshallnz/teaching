@@ -252,13 +252,46 @@ $$
 
 ## Example: Petrels
 
-- First step, a plot.
+```{r, echo=FALSE}
+petrels <- read.csv("http://www.massey.ac.nz/~jcmarsha/227212/data/petrels.csv")
+petrels$Area <- as.factor(petrels$Area)
+petrels$Sex <- as.factor(petrels$Sex)
+plot(R.Wing.Lth ~ Area, data=petrels, ylab="Right wing length (cm)")
+```
 
-- Second step, what the model is estimating.
 
-- Third step, what the F-statistic represents.
+## Example: Petrels {.smaller}
 
-- Fourth step, perhaps an app for that?
+```{r}
+mod <- lm(R.Wing.Lth ~ Area, data=petrels)
+summary(mod)
+```
+
+## Example: Petrels
+
+- Omnibus F-test suggests the average right wing length differs between areas.
+
+- Summary table suggests that Area 5 has largest birds, being 4.14cm larger than those in Area 1.
+
+- Birds in Area 6 are smallest, being 9.27 cm smaller right wing length than those in Area 1.
+
+## The F-statistic for factors
+
+$$
+F = \frac{(SS_\mathsf{total} - SS_\mathsf{res})/p}{SS_\mathsf{res}/(n-p-1)}
+$$
+
+- The numerator is variation explained by the model. In this case this is variation between groups, as the model
+is just giving a different mean to each group.
+
+- The denominator is residual variation, which in this case is variation within groups (residuals are values minus
+fit, which is the group mean).
+
+- It's a ratio of between-group variation to within-group variation.
+
+## The F-statistic for factors
+
+TODO: Add in shiny app for factors...
 
 ## What if we have more than one factor?
 
