@@ -156,10 +156,7 @@ An F value of `r fv` is really unlikely to arise by chance, so our model is tell
 
 ## The F distribution
 
-```{r, echo=FALSE}
-library(shiny)
-shinyAppDir("../shiny/fstatistic")
-```
+<iframe src="http://it056230.massey.ac.nz:8080/227215/shiny/fstatistic/" style="border: none"></iframe>
 
 # Linear models with factors
 
