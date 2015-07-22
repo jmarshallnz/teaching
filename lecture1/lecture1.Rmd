@@ -124,9 +124,9 @@ $$
 
 ## Estimation of parameters
 
-- We minimise the variance of the residuals
+- We minimise the **residual sum of squares**
 $$
-\mathsf{var}(\epsilon_i) = \frac{1}{n}\sum_{i=1}^n (y_i - (\alpha + \beta x_i))^2
+SS_\mathsf{res} = \sum_{i=1}^n (y_i - (\alpha + \beta x_i))^2
 $$
 - The values of $\alpha$ and $\beta$, found using calculus, are **least squares estimates**.
 - We often put hats on them ($\hat{\alpha}$, $\hat{\beta}$) to help us remember that they're sample statistics and not the true values from the population.
@@ -178,7 +178,7 @@ $$
 
 - The `Multiple R-squared` value is the proportion of variation in body weight explained by the model (i.e. explained by heart girth).
 $$
-R^2 = \frac{\sigma_\mathsf{Y}^2 - \sigma_\mathsf{res}^2}{\sigma_\mathsf{Y}^2}
+R^2 = \frac{\sigma_\mathsf{Y}^2 - \sigma_\mathsf{res}^2}{\sigma_\mathsf{Y}^2} = \frac{SS_\mathsf{total} - SS_\mathsf{res}}{SS_\mathsf{total}}
 $$
 - The `p-value` for the model (last line) is testing whether **anything** in the model helps explain body weight.
     - Same as P-value for heart girth in this case, as only thing in the model.
