@@ -102,11 +102,11 @@ shinyServer(function(input, output, session) {
     par(mar=c(1,0,0,0), cex=2)
     plot(NULL, xlim=c(0,20), ylim=c(0,max_y), xaxt="n", yaxt="n", xlab="", ylab="", type="l", xaxs="i", yaxs="i")
     polygon(c(x1[1], x1, x1[length(x1)]), c(0, y1, 0), col="grey80", border=NA)
-    lines(f, y)
+    lines(f, y, lwd=2)
 
     # mark a line at our f-statistic
     fhat <- summary(val()$lm)$fstatistic[1]
-    abline(v=fhat, col="red")
+    abline(v=fhat, col="red", lwd=2)
     text(19, max_y*0.95, bquote(F == .(round(fhat,2))), adj=c(1,1), col="red")
     text(19, max_y*0.85, bquote(P == .(sprintf("%0.4f", 1-pf(fhat, input$g-1, input$n-input$g)))), adj=c(1,1), col="grey60")
     text(19, 0.03, "F distribution", col="grey80", adj=c(1,0))
