@@ -1,7 +1,7 @@
 ---
 title: "Linear models 2"
 author: "Jonathan Marshall"
-date: "18 June 2015"
+date: ""
 output: 
   ioslides_presentation: 
     highlight: tango
