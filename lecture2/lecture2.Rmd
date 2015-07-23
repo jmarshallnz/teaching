@@ -217,6 +217,19 @@ summary(mod)
 
 ## Example: Donkeys
 
+```{r, echo=FALSE}
+co <- summary(lm(Bodywt ~ Sex, data=donkey))$coefficients
+```
+- The intercept is the mean body weight of female donkeys (`r round(co[1,1],1)` kg).
+
+- The coefficient labelled SexMale is the difference between females and males (males `r round(co[2,1],2)` kg heavier).
+
+- This difference isn't significant (P=`r round(co[2,4],3)`).
+
+- This is **exactly the same** as a two sample t-test where we assume the variance in each group is the same.
+
+## Example: Donkeys
+
 ```{r}
 t.test(Bodywt ~ Sex, data=donkey, var.equal=TRUE)
 ```
@@ -274,11 +287,19 @@ summary(mod)
 
 ## Example: Petrels
 
-- The F-test suggests the average right wing length differs between areas.
+- The overall F-test's P-value suggests average right wing length differs between areas.
 
 - Summary table suggests that Area 5 has largest birds, having 4.14cm larger ring wing lengths compared to those in Area 1.
 
 - Birds in Area 6 are smallest, having 9.27 cm smaller right wing lengths compared to those in Area 1.
+
+- We can get confidence intervals for the mean using the predict function
+
+## Example: Petrels
+```{r}
+new_data <- data.frame(Area=factor(1:6))
+predict(mod, new_data, interval="confidence")
+```
 
 ## The F-statistic for factors
 
