@@ -26,7 +26,7 @@ In this lab we'll cover linear model diagnostics, transformations for linearity,
 
     ```
     #' Diagnostic plots for the linear model.
-    par(mfrow=c(2,2)) # creates a 2x2 plot
+    par(mfrow=c(2,2), mar=c(4,4,2,2)) # creates a 2x2 plot and makes the margins a bit smaller
     plot(lm1)
     ```
 

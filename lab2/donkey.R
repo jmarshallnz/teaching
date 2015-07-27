@@ -51,7 +51,7 @@ predict(lm1, new_data, interval="prediction")
 #' ## Lab 2
 #' 
 #' Diagnostic plots for the linear model.
-par(mfrow=c(2,2)) # creates a 2x2 plot
+par(mfrow=c(2,2), mar=c(4,4,2,2)) # creates a 2x2 plot and makes the margins a bit smaller
 plot(lm1)
 #' From these plots we see
 #'  - There is a trend present on the residual vs fitted (and scale-location) plots. This suggests the linearity assumption
@@ -83,8 +83,8 @@ summary(lm2)
 #' \mathsf{Bodywt} = 0.0006 \mathsf{Heartgirth}^2.58
 #' $$
 
-par(mfrow=c(2,2))
-plot(lm2)
+par(mfrow=c(2,2), mar=c(4,4,2,2)) # creates a 2x2 plot and makes the margins a bit smaller
+plot(lm2, cex=0.8)
 #' Model diagnostics look much better here. The trend and fanning in residuals vs fitted is gone, so linearity and constant variance
 #' hold, normality is still OK, and no points have high influence.
 #'
