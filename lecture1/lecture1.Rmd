@@ -288,12 +288,15 @@ $$
 
 ## Diagnostic plots: Residuals versus fits
 
-<div class="columns-2">
-```{r, echo=FALSE, fig.height=6, fig.width=4.5}
+```{r, results='asis', echo=FALSE, fig.height=6, fig.width=4.5, out.extra=''}
+# hack-hack
+cat("<table class='container'><tr>")
+cat("<td style='width:500px'>")
 par(omi=c(2,0,0,0), mar=rep(0,4))
 plot(mod, which=1, pch=19, col="#00000040", xaxt="n")
+cat("</td>")
+cat("<td style='vertical-align:top'>")
 ```
-
 - Allows us to assess **linearity**.
 
 - There should be no curve.
@@ -303,52 +306,77 @@ plot(mod, which=1, pch=19, col="#00000040", xaxt="n")
 - The points shouldn't fan out.
 
 - When either of these fail, a log transform of $y$ and/or $x$ often straightens things out.
-</div>
+
+```{r, results='asis', echo=FALSE, out.extra=''}
+cat("</td>")
+cat("</tr></table>")
+```
 
 ## Diagnostic plots: Normal Q-Q plot
 
-<div class="columns-2">
-```{r, echo=FALSE, fig.height=6, fig.width=4.5}
+```{r, results='asis', echo=FALSE, fig.height=6, fig.width=4.5, out.extra=''}
+# hack-hack
+cat("<table class='container'><tr>")
+cat("<td style='width:500px'>")
 par(omi=c(2,0,0,0), mar=rep(0,4))
 plot(mod, which=2, pch=19, col="#00000040", xaxt="n")
+cat("</td>")
+cat("<td style='vertical-align:top'>")
 ```
-
 - Allows us to assess **normality**.
 
 - Ideally the points will lie on the straight line.
 
 - A slight S shaped curve is OK.
-</div>
+
+```{r, results='asis', echo=FALSE, out.extra=''}
+cat("</td>")
+cat("</tr></table>")
+```
 
 ## Diagnostic plots: Scale-location plot
 
-<div class="columns-2">
-```{r, echo=FALSE, fig.height=6, fig.width=4.5}
+```{r, results='asis', echo=FALSE, fig.height=6, fig.width=4.5, out.extra=''}
+# hack-hack
+cat("<table class='container'><tr>")
+cat("<td style='width:500px'>")
 par(omi=c(2,0,0,0), mar=rep(0,4))
 plot(mod, which=3, pch=19, col="#00000040", xaxt="n")
+cat("</td>")
+cat("<td style='vertical-align:top'>")
 ```
-
 - Allows us to assess **equal variance**.
 
 - Ideally should not be increasing or decreasing.
 
 - Residuals versus fit often tells you this just as well.
-</div>
+
+```{r, results='asis', echo=FALSE, out.extra=''}
+cat("</td>")
+cat("</tr></table>")
+```
 
 ## Diagnostic plots: Residuals versus Leverage
 
-<div class="columns-2">
-```{r, echo=FALSE, fig.height=6, fig.width=4.5}
+```{r, results='asis', echo=FALSE, fig.height=6, fig.width=4.5, out.extra=''}
+# hack-hack
+cat("<table class='container'><tr>")
+cat("<td style='width:500px'>")
 par(omi=c(2,0,0,0), mar=rep(0,4))
 plot(mod, which=5, pch=19, col="#00000040", xaxt="n")
+cat("</td>")
+cat("<td style='vertical-align:top'>")
 ```
-
 - Allows us to look for **influential outliers**.
 
 - Points should ideally be inside red bands (Cook's distance) at 0.5.
 
 - Points outside Cook's distance of 1 have excessive influence.
-</div>
+
+```{r, results='asis', echo=FALSE, out.extra=''}
+cat("</td>")
+cat("</tr></table>")
+```
 
 ## Influential outliers
 
@@ -368,7 +396,7 @@ plot(mod, which=5, pch=19, col="#00000040", xaxt="n")
 
 ## When assumptions don't hold
 
-- **Linearity**. Estimates will be *biased*. Fix this before looking at other assumptions.
+- **Linearity**. Estimates will be **biased**. Fix this before looking at other assumptions.
 
 - **Independence**. Estimates will be unbiased, but standard errors will be wrong. P-values may be underestimated.
 
