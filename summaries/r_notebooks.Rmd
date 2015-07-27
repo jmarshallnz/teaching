@@ -1,0 +1,94 @@
+---
+title: "Compiling R notebooks"
+author: "Jonathan Marshall"
+date: "24 July 2015"
+output: pdf_document
+---
+
+## Introduction
+
+An R notebook is a document produced from an R script that incorporates commentary alongside R code and R output, including plots. They're ideal summaries of a set of analysis that you can give to someone else (perhaps your future self) to help remember both what was done and what the results were.
+
+The idea is that by including commentary and analysis code in the same document (the R script), your report is **reproducible**, so that if the data should change at a later date you can re-generate the report and the results will automatically update.
+
+## Key things to remember
+
+Your R script can contain just two different types of command:
+
+1. **Hash-quote comments**. Any line that starts with the hash character followed by a single quote character (or apostrophe) is a special type of comment. R will ignore this when the script is run (as it starts with a hash) and the "Compile notebook" function will know to interpret the line as being plain text in the generated report.
+
+2. **Everything else is R code**. Anything that isn't a hash-quote is treated as if it was R-code. Thus, it needs to be valid R-code, or you'll get an error. Thus, anything that is not R code should be a hash-quote.
+
+## Special formatting
+
+Each hash-quote can optionally be written using **R Markdown** which is a mark-up language similar to (but much, much simpler than) HTML. Anything you type normally will be interpreted as if it is just a sentence, but you can add embellishments and they'll be formatted up nicely in your report.
+
+### Title and Author block
+
+At the top of the file, you can add a **Metadata** block that contains information about the report, such as the title, author and date. For example, the metadata block for this summary (yes, it was written using RStudio!) is as follows:
+
+```
+#' ---
+#' title:  Compiling R notebooks
+#' author: Jonathan Marshall
+#' date:   24 July 2015
+#' ---
+```
+
+The `---` start and terminate the block, and then the `title`, `author` and `date` keywords can be set if you wish.
+
+### Paragraph separation
+
+By default, you'll find that hash-quotes on separate lines in your R script will be concatenated into a single paragraph in the final document. i.e.
+
+```
+#' This is a sentence.
+#' This is another sentence
+```
+
+will be interpreted as a single paragraph with one sentence following the other. If you want them to be in separate paragraphs, you need to leave a hash-quote with a blank line:
+
+```
+#' This is a sentence.
+#'
+#' This is another sentence which will be in a separate paragraph.
+```
+
+### Headings and sub-headings
+
+Headings and sub-heading can be done by making sure you prefix them with a hash-quoted blank line (or other paragraph break, such as an R code block). Then, you prefix headings with an additional number of hash characters: The more hashes, the smaller the heading. e.g.
+
+```
+#' this sentence ends a paragraph.
+#'
+#' # This is big heading
+#'
+#' ## This is a sub-heading
+#'
+#' ### This is a sub-sub-heading
+#'
+#' #### And an even smaller one!
+```
+
+### Lists of bullet points
+
+Bullet points can be achieved by just having a list in your hash-quote that begins with a suitable marker, such as an asterisk or dash. Sub-bullets can be done by indenting the block by 4 spaces. Numbered bullets just use the numbers as you'd expect.
+
+```
+#' - A bullet point.
+#' - Another bullet point.
+#' - Another bullet.
+#'     - A sub-bullet.
+#'     - Another sub-bullet.
+#'
+#' 1. A numbered list starts here
+#' 2. Another numbered item
+```
+
+### Emphasis
+
+You can make text *italic* or **bold** by surrounding text with single or double asterisks:
+
+```
+#' This demonstrates *italics* and **bold** emphasis. Some people even ***italic bold***!!
+```

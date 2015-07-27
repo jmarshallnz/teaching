@@ -1,0 +1,119 @@
+---
+title: "Linear model assumptions"
+author: "Jonathan Marshall"
+date: "27 July 2015"
+output: pdf_document
+graphics: yes
+---
+
+## Introduction
+
+When fitting linear models to data, we make 4 assumptions about the distribution of the residuals.
+
+As these assumptions are made on the residuals, the form of the model fit (the mean of y given the covariates) can feature more than one covariate and more than one type of covariate while the assumptions stay the same (though the model form can influence what the residuals represent).
+
+The four assumptions can be remembered through the acronym LINE:
+
+- **L**inearity.
+- **I**ndependence.
+- **N**ormality.
+- **E**qual variance.
+
+### Linearity
+
+The linearity assumption states that the residuals are on average zero, thus are scattered around half above and half below the curve described by the model equation, representing the average $y$ for a given set of covariates $x$. They should be scattered **uniformly** rather than having a bunch of positive or negative residuals clustered together.
+
+This assumption may be assessed using a *Residuals versus fitted values** plot, which should show no trend. The presence of a trend suggests that the form of the model equation was incorrect, and some work needs doing before going much further. A typical fix in this scenario is to try a log transformation of the $y$ variable (and also sometimes the $x$ variable), but other solutions exist, such as using a polynomial model where the equation takes the form
+$$
+y_i = \beta_0 + \beta_1 x_i + \beta_2 x_i^2 + \epsilon_i
+$$
+Notice that this equation is still 'linear' in the sense that the model coefficients $\beta_k$ are combined using only addition and multiplication by constants.
+
+Examples of good and bad residuals versus fitted values plots are shown below. The plot on the left is an example where there is no trend, while the plot on the right shows curvature. We'd want to fix up the plot on the right before we go further with the model.
+
+```{r, echo=FALSE, dev='tikz', fig.align='center', fig.width=6.5, fig.height=3}
+set.seed(6)
+n <- 50
+x <- rnorm(n)
+y1 <- x + rnorm(n)*0.1
+y2 <- x + 0.1*x^2 + rnorm(n)*0.1
+par(mfrow=c(1,2))
+plot(lm(y1 ~ x), which=1)
+plot(lm(y2 ~ x), which=1)
+```
+
+### Independence
+
+The independence assumption states that the residuals should be independent. Thus, the value that one residual takes should not depend on other residuals. An obvious example where this often does not hold is in time-series data, where the same measurement has been taken consecutively over time. In such a case you would expect the measurement time time $t$ to be more similar to the measurement at the previous time $t-1$ compared to a measurement much earlier. Depending on how well the linear model equation accounts for this, the dependence between $y$ observations may (and often does) translate into dependence between the residuals. This is often seen as a 'run' of positive or negative residuals in a row on a plot of residuals versus time, such as the plot below, where there are several runs of positive and negative residuals. This is called **auto-correlation** and is best fixed by fitting a model that accounts for this dependence within the residuals (part of a suite of models known as **Generalised linear models**).
+
+```{r, echo=FALSE, dev='tikz', fig.align='center', fig.width=4, fig.height=3}
+rho=0.9
+t <- 1:n
+eta <- rnorm(n) * 0.05
+
+eps <- numeric(n)
+eps[1] <- eta[1]
+for (i in 2:n)
+  eps[i] <- rho*eps[i-1]+eta[i]
+
+y3 <- 0.3*t + eps
+library(nlme)
+mod <- gls(y3 ~ t, correlation=corAR1())
+plot(t, resid(mod), xlab="Time", ylab="Residuals")
+abline(h=0, lty="dashed", col="grey70")
+mtext("Residuals vs Time", side=3, at=mean(t), line=0.2)
+```
+
+In other cases the dependence or independence of residuals may be less obvious, but it tends to always have to do with how the data are collected. In time series the data are collected through time, thus the dependency is introduced through time. In other cases the data may be **clustered** such that more than one observation shares traits that aren't accounted for in the model. Examples might be where you're measuring a quantity (such as weight gain) on an animal, and you have several animals from different herds in your dataset. You might expect animals in the same herd to be more similar than animals in different herds, thus there might be dependence between the residuals in the case where the herd isn't included in the linear model. If the herd is included in the linear model (i.e. you allow separate effects for each herd) then this might not be a problem. Often this isn't appropriate, however, as in many cases you'll want your linear model to generalise to other animals in other herds that you didn't measure. But if you didn't measure them, you don't know their herd effect, so can't predict their weights! This is often solved using a **Generalised linear model**, in particular by modelling the herd with a **random effect** which is essentially modelling the residuals as being clustered. As the residuals (and thus herd effects) will still have mean zero, we can predict for the average herds by using the model equation directly (a confidence interval), and then account for between and within-herd variation when predicting for a specific unmeasured herd (a prediction interval).
+
+### Normality
+
+The assumption of normality applies to the residuals **not the $Y$ or $X$ variable**. This is a very important point that even many scientists get wrong: They see the $Y$ variable isn't normal and are concerned that they need to transform before applying a linear model. The need for transformation should only be made based on the residuals. After all, if both the $X$ and $Y$ variables are non-normal, then it may be that the residuals might be normal (as any 'non-normal-ness' in $Y$ is accounted for by the non-normal-ness of $X$).
+
+We assess the normality assumption of the residuals by doing a Normal quantile-quantile plot of the residuals. This plots the quantiles (the values of the residuals sorted from lowest to highest) against the equivalent theoretical quantiles of a normal distribution. The points should appear close to a straight line at 45 degrees. Examples of good (left) and bad (right) normal Q-Q plots are below. Notice how the bad one is curving fairly strongly.
+
+It should be noted that because of the **central limit theorem** deviances from normality aren't too much of a problem unless they're really strong or unless the sample size is small.  A large sample size will mean that the estimates of our coefficients will follow the appropriate $t$-distributions even if the residuals aren't normal (as long as they're not really far off!)
+
+```{r, echo=FALSE, dev='tikz', fig.align='center', fig.width=6.5, fig.height=3}
+y4 <- exp(5-1.5*x + rnorm(n)*0.03)
+par(mfrow=c(1,2))
+plot(lm(y4 ~ x), which=2)
+plot(lm(y1 ~ x), which=2)
+```
+
+### Equal variance
+
+The assumption that the residuals have common variance means that the variance shouldn't change as $Y$ or $X$ changes. This allows the common residual variance to be estimated from the residual sum of squares, and this is used in the formulae for standard errors. You typically assess this assumption using the Residual vs Fitted values plot (or the Scale-location plot). The thing to look for is that the residuals should lie in a band about 0 that has about the same width all the way across the range of fitted values. If the residuals look as though they 'fan out' then it is likely that a transformation may be needed. A log transform often does the trick, but there are other methods for dealing with this, particularly when we know why the residuals are behaving this way (such as **weighted regression** which we won't look into further!) Examples of good (right) and bad (left) are below.
+
+```{r, echo=FALSE, dev='tikz', fig.align='center', fig.width=6.5, fig.height=3}
+eps <- rnorm(n) * 1:n / 10
+x3 <- 1:n
+y5 <- x3 + eps
+par(mfrow=c(1,2))
+plot(lm(y5 ~ x3), which=1)
+plot(lm(y1 ~ x), which=1)
+```
+
+## When assumptions fail
+
+### Linearity
+
+When the linearity assumptions fail, our estimates for the coefficients $\beta$ are **biased**, i.e. inaccurate. Obviously the amount of bias will depend on how much of a trend is present in the residuals: Our models will never be perfect, but can still be useful even so! If the trend isn't too bad, then our model estimates won't be too much out. If we can fix this we should do so before looking at the remaining assumptions.
+
+Often this fails at the same time as the equal variance assumption for the same underlying reason, where the $y$ variable tends to increase exponentially. e.g. inflation is exponential (it's a multiplicative effect), as are simple birth or death processes (think of rabbits). Any time when the rate of change of a property depends on the current quantity of that property will yield something that tends to increase or decrease exponentially. A log transformation of these data often make sense so that the curvature is flattened out and the linear model assumptions are met.
+
+### Independence
+
+If the independence assumption fails, then our estimates for the coefficients $\beta$ will still be **unbiased**, but their standard errors may be wrong. In the case of a time-series model, the standard error of the coefficient of time is often much smaller than it should be. This leads to P-values being smaller than they should be, which may mean any conclusions about hypotheses may be wrong.
+
+We always fix this the same way, by accounting for the dependence of the residuals by modelling the dependence structure. In time-series models we can use auto-regressive processes for this, and when we have clustering we use hierarchical models. We'll see an example of a hierarchical model in lab 4.
+
+### Normality
+
+If the residuals are not normal, then our estimates for the coefficients $\beta$ will still be **unbiased**, but they will no longer have a $t$-distribution, so the standard error may not be representative of the spread that we'd expect in $\beta$ by chance alone. However, the residuals need to be fairly far from normal before this is the case, particularly for large sample sizes. This is because the **central limit theorem** states that even if they're not normal, any mean-like statistics computed from them (such as our $\beta$ coefficients) will have a $t$-distribution as the sample size gets larger.
+
+Thus, usually this is the one to worry about the least, unless it's really bad (which usually means one of the other assumptions are pretty bad as well!)
+
+### Equal variance
+
+If the residuals are not distributed with constant variance, then the estimates for the coefficients $\beta$ will still be **unbiased**, however the standard errors will typically be wrong. Thus, any conclusions based on P-values may also be wrong. Often this happens when the variation in the data is proportional to the size of the data. In these cases, a log-transform will often remedy things.

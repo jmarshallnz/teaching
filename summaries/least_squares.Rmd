@@ -1,0 +1,117 @@
+---
+title: "Least squares estimation"
+author: "Jonathan Marshall"
+date: "24 July 2015"
+output: pdf_document
+---
+
+## Introduction
+
+In a linear model, we estimate the coefficients using **least squares** estimation. This is so named as it involves minimises the sum of the residuals squared. This makes sense from an intuitive perspective: You want your model to explain as much variation in $y$ as possible, thus want as little variation as possible left over.
+
+It also makes sense based on the **assumptions** we make about the linear model. In particular, we assume that the residuals will be normally distributed with mean zero and constant variance $\sigma^2$. If we build a probability model for the outcome variable $Y$ conditional on the covariate(s) $X$ under these assumptions, then the **likelihood** of the data arising is maximised when the coefficients of the model are at their least-squares estimates. The log of the likelihood function ends up containing a term that is identical to the residual sum of squares.
+
+So, how do we find the least squares estimates? We'll derive them for the simple case of simple linear regression, where we assum
+
+$$
+y_i = \alpha + \beta x_i + \epsilon_i
+$$
+
+where $\alpha$ and $\beta$ are to be estimated, and $\epsilon_i$ are residuals. The variance of the residuals is given by
+
+$$
+\mathsf{var}(\epsilon_i) = \frac{1}{n} \sum_{i=1}^n (\epsilon_i - \mathsf{mean}(\epsilon_i))^2
+$$
+
+and as we are assuming that the average (mean) residual is 0, this drops down to
+
+$$
+\begin{aligned}
+\mathsf{var}(\epsilon_i) &= \frac{1}{n} \sum_{i=1}^n (\epsilon_i - 0)^2\\
+&= \frac{1}{n} \sum_{i=1}^n \epsilon_i^2\\
+&= \frac{1}{n} SS_\mathsf{res}
+\end{aligned}
+$$
+
+We minimise $SS_\mathsf{res}$ by rearranging the model equation to give $\epsilon_i = y_i - (\alpha + \beta x_i)$ and then finding the minimum through calculus, and get the equations
+$$
+\begin{aligned}
+\beta &= \frac{\sum_{i=1}^n x_iy_i - n\bar{x}\bar{y}}{\sum_{i=1}^n x_i^2 - n \bar{x}^2},\\
+\alpha &= \bar{y} - \beta \bar{x}
+\end{aligned}
+$$
+Given these expressions, for a particular set of data we need to find the quantities
+$$
+\bar{x} \qquad \bar{y} \qquad \sum_{i=1}^n x_iy_i \qquad \sum_{i=1}^n x_i^2
+$$
+which we can use to find $\beta$. We then subsitute $\beta$, $\bar{x}$ and $\bar{y}$ into the equation above to find $\alpha$.
+
+## The link with the correlation coefficient
+
+Notice that the expressions on the numerator and denominator of $\beta$ are of a similar form. In fact,
+$$
+\beta = \frac{\mathsf{cov}(x,y)}{\mathsf{cov}(x,x)} = \frac{\mathsf{cov}(x,y)}{\mathsf{var}(x)}
+$$
+where $\mathsf{cov}(x,y)$ is the **covariance** of $x$ and $y$. This leads to the link between $\beta$ and the correlation coefficient $r$ for $x$ and $y$:
+$$
+\beta = \frac{\mathsf{cov}(x,y)}{\mathsf{var}(x)} = r \frac{\sigma_y}{\sigma_x}
+$$
+where $\sigma_x$ and $\sigma_y$ are the standard deviations of $x$ and $y$ respectively. This makes sense, as the correlation coefficient is an indication of how strong a linear relationship is between two variables, which is basically how large the slope is , accounting for the variation in $x$ and $y$.
+
+## Derivation through calculus (Not examinable!)
+
+Recall that to find the minimum of a function of two variables $f(x,y)$, we find partial derivatives and solve the system of equation $\frac{\partial f}{\partial x}=0$ and $\frac{\partial f}{\partial y}=0$. We have
+$$
+SS_\mathsf{res} = \sum_{i=1}^n \epsilon_i^2 = \sum_{i=1}^n (y_i - (\alpha + \beta x_i))^2
+$$
+so that
+$$
+\begin{aligned}
+\frac{\partial SS_\mathsf{res}}{\partial \alpha} &= \sum_{i=1}^n 2 (y_i - (\alpha + \beta x_i)) (-1)\\
+& = -2 \sum_{i=1}^n (y_i - (\alpha + \beta x_i))\\
+& = -2 \sum_{i=1}^n y_i + 2 \sum_{i=1}^n \alpha + 2 \sum_{i=1}^n \beta x_i\\
+& = -2 \sum_{i=1}^n y_i + 2 n \alpha + 2 \beta \sum_{i=1}^n x_i\\
+\end{aligned}
+$$
+and
+$$
+\begin{aligned}
+\frac{\partial SS_\mathsf{res}}{\partial \beta} &= \sum_{i=1}^n 2 (y_i - (\alpha + \beta x_i)) (-x_i)\\
+& = -2 \sum_{i=1}^n x_i(y_i - (\alpha + \beta x_i))
+\end{aligned}
+$$
+Setting each of these equal to zero gives the equations
+$$
+\begin{aligned}
+-2\sum_{i=1}^n y_i + 2 n \alpha + 2 \beta \sum_{i=1}^n x_i &= 0\\
+-2\sum_{i=1}^n x_i(y_i - (\alpha + \beta x_i)) &= 0
+\end{aligned}
+$$
+Rearranging the first for $\alpha$ gives
+$$
+\begin{aligned}
+2 n \alpha &= 2 \sum_{i=1}^n y_i - 2 \beta \sum_{i=1}^n x_i\\
+\alpha &= \frac{1}{n}\sum_{i=1}^n y_i - \beta \frac{1}{n} \sum_{i=1}^n x_n\\
+\alpha &= \bar{y} - \beta \bar{x}\\
+\end{aligned}
+$$
+Note that this indicates that $(\bar{x}, \bar{y})$ is a point on the line, as $\bar{y} = \alpha + \beta \bar{x}$.  Rearranging
+the second equation for $\beta$ gives
+$$
+\begin{aligned}
+-2\sum_{i=1}^n x_i(y_i - (\alpha + \beta x_i)) &= 0\\
+\sum_{i=1}^n (x_iy_i - \alpha x_i + \beta x_i^2) &= 0\\
+\sum_{i=1}^n x_iy_i - \alpha \sum_{i=1}^n x_i - \beta \sum_{i=1}^n x_i^2 &= 0\\
+\beta \sum_{i=1}^n x_i^2 &= \sum_{i=1}^n x_iy_i - \alpha \sum_{i=1}^n x_i\\
+\beta \sum_{i=1}^n x_i^2 &= \sum_{i=1}^n x_iy_i - \alpha n \bar{x}.
+\end{aligned}
+$$
+Substituting in the expression for $\alpha$ from the first equation yields
+$$
+\begin{aligned}
+\beta \sum_{i=1}^n x_i^2 &= \sum_{i=1}^n x_iy_i - (\bar{y} - \beta \bar{x}) n \bar{x}\\
+\beta \sum_{i=1}^n x_i^2 &= \sum_{i=1}^n x_iy_i - n\bar{x}\bar{y} + \beta n \bar{x}^2\\
+\beta \sum_{i=1}^n x_i^2 - n \bar{x}^2 &= \sum_{i=1}^n x_iy_i - n\bar{x}\bar{y}\\
+\beta &= \frac{\sum_{i=1}^n x_iy_i - n\bar{x}\bar{y}}{\sum_{i=1}^n x_i^2 - n \bar{x}^2}.\\
+\end{aligned}
+$$
