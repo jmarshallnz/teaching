@@ -123,7 +123,7 @@ summary(lm5)
 #' useful information. But absent of the other measures, height is ofcourse useful!
 
 #' Model diagnostics
-par(mfrow=c(2,2))
+par(mfrow=c(2,2), mar=c(4,4,2,2))
 plot(lm4)
 #' We can see from the plot that it looks like we still have curvature and perhaps also non-constant variance. A log-transform of
 #' the body-weight variable (and perhaps some of the others) would be advised!
