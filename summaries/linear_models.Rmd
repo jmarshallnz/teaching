@@ -1,7 +1,7 @@
 ---
 title: "Least squares estimation"
 author: "Jonathan Marshall"
-date: "24 July 2015"
+date: "29 July 2015"
 output: pdf_document
 graphics: yes
 ---
@@ -21,7 +21,7 @@ where $\alpha$ and $\beta$ are the y-intercept and slope, respectively. See the 
 ```{r, dev='tikz', fig.align='center', fig.width=4, fig.height=3}
 source("../common/simple_linear_regression.R")
 example <- gen_simple_regression_data()
-plot_slope_intercept(example, cex=1)
+plot_slope_intercept(example, cex=1, tikz=TRUE)
 ```
 
 ## Key points

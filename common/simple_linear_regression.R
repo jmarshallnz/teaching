@@ -7,8 +7,8 @@ gen_simple_regression_data <- function() {
 }
 
 #' Plot some data with slope and intercept labelled
-plot_slope_intercept <- function(data, cex=1.5) {
-  par(mar=c(2,1,1,1), cex=cex)
+plot_slope_intercept <- function(data, cex=1.5, tikz=FALSE) {
+  par(mar=c(2,1.2,1,1), cex=cex)
   plot(y ~ x, data=data, col="#00000020", xlim=c(0, max(x)+0.2), ylim=c(0, max(y)+0.2), pch=19, xlab="", ylab="", xaxt="n", yaxt="n", xaxs="i", yaxs="i")
   line <- lm(y ~ x, data=data) 
   abline(line, lwd=2)
@@ -18,8 +18,10 @@ plot_slope_intercept <- function(data, cex=1.5) {
   lines(rep(xv[2], 2), yv, lty="dotted")
   text(mean(xv), yv[1], "run", adj=c(0.5,1.2), col="grey30")
   text(xv[2], mean(yv), "rise", adj=c(-0.2,0.5), col="grey30")
-  mtext(expression(alpha), side=2, line=0.5, at = coef(line)[1], las=1, cex=cex)
-  text(4, yv[1]-0.5, expression(beta==over(rise,run)))
+  alpha_text <- ifelse(tikz, "$\\alpha$", expression(alpha))
+  beta_text <- ifelse(tikz, "$\\beta = \\frac{\\textrm{rise}}{\\textrm{run}}$", expression(beta==over(rise,run)))
+  mtext(alpha_text, side=2, line=0.5, at = coef(line)[1], las=1, cex=cex)
+  text(4, yv[1]-0.5, beta_text)
   axis(1, at=0, line=0)
 }
 
