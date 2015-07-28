@@ -33,7 +33,7 @@ plot(BirthWeight ~ Shorn, data=births)
 #' The independence assumption can't be assessed by this plot. The way the data were collected the ewes were randomly assigned
 #' to treatment group and shorn group. The twin weights are likely to be correlated though, so perhaps the independence of residuals
 #' may not quite hold there.
-
+#'
 #' ## Statistical modelling
 #' 
 #' A linear model assessing whether shearing the ewe is important for lamb birthweight. The linear model equation would be
@@ -51,7 +51,7 @@ summary(lm1)
 
 #' A linear model assessing whether ewe nutrition is important for lamb birthweight. The linear model equation would be
 #' $$
-#' \mathsf{Birthweight} = \alpha + \beta_{HM} z_{HM} + \beta_{MH} z_{MH} + \beta_{MM}_z_{MM}
+#' \mathsf{Birthweight} = \alpha + \beta_{HM} z_{HM} + \beta_{MH} z_{MH} + \beta_{MM} z_{MM}
 #' $$
 #' where $z_{HM}$ is an indicator variable with $z_{HM}=1$ when the ewe was in the $HM$ treatment group, and $z_{HM}=0$ otherwise.
 #' This gives $\mathsf{Birthweight}=\alpha$ when the ewe is in feed group HH, $\mathsf{Birthweight}=\alpha + \beta_{HM}$ when

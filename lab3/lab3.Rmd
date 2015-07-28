@@ -12,7 +12,7 @@ graphics: yes
 
 In this lab we'll look at a set of data on the birth weight of lambs, based on the data from last year's project. This will therefore be good practice for part A of your project this year!
 
-Lamb birth weight is the single largest influence on survival of lambs in the first few days of life.  For this assignment we'll be looking at a dataset on the birth weight of lambs collected during a trial at Massey in late 1990s.
+Lamb birth weight is the single largest influence on survival of lambs in the first few days of life.  In this lab we'll be looking at a dataset on the birth weight of lambs collected during a trial at Massey in the late 1990s.
 
 Mixed-aged, Border Leicester x Romney ($n=160$) ewes were randomly allocated after preganancy diagnosis to a factorial experiment involving two shearing treatments (shorn on day 70 vs not); two pregnancy ranks (single or twin); and four feeding regimes (HH, HM, MH, MM), where the first letter refers to feed during days 70-101 of pregancy, and the second during days 102-140.  The M (maintenance) feeding group were fed at a level calculated to maintain maternal conceptus-free weight, while the H (high) feeding group were fed to gain around 100g per day above this during the relevant period.
 
@@ -35,7 +35,7 @@ Variable      Description
 
 2. Create a new R script for todays lab.
 
-3. We'll add a special 'metadata' block to the top of the script that allows you to set the title and author. Copy and paste the following code block, then change the author as appropriate.
+3. We'll add a special 'metadata' block to the top of the script that allows you to set the title and author. Copy and paste the following code block, then change the author as appropriate. More information on formatting up R notebooks (e.g. headings, subheadings, bullet points, emphasis etc.) can be found in the summary sheet on stream.
 
     ```
     #' ---
