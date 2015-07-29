@@ -1,0 +1,173 @@
+# Introduction to R and RStudio
+### Jonathan Godfrey and Jonathan Marshall
+
+##  Getting started with R
+
+The standard method for running R is the Graphic User Interface (GUI). The standard installation on a  64-bit Windows machine puts two shortcuts on the desktop; one is for 32-bit operation. It won't matter which we use in this first session, or for most of the work you will do for some time!
+
+If you haven't done so before, investigate the menus. Pretty soon you will realise that R doesn't give you menus for doing any analyses. The menus are useful for managing your session, your additional packages (more on them later), and accessing the help and other documentation.
+
+## methods for running R 
+
+Ultimately we will make use of the most commonly used integrated development environment (IDE) in use today (RStudio) but there are so many ways of running R jobs. After this introductory workshop you will need to decide which methods suit you and your work the best; you will also find that this decision may need to be revisited later.
+
+
+### The R GUI (Console)
+
+
+Open the R GUI now. We'll do some very basic tasks to investigate the different ways of working.
+
+#### Using the command prompt (laborious typing?)
+
+
+The opening screen has a welcome message and then the prompt where we can type commands. I always start with the things we know, like `1+1` whenever I use any new software. Let's do something a little more interesting. Try:
+
+``{r RandomSample}
+sample(100,10)
+MySample = sample(100,10)
+MySample
+```
+
+The `sample` function grabs a random sample that is as long as the second argument, from the first argument; in this case the first 100 integers. (Try `sample(letters, 10)` to confirm this.)  Over the years, I've needed to remind people that the sample gets re-drawn each time the command is called, but that we can keep a permanent copy if we **assign** the result. 
+
+For the purposes of the illustration, we do want to do something with our sample. For example we might want to sort the results or calculate their mean. Let's do so but use two useful features - tab completion and arrowing back through our history. When you type the first command in the next block, do not type `MySample` out in full. Type one or two characters and press the `tab` key. Instead of typing the second command out in full, press the up and down arrow keys to find a command that is suitable for editing. Both of these ideas are good for avoiding typos.
+
+```{r PlaySample}
+sort(MySample)
+mean(MySample)
+```
+
+The command prompt is a great way of experimenting, but it really is not a great place to be efficient. If you do find your experiments getting out of hand, save your work using the command `savehistory("SomeFilename.R")` and then ask where you just saved that file using `getwd()` - we'll want to browse for that file very soon so remember the answer please.
+
+After saving your history, close the R session. Please say `yes` to the save message.
+
+Browse to the working directory. Look for three files: `SomeFilename.R` (an R script), `.RData` (the data saved from the work in your session), and `.Rhistory` (the full history of commands used in that workspace).
+
+Clicking on `.Rhistory` should have no impact; clicking on `SomeFilename.R` might do something strange, but hopefully won't; and clicking on `.RData` will open the R GUI again. You can move `.RData` and `.Rhistory` to a different folder so that work from this session can be kept separate from other work. Use of different folders for different projects is **very** sensible. It also means you could take those two files to another computer.
+
+Make a new folder please and move the three files to it now. Then re-open the R GUI by clicking on the `.RData` file. You could confirm the new working directory using `getwd()` if you like. (Just press the up arrow to get back through the history.)
+
+#### The R script window
+
+The R GUI has its own basic text editing window for script files. There is a menu item to open the window with a blank space, as well s the standard item to open the script file.
+
+
+Please grab the script file we created earlier. Do some minor editing, and save it again.
+
+You can run the entire script, or various parts of it using menu items in the `Edit` menu.
+
+Now close the script window.
+
+This method of working is quite common, but has perhaps been surpassed by better options. 
+
+#### Running an R script without opening it
+
+The R script you just closed can be pulled back into any R session using the `source()` command. 
+In full, that would be `source("SomeFilename.R")`. (You should be getting into the habit of tab completion.) 
+
+### The R Terminal
+
+This is **very** old school! This method of working is used by a minority of people. Everything a user could do in the terminal is achievable in the GUI console. You probably won't make use of this method of working if you are a windows user, but many Linux users are using a terminal so it is worth knowing about.
+
+Windows users are not given immediate access to the terminal version but it can be accessed just as easily as the GUI once we make a new shortcut for it. 
+
+- Copy and paste the R GUI shortcut on your desktop. 
+- Edit the target this new shortcut points towards. It currently says `...\rgui.exe"` to open the GUI console. Delete the `gui` and insert`term` in its place so that it reads `...rterm.exe"` instead.
+- It's probably a good idea to rename this new shortcut; use the f2 key.
+- Open the terminal using this new shortcut
+
+You should see the same welcome screen as you saw in the GUI console except that there are no menus and no colours. There will be no script editing window, but access to help facilities and the like is the same as for the R GUI.
+
+
+You are almost certainly in the same working directory as you were for the exercises done previously. (You could check.)
+
+Use of the terminal in conjunction with a text editor for creating scripts is perfectly acceptable. (It's what I do (JG). It works because all functionality offered in the R GUI can be achieved using commands alone.
+
+### Using the command line to run jobs in batch mode
+
+
+Any script file can be pushed into an R session without opening the application. The method for Linux is much better than for Windows, but it's still a useful process under Windows.
+
+Why use batch mode? A  script file that is run using batch mode can be set up as a scheduled  task. This could prove very useful if a task needs to be repeated periodically to incorporate the latest data for example.
+
+#### Batch jobs under Windos
+
+If we know the full path to the main executable files for R, we can create a command line that accepts the name of the R script as an argument. It will look something like:
+
+`C:\PROGRA~1\R\R-32~1.1\bin\i386\R.exe CMD BATCH --vanilla --quiet MyScript.R`
+
+The `vanilla` switch says to process `MyScript.R` in a brand new R session, and `quiet` means the returned file of output will not include the welcome messages seen at the start of any R session.
+
+The resulting output file will be a plain text file called `MyScript.Rout` so will not include any graphs, which would need to be saved explicitly within the script.
+
+The above command line can be put into a batch file which is just a text file with the extension `.bat` that windows knows how to process. This batch file is automatically executable under Windows so it can be clicked on within Windows Explorer.
+
+ 
+
+
+#### Batch Jobs under Linux
+
+The process is even simpler for Linux users who just add the following line to the very start of their R script files.
+
+`#!/rscript`
+
+and then make that script file executable using standard bash commands. This process is being used to run the main script file for RenalQ every 15 minutes. The above line is called a **shabang** line.
+
+
+###  RStudio
+
+
+This is the most common working environment outside base R. We will go into more detail later in this session, but we need to illustrate the alternatives in order to understand the benefits of working with RStudio.
+
+### Other front-ends
+
+Revolution Analytics (now owned by Microsoft) has a product called Revolution R Open (RRO). On the face of it, RRO is just the R GUI (64-bit) with some hidden benefits. The marketing suggests improved methods for handling some calculations will be employed. It is questionable how useful we will find this product.
+
+Open Analytics has an IDE called Architect. It is based on the Eclipse IDE. If you are experienced with Eclipse environments, then feel free to investigate this product. Be warned that installation on my laptop  hasn't been plain sailing (JG) so it is mentioned for information only at this time.
+
+
+The R commander and Deducer front ends add menus to the standard R GUI to provide a range of statstical analyses in dialogue box form. They can be useful for the novice user, but they do have some problems/limitations to note. First, they do not leave the user with an R script file that can be used by any other user, that is, they do not always generate standard R code for every task. Second, they are not comprehensive and so cannot be relied upon for full integration with other actions and methods of working. It is hoped that these workshops push past the *novice* level and that their usefulness is therefore less relevant to your team.
+  
+## Some basic things we ought to know
+
+This is not an exhaustive list. If you ask questions there will be answers.
+
+### help pages and documentation
+
+There are two ways to get help from R. Either search for help on a specific function yo know the name of (or are willing to guess), and searching for a word that appears on a help page. These ideas use question marks (1 and 2 respectively). The main problems with this help system is the fact that you must know the function's name, or be good at selecting a suitable term to search for
+
+The help pages are fairly good for illustrating the usage of a command. The examples are sometimes concise (a.k.a. terse)  and informative, but there are plenty of examples that do considerably more than offer simple demonstrations.
+
+There are plenty of add-on packages that you might use. These often include demonstrations, but of late the culture is to create **vignettes** to illustrate the use of the additional package.
+
+A major advantage of the help page examples and vignettes is that the R code in them must be syntactically correct. (There are situations where the development process hasn't used the testing features. Look out for parts of the examples on help pages where it says `dontrun` or `donttest`.
+
+### packages (installing and loading)
+
+Add-on packages are really important. The first one we will look at helps keep your Windows installation of R up-to-date.
+
+We will download the `installr` package now. Downloading is the first part of installing a package. This just puts it within the R framework for later use. It odes not mean you have immediate access to the package functionality.
+
+There is a chance that a proxy server will interfere with this process. As an exercise in paranoia, I have tended to automatically issue the command:
+
+`setInternet2()`
+
+because students don't always know what a proxy server is. This command has no impact if no proxy server is in place.
+
+Then we need to look for a CRAN mirror. This is one of the servers around the owrld that holds the R packages. There is a menu item, but I use the command:
+
+`chooseCRANmirror(ind=1`
+
+which selects the first item off that list. It is the cloud-based server operated by RStudio. This is a redirection service and helps find hte closest server to us.
+
+Then, we would install the desired  package using the menu item or:
+
+`install.packages("installr")`
+ 
+I prefer to type the package name as looking down the list of over 6000 packages takes longer than typing the command.
+
+## setting up R for personal/project work
+
+
+## importing data(csv file, URL, delimited files, from packages, xls?)
+## R bloggers
