@@ -22,7 +22,7 @@ Open the R GUI now. We'll do some very basic tasks to investigate the different 
 
 The opening screen has a welcome message and then the prompt where we can type commands. I always start with the things we know, like `1+1` whenever I use any new software. Let's do something a little more interesting. Try:
 
-``{r RandomSample}
+```{r RandomSample}
 sample(100,10)
 MySample = sample(100,10)
 MySample
