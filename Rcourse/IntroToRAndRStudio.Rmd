@@ -180,8 +180,59 @@ Then, we would install the desired  package using the menu item or:
  
 I prefer to type the package name as looking down the list of over 6000 packages takes longer than typing the command.
 
-## setting up R for personal/project work
+
+To get this package loaded for use, we need to use either the `require` or `library` commands:
+
+```{r loadPackage}
+library(installr)
+```
 
 
-## importing data(csv file, URL, delimited files, from packages, xls?)
-## R bloggers
+The command that can be run occasionally is 
+`updateR()`
+
+It will check that the current version of R is the most recent, and update accordingly. This includes managing the removal of the old version, updating all packages, and moving the packages you used in the past to the right location for the new version of R. Each step is controlled by the user, although the particular choices can be added to the above command to more fully automate the process.
+
+## Setting up R for personal/project work
+
+
+I recommend that every new piece of work be done in a brand new workspace (folder). This means that changing to that directory within R and saving your workspace leaves you with compartmentalised workspaces. You could then go back to exactly where you left off on any particular work. It means you can share the workspace with confidence that it contains only what the other person  needs or you want to share.
+
+You can customize R so that it has some actions taken as you open the application no matter which folder you are working in. I recommend however that you do this within each folder or workspace rather than across all workspaces. The simplest way is to construct a `.Rprofile` file that lists the R commands you want to be run as R is opened in this workspace.
+
+For example, I wanted the `knitr` package to be ready for use in the workspace for this set of workshops. My `.Rprofile` has the single command `library(knitr)` in it so I need not issue this command each time I come back to this workspace.
+
+To do this, we need to write the single line to the text file called `.Rprofile` using:
+ 
+```{r makeRprofile}
+cat("library(knitr)\n", file=".Rprofile")
+```
+
+### Important resources
+
+There are hundreds of books (free and costly) that use R. Purchase with caution.
+Some of these books are written to support particular add-on packages, while others use add-on packages to help package the work for the text together.
+Sorry, there is no useful advice to share on how useful a  book will be for you; we're just too different and we can't know everything about every book. The best you'll get is something like "you might look at..."!
+
+So, you might look at the set of notes I have for doing tasks. It is called "Let's Use R Now", or "LURN" for short. It was written to help introductory students by having chapter and section headings that are task oriented and an index for searching out functions and ideas. When I started this project there were very few free books that were as easily searched.
+
+Visit the [LURN front page](http://r-resources.massey.ac.nz/lurn/front.html) now to see what tasks are already incorporated. We'll probably add to the notes given there for some of the exercises to be done in future workshops.
+
+#### Importing data
+
+There are so many ways data are stored, and some are specific to particular software used by other people. R can import practically any data set from a wide variety of sources (csv file, URL, delimited files, from packages, and xls). These are covered in a chapter of LURN.
+
+
+## Useful links for setting up a new installation
+
+R is  available from [CRAN - the Comprehensive R Archive Network.](http://www.r-project.org) 
+The following is a  direct link for Windows users  to the [latest installer for R under Windows XP, Vista, 7, and 8.](http://cran.rstudio.com/bin/windows/base/release.htm)
+
+RStudio is available from the [RStudio download page.](http://www.RStudio.com/products/rstudio/download)
+
+pandoc is available from the  [pandoc download page.](https://github.com/jgm/pandoc/releases)
+
+An installation of miktex is recommended for anyone wishing to incorporate R output and graphs in a pdf file. It is available from the [miktex home page](http://www.miktex.org)
+
+
+
