@@ -7,7 +7,7 @@ The standard method for running R is the Graphic User Interface (GUI). The stand
 
 If you haven't done so before, investigate the menus. Pretty soon you will realise that R doesn't give you menus for doing any analyses. The menus are useful for managing your session, your additional packages (more on them later), and accessing the help and other documentation.
 
-## methods for running R 
+## Methods for running R 
 
 Ultimately we will make use of the most commonly used integrated development environment (IDE) in use today (RStudio) but there are so many ways of running R jobs. After this introductory workshop you will need to decide which methods suit you and your work the best; you will also find that this decision may need to be revisited later.
 
@@ -49,7 +49,7 @@ Make a new folder please and move the three files to it now. Then re-open the R 
 
 #### The R script window
 
-The R GUI has its own basic text editing window for script files. There is a menu item to open the window with a blank space, as well s the standard item to open the script file.
+The R GUI has its own basic text editing window for script files. There is a menu item to open the window with a blank space, as well as the standard item to open the script file.
 
 
 Please grab the script file we created earlier. Do some minor editing, and save it again.
@@ -72,7 +72,7 @@ This is **very** old school! This method of working is used by a minority of peo
 Windows users are not given immediate access to the terminal version but it can be accessed just as easily as the GUI once we make a new shortcut for it. 
 
 - Copy and paste the R GUI shortcut on your desktop. 
-- Edit the target this new shortcut points towards. It currently says `...\rgui.exe"` to open the GUI console. Delete the `gui` and insert`term` in its place so that it reads `...rterm.exe"` instead.
+- Edit the target this new shortcut points towards. It currently says `...\rgui.exe"` to open the GUI console. Delete the `gui` and insert `term` in its place so that it reads `...rterm.exe"` instead.
 - It's probably a good idea to rename this new shortcut; use the f2 key.
 - Open the terminal using this new shortcut
 
@@ -90,7 +90,7 @@ Any script file can be pushed into an R session without opening the application.
 
 Why use batch mode? A  script file that is run using batch mode can be set up as a scheduled  task. This could prove very useful if a task needs to be repeated periodically to incorporate the latest data for example.
 
-#### Batch jobs under Windos
+#### Batch jobs under Windows
 
 If we know the full path to the main executable files for R, we can create a command line that accepts the name of the R script as an argument. It will look something like:
 
@@ -126,15 +126,15 @@ Revolution Analytics (now owned by Microsoft) has a product called Revolution R 
 Open Analytics has an IDE called Architect. It is based on the Eclipse IDE. If you are experienced with Eclipse environments, then feel free to investigate this product. Be warned that installation on my laptop  hasn't been plain sailing (JG) so it is mentioned for information only at this time.
 
 
-The R commander and Deducer front ends add menus to the standard R GUI to provide a range of statstical analyses in dialogue box form. They can be useful for the novice user, but they do have some problems/limitations to note. First, they do not leave the user with an R script file that can be used by any other user, that is, they do not always generate standard R code for every task. Second, they are not comprehensive and so cannot be relied upon for full integration with other actions and methods of working. It is hoped that these workshops push past the *novice* level and that their usefulness is therefore less relevant to your team.
+The R commander and Deducer front ends add menus to the standard R GUI to provide a range of statistical analyses in dialogue box form. They can be useful for the novice user, but they do have some problems/limitations to note. First, they do not leave the user with an R script file that can be used by any other user, that is, they do not always generate standard R code for every task. Second, they are not comprehensive and so cannot be relied upon for full integration with other actions and methods of working. It is hoped that these workshops push past the *novice* level and that their usefulness is therefore less relevant to your team.
   
 ## Some basic things we ought to know
 
 This is not an exhaustive list. If you ask questions there will be answers.
 
-### help pages and documentation
+### Help pages and documentation
 
-There are two ways to get help from R. Either search for help on a specific function yo know the name of (or are willing to guess), and searching for a word that appears on a help page. These ideas use question marks (1 and 2 respectively). The main problems with this help system is the fact that you must know the function's name, or be good at selecting a suitable term to search for
+There are two ways to get help from R. Either search for help on a specific function you know the name of (or are willing to guess), and searching for a word that appears on a help page. These ideas use question marks (1 and 2 respectively). The main problems with this help system is the fact that you must know the function's name, or be good at selecting a suitable term to search for
 
 The help pages are fairly good for illustrating the usage of a command. The examples are sometimes concise (a.k.a. terse)  and informative, but there are plenty of examples that do considerably more than offer simple demonstrations.
 
@@ -142,23 +142,37 @@ There are plenty of add-on packages that you might use. These often include demo
 
 A major advantage of the help page examples and vignettes is that the R code in them must be syntactically correct. (There are situations where the development process hasn't used the testing features. Look out for parts of the examples on help pages where it says `dontrun` or `donttest`.
 
-### packages (installing and loading)
+
+#### R bloggers
+
+This is  an aggregator  service that monitors over 400 blogs that pertain to R. It supplies me with a daily distraction by email, but is also a good way for me to keep abreast of developments in the way people are using R, demonstrating packages and analysis ideas, and promoting activities of interest to the R community. The main site is searchable and is therefore a good source of information.
+
+#### Stack overflow
+
+Most of the time that I resort to google for the answer to a question that relates to R, I find the results point to stack overflow more than anywhere else. If you do post to stack overflow, the readers expect you to have an example that they can reproduce for testing purposes. Failure to do so can lead to some grumpiness, and a lack of responses.
+
+
+### Packages (installing and loading)
 
 Add-on packages are really important. The first one we will look at helps keep your Windows installation of R up-to-date.
 
-We will download the `installr` package now. Downloading is the first part of installing a package. This just puts it within the R framework for later use. It odes not mean you have immediate access to the package functionality.
+We will download the `installr` package now. Downloading is the first part of installing a package. This just puts it within the R framework for later use. It does not mean you have immediate access to the package functionality.
 
 There is a chance that a proxy server will interfere with this process. As an exercise in paranoia, I have tended to automatically issue the command:
 
-`setInternet2()`
+```{r setInternet2}
+setInternet2()
+```
 
 because students don't always know what a proxy server is. This command has no impact if no proxy server is in place.
 
-Then we need to look for a CRAN mirror. This is one of the servers around the owrld that holds the R packages. There is a menu item, but I use the command:
+Then we need to look for a CRAN mirror. This is one of the servers around the world that holds the R packages. There is a menu item, but I use the command:
 
-`chooseCRANmirror(ind=1`
+```{r chooseCRANmirror}
+chooseCRANmirror(ind=1)
+```
 
-which selects the first item off that list. It is the cloud-based server operated by RStudio. This is a redirection service and helps find hte closest server to us.
+which selects the first item off that list. It is the cloud-based server operated by RStudio. This is a redirection service and helps find the closest server to us.
 
 Then, we would install the desired  package using the menu item or:
 
