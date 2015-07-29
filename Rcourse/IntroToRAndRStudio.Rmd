@@ -171,12 +171,11 @@ chooseCRANmirror(ind=1)
 
 which selects the first item off that list. It is the cloud-based server operated by RStudio. This is a redirection service and helps find the closest server to us.
 
-Then, we would install the desired  package using the menu item or:
+Then, we would install the desired package using the menu item or:
 
 `install.packages("installr")`
  
 I prefer to type the package name as looking down the list of over 6000 packages takes longer than typing the command.
-
 
 To get this package loaded for use, we need to use either the `require` or `library` commands:
 
@@ -231,5 +230,98 @@ pandoc is available from the  [pandoc download page.](https://github.com/jgm/pan
 
 An installation of miktex is recommended for anyone wishing to incorporate R output and graphs in a pdf file. It is available from the [miktex home page](http://www.miktex.org)
 
+## Using RStudio
 
+RStudio is the most popular integrated development environment (IDE) for working with R. An integrated development environment generally combines a good text editor that knows quite a bit about the language being written (in this case R) with tools that make managing the development process (writing code across multiple files) a little easier. In the case of RStudio we have
 
+### The console
+
+By default, in RStudio you'll see the Console on the left of the screen. This is pretty much identical to the RGui console windows, though the colours may differ a little bit. You can type stuff in here, or copy and paste stuff into here the same way as you can with plain R terminal or R Gui to execute R code directly.
+
+### Environment and History tabs
+
+The Environment and History tabs (as well as more that we'll get to later) can be found in the top right in RStudio.
+
+#### Environment
+
+For now, you can think of the Environment tab as holding your workspace (the 'Global Environment'). It'll have any data you have loaded in the form of data-frames, plus any additional non-data-frame variables listed in the Values section, and any functions that R knows about (that you've written) in the Functions section. In addition, you can take a look at what is inside any packages you have loaded by clicking on the drop down above. There's also shortcuts toolbar icons for loading and saving the workspace, importing data, and clearing the workspace.
+
+If you re-execute the code you wrote earlier, you'll have your `MySample` object showing up, which you can see is stored as an integer with indicies 1 through 10, with the values alongside.
+
+For data frames, or for things that are lists in R, there's a little more functionality available. Let's create one so we can take a look. A data frame is just a bunch of columns the same length. i.e. just like you'd normally have in a set of data.
+
+```{r}
+MyDataFrame <- data.frame(num = 1:10, alpha = letters[1:10])
+MyDataFrame
+```
+
+If you execute the above, you'll find you'll have `MyDataFrame` in the Data section. You can click on the little arrow next to it on the left to take a look at it's structure: This is equivalent to running `str(MyDataFrame)` from the console:
+
+```{r}
+str(MyDataFrame)
+```
+
+You can double click on your data frame to get it to show you the data in a spread-sheet like format. With newer versions of RStudio you should be able to re-order or filter the columns in this view which is quite handy just for looking through data.
+
+#### History
+
+The history window shows you your history. It's basically just showing your `.Rhistory` file, but adds a couple of small niceties. You can select lines (or blocks) of code you've previously written and copy them into the console with the 'To Console' button to re-run them which can be handy. Usually more handy is you can copy those lines into an R script with the 'To Source' button. We'll get to R Scripts when we discuss the editor below.
+
+### Files, plots, packages, help
+
+In the bottom right is the Files, Plots, Packages and Help tabs (as well as others we'll get to later!)
+
+#### Files
+
+The Files tab is similar to 'Windows Explorer'. It allows you to navigate the filesystem, open scripts or markdown documents, create folders, or delete and rename files. Under the More toolbar button there's Copy and Move, as well as the ability to set the working directory to a given folder.
+
+#### Plots
+
+The Plots tab will hold any plots you create. You'll be able to go back and forward through your plot history to look at previous ones (by default R will overwrite the current plot when you do a new one in RGui, though ofcourse this can be controlled) as well as export them to an image or PDF file. There's even a 'Publish' button which will push your plot up to RPubs, a (free) public website hosted by RStudio so you can share your plot with the world should you wish.
+
+#### Packages
+
+The packages tab encapsulates the R package manager. Here you can see all the packages you have available which will include system pacakges as well as packages you've installed. Those that are loaded in the current session will have a tick on the left. To load them, just check the box, and RStudio will execute `library(package_name)` for you. To unload, uncheck the box. You can install and update packages with the click of a button here as well. The Update button will present you with all the packages that have an update available, and you can see what has changed and update each of them as you like.
+
+You can also click on the package name to access the help for that package. You might want to try that on a few of the packages to see what sort of help at a package level R provides - that takes you to the next section...
+
+#### Help
+
+The R help system is provided under the Help tab. This allows you to jump through the help (forward/backward) similar to a web-browser, as well as searching the help in general (top right search bar) or within the current topic ('Find in Topic').
+
+### Text editor
+
+What really makes RStudio shine is it's nice integrated text editor. If you don't already have an R Script open, you can open the one you created earlier (`File->Open`) or create a new one (`File->New...->R Script`).
+
+The text editor including in RStudio understands R code. It offers:
+- Auto-completion of variables, package and function names, as well as offering hints as to what function parameters can take.
+- Auto-indenting of conditional blocks of code (such as inside loops or conditional statements).
+- Adding of template `roxygen` comment blocks to assist in documentation.
+- Automatic detection of where code will fail, due to incomplete parentheses, commas or brackets.
+- Syntax highlighting of R code so that strings, brackets etc. stand out from other code.
+- It understands other code formats as well, such as C/C++ and R Markdown.
+- It has a bunch of helpers built in, such as taking a set of R commands and turning them into a function, commenting or indenting large chunks of code, re-formatting code into 'tidier" forms.
+- It also integrates with the R debugging tools to allow you to easily set breakpoints in code and step through code with the R debugger.
+- Lastly, it has some handy toolbar buttons or keyboard shortcuts for running blocks of code, for sourcing R scripts, compiling R Markdown, or creating R notebooks, which translate an R script into an R markdown document and then compiles it.
+
+### RStudio projects
+
+Just like with plain R, it pays to organise your work into folders. RStudio calls these 'Projects' - they're just a folder that can help you organise R scripts or data files and which is used to save your history (`.Rhistory`) and workspace (`.Rdata`) files. In addition, RStudio adds a file named `dir_name.Rproj` which holds extra information that RStudio knows about your project. This can include preferences for the text editor (e.g. the spacing to use for indents, or the character-encoding to use for text containing characters such as umlauts) or other parts of RStudio.
+
+You might like to associate a new RStudio project with the existing folder you've been working in, by going to `File->New Project...` and selecting `Existing Directory`. It will add the `.Rproj` file. You can then exit RStudio and get back into it where you were by clicking on the `.Rproj` file. This will re-load your history and workspace, and set the working directory to that folder.
+
+### Other neat stuff
+
+A lot of the new R development is happening with folk that either work for RStudio directly, or use it as a development environment. Thus, RStudio has quite a few nice-to-haves when writing R code. All of these are available in plain R, so can all be invoked in the same ways above (and there are often situations where this is more efficient!) but for interactive work with R code, the shortcuts provided can be quite nice.  A few examples are listed below.
+
+#### Version control integration
+
+RStudio knows when a folder is under version control using Git, and if so adds a Git tab in the top right, allowing you to see code differences compared to previous versions and add files or commit new versions to a repository. It also allows you to work with remote repositories, such as [Github](http://github.com).
+
+#### Integration with shiny
+
+Shiny is a package that helps produce javascript-based webapps that communicate with an R back-end on a webserver to produce interactive webpages. RStudio can recognise when a shiny app is being developed and adds toolbar buttons to allow you to run the shiny application directly.
+
+#### Package development tools
+
+If you want to develop an R package, RStudio can help to simplify the process by utilising the `devtools` package. It adds a 'Build' tab in the top right that allows you to compile documentation, run tests (using the `testthat` package), build the package, run the CRAN build process (so you can fix warnings prior to submission to CRAN) and so on.
