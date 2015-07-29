@@ -81,7 +81,7 @@ You should see the same welcome screen as you saw in the GUI console except that
 
 You are almost certainly in the same working directory as you were for the exercises done previously. (You could check.)
 
-Use of the terminal in conjunction with a text editor for creating scripts is perfectly acceptable. (It's what I do (JG). It works because all functionality offered in the R GUI can be achieved using commands alone.
+Use of the terminal in conjunction with a text editor for creating scripts is perfectly acceptable. (It's what I do - JG). It works because all functionality offered in the R GUI can be achieved using commands alone.
 
 ### Using the command line to run jobs in batch mode
 
@@ -125,7 +125,6 @@ Revolution Analytics (now owned by Microsoft) has a product called Revolution R 
 
 Open Analytics has an IDE called Architect. It is based on the Eclipse IDE. If you are experienced with Eclipse environments, then feel free to investigate this product. Be warned that installation on my laptop  hasn't been plain sailing (JG) so it is mentioned for information only at this time.
 
-
 The R commander and Deducer front ends add menus to the standard R GUI to provide a range of statistical analyses in dialogue box form. They can be useful for the novice user, but they do have some problems/limitations to note. First, they do not leave the user with an R script file that can be used by any other user, that is, they do not always generate standard R code for every task. Second, they are not comprehensive and so cannot be relied upon for full integration with other actions and methods of working. It is hoped that these workshops push past the *novice* level and that their usefulness is therefore less relevant to your team.
   
 ## Some basic things we ought to know
@@ -140,8 +139,7 @@ The help pages are fairly good for illustrating the usage of a command. The exam
 
 There are plenty of add-on packages that you might use. These often include demonstrations, but of late the culture is to create **vignettes** to illustrate the use of the additional package.
 
-A major advantage of the help page examples and vignettes is that the R code in them must be syntactically correct. (There are situations where the development process hasn't used the testing features. Look out for parts of the examples on help pages where it says `dontrun` or `donttest`.
-
+A major advantage of the help page examples and vignettes is that the R code in them must be syntactically correct. (There are situations where the development process hasn't used the testing features. Look out for parts of the examples on help pages where it says `dontrun` or `donttest`).
 
 #### R bloggers
 
@@ -150,7 +148,6 @@ This is  an aggregator  service that monitors over 400 blogs that pertain to R. 
 #### Stack overflow
 
 Most of the time that I resort to google for the answer to a question that relates to R, I find the results point to stack overflow more than anywhere else. If you do post to stack overflow, the readers expect you to have an example that they can reproduce for testing purposes. Failure to do so can lead to some grumpiness, and a lack of responses.
-
 
 ### Packages (installing and loading)
 
