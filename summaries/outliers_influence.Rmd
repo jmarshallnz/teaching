@@ -1,0 +1,45 @@
+---
+title: "Outliers and Influence"
+author: "Jonathan Marshall"
+date: "29 July 2015"
+output: pdf_document
+graphics: yes
+---
+
+## Introduction
+
+When we fit a linear model, we need to be careful that the results haven't been overly influenced by just one or two data points. If they have, then it's likely that another sample may not produce the same results.
+
+We can do this by checking for the **influence** of each of the observations. Observations may be extreme in two ways:
+
+1. They could have an extreme $y$ value, relative to similar observations, in which case they'd have an extreme residual.
+2. They could have an extreme $x$ value, relative to the rest of the observations.
+
+Observations with extreme residuals will tend to effect the regression line more than obversations with small residuals will. Similarly, observations with extreme $x$ values will tend to effect the regression line more, as they'll tend to have more **leverage** as they're at the extremes of the covariate range.
+
+One way to think about this is to imagine springs tying each observation onto the regression line. Points at the end of the line can tilt it quite a bit, as there aren't many other points pulling in the other direction to untilt it, whilst points in the middle can only really move the line up and down a tiny bit, as there's a bunch more points around them pulling it in the opposite direction.
+
+## Assessing influence
+
+We can assess whether observations have high influence by plotting the residuals against a measure of leverage. This is usually the 4th diagnostic plot when you plot a linear model in RStudio.
+
+On the $x$-axis we plot the leverage, and on the $y$ we plot the residuals. Observations have high influence if they have both high leverage and large residuals. These will lie on the right (high leverage) and at the extremes (top and bottom) of the $y$-axis.
+
+### Cook's distance
+
+The question arises as to "how extreme" the points have to be before we get concerned. Cook's distance is a measure of that. It basically combines leverage and the residual to produce a measurement that can be used to classify points into those that are definitely having an effect on the linear model, those that aren't, and those that are somewhere in-between.
+
+- A Cook's distance of 1 or more is bad - the point will have large influence, and should be removed from the data set with the model being re-fitted.
+- A Cook's distance between 0.5 and 1 is questionable. It is advisable to try re-fitting the model without the point present to check that your conclusions are still valid.
+- A Cook's distance less than 0.5 is fine.
+
+The Cook's distance areas are presented on the plot in R as dashed red lines: Any observation located past the red lines in the top right or bottom right should be looked at in more detail. Sometimes you won't see any red lines: In that case, all the observations have Cook's distance less than 0.5 so all is fine.
+
+An example of a residuals versus leverage plot is below. There's a few points with high leverage (on the right) but they have low residuals, so thus don't have high influence. Similarly, there's a few points with large residuals (e.g. the point hiding underneath the word "distance") but it doesn't have much leverage, so doesn't influence the linear model greatly.
+
+```{r, echo=FALSE, dev='tikz', fig.align='center', fig.width=4, fig.height=4}
+source("../common/simple_linear_regression.R")
+example <- gen_simple_regression_data()
+mod <- lm(y ~ x, data=example)
+plot(mod, which=5)
+```
