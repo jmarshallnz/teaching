@@ -1,6 +1,11 @@
 # Introduction to R and RStudio
 ### Jonathan Godfrey and Jonathan Marshall
 
+```{r crazyLinuxSetupStuff, echo=FALSE}
+if (Sys.info()["sysname"] == "Linux")
+  setInternet2 <- function() { invisible(NULL) }
+```
+
 ##  Getting started with R
 
 The standard method for running R is the Graphic User Interface (GUI). The standard installation on a  64-bit Windows machine puts two shortcuts on the desktop; one is for 32-bit operation. It won't matter which we use in this first session, or for most of the work you will do for some time!
