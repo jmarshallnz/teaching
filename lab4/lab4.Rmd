@@ -1,0 +1,95 @@
+---
+title: "227.215 Biostats Lab 4"
+author: "Jonathan Marshall"
+date: "9 August 2015"
+output:
+  pdf_document: null
+  html_document: default
+graphics: yes
+---
+
+## Introduction ##
+
+In this lab we'll return to the set of data on the birth weight of lambs, based on the data from last year's project, and assess whether there might be a differential effect of shearing or feed treatment dependent on whether the lamb is a single or twin. This will therefore be good practice for the last part of your project this year.
+
+After that, we'll look at a set of data on plate meter measurements of grass, and how we can treat the lack of independence of residuals through the use of random effects.
+
+## Exercise 1: Load up your R script 
+
+1. Load up your RStudio project from last time and load in your R script.
+
+2. Take the opportunity to go through your script and recall what we did last time around. You can re-execute any lines as needed to help remember what they do.
+
+3. Add comments to your script if you've forgotten anything.
+
+4. Compile your notebook and make sure the title and author etc. have been correctly set in the HTML or Word document.
+
+## Exercise 2: Assessing for a differential effect of shearing and feed treatment on twins.
+
+1. Create a new linear model, adding an **interaction** term to your model between `Shorn` and `Rank`.
+
+2. Compare this model with your previous one from last time using the `anova` function.
+
+3. Is there evidence for a differential effect of shearing and feed treatment on twins compared with singles? Add some notes about this to your R script.
+
+4. Add the following code which looks at the effect of shearing broken up by rank.
+
+```
+plot(Birthweight ~ interaction(Rank, Shorn), data=lambs)
+```
+
+5. Does this plot agree with your anova results?
+
+6. Repeat the above, this time adding an interaction term between `Feed` and `Rank`. Is there evidence of a differential effect of feed between twins and singles?
+
+## Exercise 3: Create a new R script
+
+In this exercise we'll look at some grass measurement data.
+
+1. Create a new R script file, and copy and paste the metadata block from your lab3.R script into it, changing the title.
+
+2. Add the following lines to read in the grass measurement data.
+
+
+1. Add some code and comments to your R script to produce some plots of `BirthWeight` versus the covariates `Rank`, `Sex`, `Feed` and `Shorn`.
+
+2. Is there any graphical evidence for a relationship between `BirthWeight` and these variables?
+
+3. What does the distribution of `BirthWeight` look like within each of the categories? Do you think the linear model assumptions will hold for these data?
+
+## Exercise 3: Linear modelling of birthweight data
+
+In this exercise we'll look at analysing the average birthweight with a linear model. **Remember to add comments to your R script so that when you compile the notebook you have some commentary to look back on later.**
+
+1. Fit a linear model to the data using only the `Shorn` variable.
+
+    a. What is the linear model equation?
+    
+    b. Produce an ANOVA table and model summary table.
+    
+    c. Is the ewe being shorn important for birthweight according to this model?
+
+2. Fit a linear model to the data using only the `Feed` variable.
+
+    a. How has `Feed` been incorporated into the linear model?
+    
+    b. Produce an ANOVA table and model summary table.
+    
+    c. Is the ewes feeding treatment important for birthweight according to this model?
+
+3. Fit a multivariable linear model using the four covariates `Sex`, `Rank`, `Feed` and `Shorn`.
+
+    a. Produce an ANOVA table and model summary table.
+    
+    b. Which variables (if any) are important for birth weight?
+    
+    c. Interpret the summary table coefficients and write some comments into your R script about this.
+    
+    d. Are your results consistent with part 1 and 2? If not, why not?
+    
+    e. Produce a prediction, with 95% interval, for the weight of a male twin, born to an unshorn ewe on the HM feeding treatment.
+    
+    f. Produce a prediction, with 95% interval, for the average weight of a female singles, born to an unshorn ewes on the MM feeding treatment.
+    
+    g. Take a look at the model diagnostics for the model. Do the linear model assumptions seem to hold?
+
