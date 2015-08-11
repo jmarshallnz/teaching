@@ -1,0 +1,111 @@
+---
+title: "Interactions"
+author: "Jonathan Marshall"
+date: "11 August 2015"
+output: pdf_document
+graphics: yes
+---
+
+## Introduction
+
+To date, we've been assuming that all the covariates in a linear model apply **additive** effect to the mean of the response.
+
+For example, suppose we are assessing a particular condition for a patient, and we have a diagnostic measurement $y$ that indicates how bad the condition is, with low values of $y$ being bad. Suppose then that we have two drugs, A and B that could be used to treat the condition - perhaps they operate on different mechanisms. A patient with the condition might be prescribed A, or B, or both A and B simultaneously, or neither of the drugs. Thus, there are 4 possible treatments corresponding to presence or absence of drugs A and B in the treatment regime.
+
+With our current understanding of linear models, we'd model this scenario by including indicator variables $z_A$ and $z_B$ in the model such that $z_A = 1$ if A is used (and $z_A=0$ if not), and $z_B=1$ if B is used (and $z_B=0$ if not). Our linear model would then take the form
+$$
+\mathsf{mean}(y) = \alpha + \beta_A z_A + \beta_B z_B
+$$
+where $\alpha$ would represent the baseline or control measurement (with neither drug used) and $\beta_A$ and $\beta_B$ measure the effect of drugs A and B respectively.
+
+To put some numbers around it, let's assume that in the absence of either drug, the diagnostic test gives a value on average of $y=10$ units which is lower than it should be. Further, suppose that the effect of drug A is to increase the diagnostic measurement $y$ of the condition by 3 units, and that the effect of drug B is to increase $y$ by 5 units. Thus, in the above equation, $\alpha=10$, $\beta_A = 3$ and $\beta_B = 5$. What are the possibilities for the four possible treatment regimes?
+
+- In the absence of either drug we have $z_A = 0$ and $z_B=0$ so that $y = 10$.
+- If just drug A is used, then $z_A = 1$ and $z_B = 0$ so that $y = 10 + 3 = 13$.
+- If just drug B is used, then $z_A = 0$ and $z_B = 1$ so that $y = 10 + 5 = 15$.
+- If **both** drugs are used, then $z_A=1$ and $z_B = 1$ so that $y = 10 + 3 + 5 = 18$.
+
+Note the last one: **Our model form assumes that the effects of both drugs can be added together**. This may not make sense: It may be that the effects of the drug combine and do better than just an 8 unit increase, or alternatively that the benefits of both drugs
+combined might be less than 8 units (perhaps they use similar mechanisms, so some of the improvement is common to both).
+
+In order to allow the effect of both drugs to differ from the additive combination of each drug separately, we need to include an **interaction term** in the model. We do this by introducing another indicator variable that is set to 1 if both drugs are part of the treatment regime:
+$$
+\mathsf{mean}(y) = \alpha + \beta_A z_A + \beta_B z_B + \beta_{AB} z_{AB}
+$$
+where $z_{AB} = 1$ if both A and B are used. Notice that $z_{AB} = z_A \times z_B$, as the only way $z_{AB}=1$ is when both $z_A$ and $z_B$ are 1. This model then allows the possibility that the combined effect of A and B might differ from their separate effects added together: The effect of adding drug B to the regime may differ depending on whether drug A is also used, and similarly, the effect of adding drug A may differ depending on whether drug B is used. Using the equation,
+
+- In the absence of either drug we have $z_A = 0$ and $z_B=0$ so that $y = 10$.
+- If just drug A is used, then $z_A = 1$ and $z_B = 0$ so that $y = 10 + 3 = 13$.
+- If just drug B is used, then $z_A = 0$ and $z_B = 1$ so that $y = 10 + 5 = 15$.
+- If **both** drugs are used, then $z_A=1$ and $z_B = 1$ so that $y = 10 + 3 + 5 + \beta_{AB} = 18 + \beta_{AB}$.
+
+Thus, the coefficient of the interaction term, $\beta_{AB}$ is measuring how far off being additive the two treatments are when combined. If $\beta_{AB}$ is negative, then the combined treatment is less effective than what would be expected when you add each effect together, whereas if $\beta_{AB}$ is positive then the combined effect of the two drugs is more effective than you'd expect on adding each of their individual effects.
+
+One way to think about this is that the effect of drug B differs depending on whether drug A is part of the treatment. e.g. if $\beta_{AB} = 2$ then those given drug B that aren't also on drug A have a diagnostic measurement 5 units higher ($y = 10 + 5 = 15$ vs $y=10$), while those given drug B alongside drug A have a diagnostic measurement 7 units higher than those just on drug A ($y = 10 + 3 + 5 + 2 = 20$ compared to $y = 10 + 3 = 13$). So by adding drug B to the regime, those on drug A benefit more than those that were in the control group.
+
+You can also think about it in terms of the extra benefit of drug A over and above just drug B. In the absence of drug B, drug A makes a difference of 3 units. But if drug B is in play, then adding drug A increases the measurement by 5 units (3 + 2).
+
+## Interactions in RStudio
+
+We can add interactions in RStudio by adding a term of the form `A:B` to the linear model formula where the colon means "interaction". We can then assess the interaction exactly the same way as we assess any other term in the model: We can use the summary table if the interaction is just between two numeric variables, or, if the interaction involves a factor (and thus is itself a factor) we can use the anova table.
+
+An example, using the petrels data, to see if the difference in right wing length between male and female birds might differ between the various areas, we could use a linear model as follows.
+
+```{r}
+petrels <- read.csv("http://www.massey.ac.nz/~jcmarsha/227215/data/petrels.csv")
+petrels$Area <- as.factor(petrels$Area)
+petrels$Sex  <- as.factor(petrels$Sex)
+mod <- lm(R.Wing.Lth ~ Sex + Area + Sex:Area, data=petrels)
+```
+
+The anova table below suggests there is an effect of `Sex`, an effect of `Area`, but that the interaction between `Sex` and `Area` is not significant. This suggests that the difference in right wing length between male and female birds is similar across the different areas (i.e. any differences between areas in the male vs female difference could have arisen by chance).
+```{r}
+anova(mod)
+```
+
+We know they're not significant, but to find out what the differences are, we can use the summary table
+```{r}
+summary(mod)
+```
+This table is a little bit tricky to interpret, but let's give it a go. The easiest way to consider it is to first work out what is in the baseline (Sex=1, males and Area=1) and then work out what each of the entries must then mean, as each coefficient is just a difference from the baseline.
+
+So, male birds in area 1 (the baseline) have right wing length of 389.9 cm. Because we have interaction terms, the `Sex2` coefficient no longer refers to all female birds, but rather just the birds in the baseline (in this case birds in area 1). Thus, female birds in area 1 have 0.8cm smaller right wing lengths.
+
+The `Area2` coefficient again only applies (as we have the interaction term) to the baseline. Thus it is comparing males in area 2 vs males in area 1.
+
+What if we want to compare females in area 2 to males in area 1? Well, in that case Sex=2 and Area=2 so we'd get the contribution from the `Sex2` line (-0.8) plus the contribution from the `Area2` line (-5.64) plus the contribution from the `Sex2:Area2` line (-2.73) Thus, females in area 2 are $-0.8 + -5.64 + -2.73 = -9.17$, so 9.17 cm smaller right wing length compared to males in area 1.
+
+What about females in area 2 compared to males in area 2? Well, males in area 2 would have the `Area2` coefficient, while females would have the `Area2` coefficient plus the `Sex2` and `Sex2:Area2` coefficients. So the difference will be the `Sex2` and `Sex2:Area2` coefficients, so $-5.64 + -2.73=-8.37$, thus 8.37cm smaller.
+
+And so on! It can be easier sometimes to just use the `predict` function to work out the means of each of the combinations we want. The `expand.grid` function is helpful here.
+
+```{r}
+new_data <- expand.grid(Sex=factor(1:2), Area=factor(1:6))
+new_data$MeanRightWingLength <- predict(mod, new_data)
+new_data
+```
+
+Some explanation of this code-magic! The `expand.grid` function just gives us all combinations of the two (or more) things we pass in. In this case it gives us all 12 combinations of `Sex` and `Area`. The next line is doing the prediction and then putting the result of the prediction into the `new_data` data frame in a new column called `MeanRightWingLength`. The last line just prints it out.
+
+Notice the prediction for females in area 2 (380.74) is 9.17 units smaller than males in area 1 (389.91) just like we worked out above.
+
+A way to see this graphically with the raw data (rather than looking at the model fit above) is to do a plot using the `interaction` function
+
+```{r, dev='tikz'}
+plot(R.Wing.Lth ~ interaction(Sex, Area), data=petrels, border=c("black", "red"))
+```
+
+Each pair of plots (black and red) are an area, with black being males and red being females. What you should be able to see is that on the whole, females are smaller than the corresponding males in each area, and in the most part the difference in centers is about the same. e.g. see area 2, 3, 4, 5 are similar differences with females being smaller in each area. Area 1 and 6 seems like there's not much difference in size between the sexes, but this could have arisen by chance according to our model. Below I've plotted the model fits on top of the data (in blue for the model with interaction, in red for the model without interactions).
+
+```{r, echo=FALSE, fig.height=7, dev='tikz'}
+par(mfrow=c(2,1), mar=c(2,3,2,2))
+plot(R.Wing.Lth ~ interaction(Sex, Area), data=petrels, border=c("#0000003f", "#ff00003f"))
+segments(1:12-0.5, new_data$MeanRightWingLength, 1:12+0.5, col="blue", lwd=2)
+legend("topright", legend="With interaction", lwd=2, col="blue", bty="n", text.col="blue")
+plot(R.Wing.Lth ~ interaction(Sex, Area), data=petrels, border=c("#0000003f", "#ff00003f"))
+segments(1:12-0.5, predict(lm(R.Wing.Lth ~ Sex + Area, data=petrels), new_data), 1:12+0.5, col="red", lwd=2)
+legend("topright", legend="No interaction", lwd=2, col="red", text.col="red", bty="n")
+```
+
+As you can see, the model without interactions (red) has a constant difference between the sexes in each area, while the model
+with interactions (blue) is allowing different differences between the sexes in each area. However, the blue and red lines aren't really all that different, which is what the P-value for the interaction term was measuring (the differences in the blue lines compared to the red could have arisen by chance).
