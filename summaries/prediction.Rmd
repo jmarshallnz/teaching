@@ -59,9 +59,14 @@ We can now use `new_data` in the `predict` command
 predict(mod, new_data, interval="confidence")
 predict(mod, new_data, interval="prediction")
 ```
-The first `predict` line is giving us a confidence interval for the **mean** right wing length of male birds from area 3 whose left wing length is 370cm. We'd be 95% confident that the average right wing length of such birds would be between 378.7 and 387.9cm.
 
-The second `predict` line is giving us a prediction interval for the right wing length of an **individual** male bird from area 3 whose left wing length is 370cm. We'd be 95% confident that the right wing length of such birds would be between 365.4 and 401.2cm.
+```{r, echo=FALSE}
+p_ci = round(predict(mod, new_data, interval="confidence"),1)
+p_pi = round(predict(mod, new_data, interval="prediction"),1)
+```
+The first `predict` line is giving us a confidence interval for the **mean** right wing length of male birds from area 3 whose left wing length is 370cm. We'd be 95% confident that the average right wing length of such birds would be between `r p_ci[2]` and `r p_ci[3]`cm.
+
+The second `predict` line is giving us a prediction interval for the right wing length of an **individual** male bird from area 3 whose left wing length is 370cm. We'd be 95% confident that the right wing length of such birds would be between `r p_pi[2]` and `r p_pi[3]`cm.
 
 ### Common errors
 
