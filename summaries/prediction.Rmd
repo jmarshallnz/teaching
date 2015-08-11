@@ -40,7 +40,11 @@ anova(mod)
 summary(mod)
 ```
 
-You can see we're modelling the average right wing length using the left wing length, the area and the sex. The left wing length is numeric, whereas the area and sex are both factors. From the anova table we see that all variables are significant, and from the summary table we can see that for each unit (1cm) increase in left wing length the right wing length increases by 0.956cm after adjusting for the differences due to area and sex. Further, we see that females have right wing length 2.53cm larger than males (after adjusting for other covariates) and area 4 birds significantly differ from area 1 birds after adjusting for other covariates (they have larger right wing lengths by 0.9cm).
+```{r, echo=FALSE}
+co = round(coef(mod),3)
+```
+
+You can see we're modelling the average right wing length using the left wing length, the area and the sex. The left wing length is numeric, whereas the area and sex are both factors. From the anova table we see that all variables are significant, and from the summary table we can see that for each unit (1cm) increase in left wing length the right wing length increases by `r co["L.Wing.Lth"]`cm after adjusting for the differences due to area and sex. Further, we see that females have right wing length `r co["Sex2"]`cm larger than males (after adjusting for other covariates) and area 4 birds significantly differ from area 1 birds after adjusting for other covariates (they have larger right wing lengths by `r co["Area4"]`cm).
 
 These last two are interesting, as if left wing length isn't in the model then the direction of the effect changes! (Male birds are typically larger than female). The key here is that **each of the coefficients in the summary table are adjusted for the others**. i.e. after taking into account the left wing length (which for females will be smaller!) the right wing length in females is larger than in males. The reason is that the difference in left wing length between the sexes is larger in left wings than in right.
 
