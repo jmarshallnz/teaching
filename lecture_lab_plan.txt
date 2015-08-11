@@ -9,6 +9,12 @@ Lecture 2: Multiple linear regression (what t-statistic gives), F statistic, Add
 Lab 3: Analysis of variance, nested models.
 
 Lecture 3: Nested models, Two-way ANOVA, interactions, model selection.
+ - interpretation of coefficients. Petrels data include left wing and sex/area changes.
+ - interactions (2 way anova)
+ - model selection?
+ - nested models?
+ - mixed models?
+
 
 Lab 4: A mixed effects model? Or two-way models or grouped-regression interactions? Or?
 
