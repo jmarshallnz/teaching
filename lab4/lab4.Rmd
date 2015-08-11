@@ -26,70 +26,85 @@ After that, we'll look at a set of data on plate meter measurements of grass, an
 
 ## Exercise 2: Assessing for a differential effect of shearing and feed treatment on twins.
 
-1. Create a new linear model, adding an **interaction** term to your model between `Shorn` and `Rank`.
+1. Create a new linear model, adding an **interaction** term to your model between `Shorn` and `Rank`. Remember that you can do this by adding `Shorn:Rank` to your model, i.e.
 
-2. Compare this model with your previous one from last time using the `anova` function.
+    ```
+    mod_rank <- lm(BirthWeight ~ Sex + Rank + Feed + Shorn + Shorn:Rank, data=births)
+    ```
 
-3. Is there evidence for a differential effect of shearing and feed treatment on twins compared with singles? Add some notes about this to your R script.
+2. Use the `anova` function to assess whether the interaction term is significant or not.
 
-4. Add the following code which looks at the effect of shearing broken up by rank.
+3. Is there evidence for a differential effect of shearing on twins compared with singles? Add some notes about this to your R script.
 
-```
-plot(Birthweight ~ interaction(Rank, Shorn), data=lambs)
-```
+4. Take a look at the `summary` table for the model. What does the `RankTwin:ShornYes` coefficient represent?
 
-5. Does this plot agree with your anova results?
+5. Add the following code which looks at the effect of shearing broken up by rank.
 
-6. Repeat the above, this time adding an interaction term between `Feed` and `Rank`. Is there evidence of a differential effect of feed between twins and singles?
+    ```
+    plot(BirthWeight ~ interaction(Shorn, Rank), data=births)
+    ```
+
+6. Does this plot agree with your anova results?
+
+7. Repeat the above, this time adding an interaction term between `Feed` and `Rank`. Is there evidence of a differential effect of feed between twins and singles?
 
 ## Exercise 3: Create a new R script
 
-In this exercise we'll look at some grass measurement data.
+In this exercise we'll look at some grass measurement data collected by Animal Production students in 2013 using grass plate meters.
 
 1. Create a new R script file, and copy and paste the metadata block from your lab3.R script into it, changing the title.
 
-2. Add the following lines to read in the grass measurement data.
+2. Add the following lines to read in the grass measurement data and take a look at the summary.
 
+    ```
+    #' Read in data on grass measurements
+    grass <- read.csv("http://www.massey.ac.nz/~jcmarsha/227215/data/grass.csv")
+    summary(grass)
+    ```
 
-1. Add some code and comments to your R script to produce some plots of `BirthWeight` versus the covariates `Rank`, `Sex`, `Feed` and `Shorn`.
+3. Add some code and comments to your R script to produce some plots of `metread` versus the covariates `farm`, `paddock`, and `person`.
 
-2. Is there any graphical evidence for a relationship between `BirthWeight` and these variables?
+4. Is there any graphical evidence that the plate meter readings changes between farms, paddocks or the person using the meter? Add some comments to your R script.
 
-3. What does the distribution of `BirthWeight` look like within each of the categories? Do you think the linear model assumptions will hold for these data?
+5. Build a linear model to assess whether the plate meter readings differ by farm. What is your conclusion? Add some comments to your R script.
 
-## Exercise 3: Linear modelling of birthweight data
+6. Now built a linear model incorporating `person` as well as `farm`. What is your conclusion now about whether plate meter readings differ by farm?
 
-In this exercise we'll look at analysing the average birthweight with a linear model. **Remember to add comments to your R script so that when you compile the notebook you have some commentary to look back on later.**
+7. Compare your results from 5 and 6, and add some comments to your R script as to why they differ.
 
-1. Fit a linear model to the data using only the `Shorn` variable.
+## Exercise 4: Incorporating a random effect for person
 
-    a. What is the linear model equation?
-    
-    b. Produce an ANOVA table and model summary table.
-    
-    c. Is the ewe being shorn important for birthweight according to this model?
+The problem with our linear model from part 6 is that by including the person in the model, we can no longer predict what the average measurement will be on those farms should **other** people take them. Our model is restricted to just the people that did the initial measures.
 
-2. Fit a linear model to the data using only the `Feed` variable.
+Ideally, we'd want to account for the variation between people while not having to include it in the model for prediction.
 
-    a. How has `Feed` been incorporated into the linear model?
-    
-    b. Produce an ANOVA table and model summary table.
-    
-    c. Is the ewes feeding treatment important for birthweight according to this model?
+We can do this by treating the person variable as **random**. The basic idea is that we have multiple residuals for each person, so the average of the residuals for a particular person could be treated as that persons effect on the measurement.  We basically rewrite the residuals as
 
-3. Fit a multivariable linear model using the four covariates `Sex`, `Rank`, `Feed` and `Shorn`.
+$$
+\epsilon_{ij} = \mathsf{person}_i + \eta_{ij}
+$$
 
-    a. Produce an ANOVA table and model summary table.
-    
-    b. Which variables (if any) are important for birth weight?
-    
-    c. Interpret the summary table coefficients and write some comments into your R script about this.
-    
-    d. Are your results consistent with part 1 and 2? If not, why not?
-    
-    e. Produce a prediction, with 95% interval, for the weight of a male twin, born to an unshorn ewe on the HM feeding treatment.
-    
-    f. Produce a prediction, with 95% interval, for the average weight of a female singles, born to an unshorn ewes on the MM feeding treatment.
-    
-    g. Take a look at the model diagnostics for the model. Do the linear model assumptions seem to hold?
+where $\epsilon$ is the $j$-th residual of person $i$ from the linear model with just farm in it, $\mathsf{person}_i$ is the average residual for person $i$, and $\eta_{ij}$ is the left-over $j$-th after subtracting out the person level average.
 
+We do this in such a way that the mean of the person effects is 0. Thus, to predict for a new person, we just set the person effect to 0 and incorporate the variation in the person effects into prediction intervals.
+
+To do this in R, we use the `nlme` library, which stands for "non-linear mixed effects". The mixed is because we're mixing normal linear model coefficients (fixed effects) with random effects.
+
+1. Start by loading the library in and fitting a model
+
+    ```
+    #' Load in the nlme library
+    library(nlme)
+    #' Fit a model incorporating a random effect for person
+    mixed <- lme(metread ~ farm, random=~1|person, data=grass)
+    ```
+
+    The `random` bit here can be read as specifying separate mean (intercept) for each person.
+
+2. Do an anova and summary table for the mixed model. What is your conclusion?
+
+3. Notice that the summary table gives you some information about your random effects. The `Intercept` value is the standard deviation of the per-person random effect (i.e. between-person variability), while the `Residual` value is the standard deviation of the left-over residuals after accounting for people (i.e. the within-person variability). You should notice that there is more within-person variation than there is between-person variation.
+
+4. Summarise your results in a few comments in your R script file.
+
+5. All the best for the rest of the course!
