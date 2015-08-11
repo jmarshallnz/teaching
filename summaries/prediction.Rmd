@@ -1,0 +1,86 @@
+---
+title: "Prediction with linear models"
+author: "Jonathan Marshall"
+date: "12 August 2015"
+output: pdf_document
+graphics: yes
+---
+
+## Introduction
+
+Once we have fit a linear model, we can use the linear model equation for predicting the mean of the outcome variable given particular values of the covariates.
+
+We do this simply by substituting the requisite covariate values into the linear model equation to produce the average $y$ value.
+
+R can ofcourse do this for us using the `predict` command, and while doing so can help us incorporate the uncertainty in our coefficients (their standard errors) to produce a confidence interval for that mean prediction. In addition, we can also get R to add in the residual variation in order to give a prediction interval for individuals.
+
+## Prediction with R
+
+Once you've fit a linear model (regardless of how complex, or what variable types are involved) you can use the `predict` command to make predictions.
+
+In order to do so, you'll need the values for the covariates that you wish to predict the outcome for. These need to be in a new data frame with columns labelled like the old one **and whose columns are the same type**. The latter is important: If we include a variable as a numeric variable in the linear model, then the new data frame must have that column as numeric. Likewise, if we include a variable as a factor in the linear model, the new data frame must have that column as a factor.
+
+There's a couple of ways to do this.
+
+1. Use the `data.frame` function to construct a new data frame containing the observations you want. This is useful if you have a single observation to predict for, but gets a bit old with multiple observations.
+2. Use Excel or similar to create a new data set to predict with, save it as a .csv file, and read that into R using `read.csv`. This is useful if you have a bunch of observations to predict for - it's a bit cumbersome for just one observation.
+
+In most cases in this course you'll probably be doing 1, so we'll look at that first.
+
+### Example
+
+Consider the following linear model for the petrels data.
+
+```{r}
+petrels = read.csv("http://www.massey.ac.nz/~jcmarsha/227215/data/petrels.csv")
+petrels$Area = as.factor(petrels$Area)
+petrels$Sex = as.factor(petrels$Sex)
+mod = lm(R.Wing.Lth ~ L.Wing.Lth + Area + Sex, data=petrels)
+anova(mod)
+summary(mod)
+```
+
+You can see we're modelling the average right wing length using the left wing length, the area and the sex. The left wing length is numeric, whereas the area and sex are both factors. From the anova table we see that all variables are significant, and from the summary table we can see that for each unit (1cm) increase in left wing length the right wing length increases by 0.956cm after adjusting for the differences due to area and sex. Further, we see that females have right wing length 2.53cm larger than males (after adjusting for other covariates) and area 4 birds significantly differ from area 1 birds after adjusting for other covariates (they have larger right wing lengths by 0.9cm).
+
+These last two are interesting, as if left wing length isn't in the model then the direction of the effect changes! (Male birds are typically larger than female). The key here is that **each of the coefficients in the summary table are adjusted for the others**. i.e. after taking into account the left wing length (which for females will be smaller!) the right wing length in females is larger than in males. The reason is that the difference in left wing length between the sexes is larger in left wings than in right.
+
+Suppose now we want to predict the average right wing length for male birds in area 3 whose left wing length is 370cm. We do so by placing these values into a new data frame. Notice that we'll need the sex and area to be factors while the left wing length will be numeric. **We surround the value in quotes if we want it to be interpreted as a factor. Numeric variables don't use quotes.**
+
+```{r}
+new_data = data.frame(Sex="1", Area="3", L.Wing.Lth=370)
+new_data
+str(new_data)
+```
+
+The `str` command shows us the structure of the data frame, which gives information on the type of each column. We can see here that `Sex` and `Area` have been correctly interpreted as factors, while the `L.Wing.Lth` is numeric. It doesn't matter that the `Sex` and `Area` variables have fewer levels than we had in the original model, just that the level names match.
+
+We can now use `new_data` in the `predict` command
+```{r}
+predict(mod, new_data, interval="confidence")
+predict(mod, new_data, interval="prediction")
+```
+The first `predict` line is giving us a confidence interval for the **mean** right wing length of male birds from area 3 whose left wing length is 370cm. We'd be 95% confident that the average right wing length of such birds would be between 378.7 and 387.9cm.
+
+The second `predict` line is giving us a prediction interval for the right wing length of an **individual** male bird from area 3 whose left wing length is 370cm. We'd be 95% confident that the right wing length of such birds would be between 365.4 and 401.2cm.
+
+### Common errors
+
+The two most common errors when predicting are:
+
+1. Not correctly specifying the type of the variable (particularly factors whose levels are numbers)
+
+    ```{r, error=TRUE}
+    new_data_bad1 = data.frame(Sex=1, Area=3, L.Wing.Lth=370)
+    predict(mod, new_data_bad1, interval="confidence")
+    new_data_bad2 = data.frame(Sex="1", Area="3", L.Wing.Lth="370")
+    predict(mod, new_data_bad2, interval="confidence")
+    ```
+
+2. Not correctly specifying all variables, or naming them differently.
+
+    ```{r, error=TRUE}
+    new_data_bad3 = data.frame(Sex="1", Area="3")
+    predict(mod, new_data_bad3, interval="confidence")
+    new_data_bad4 = data.frame(Sex="1", Area="3", Left.Wing.Lth=370)
+    predict(mod, new_data_bad4, interval="confidence")
+    ```
