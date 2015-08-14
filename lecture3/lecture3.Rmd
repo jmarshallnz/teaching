@@ -258,6 +258,15 @@ $$
 $$
 Thus, $\beta_{AB}$ can be used to measure whether or not the effects of the two drugs are additive or not.
 
+## Interactions in RStudio
+
+In R, an interaction is specified by adding the two terms separated by a colon.
+```{r}
+mod3 = lm(R.Wing.Lth ~ Sex + Area + Sex:Area, data=petrels)
+anova(mod3)
+```
+As the interaction here is between factors, it should be evaluated using the ANOVA table.
+
 ## Example: Petrels
 
 ```{r, echo=FALSE, fig.width=9.5}
