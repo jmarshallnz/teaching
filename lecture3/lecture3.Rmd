@@ -235,7 +235,7 @@ Both drugs    $\mathsf{mean}(y)=\alpha + \beta_A + \beta_B$
 
 ## Example: Hypothetical drugs
 
-- For the combined drugs treatmet, we have $\mathsf{mean}(y)=\alpha + \beta_A + \beta_B$
+- For the combined drugs treatment, we have $\mathsf{mean}(y)=\alpha + \beta_A + \beta_B$
 
 - We're thus assuming that the individual benefit of each drug add together when combined.
 
@@ -258,6 +258,14 @@ $$
 $$
 Thus, $\beta_{AB}$ can be used to measure whether or not the effects of the two drugs are additive or not.
 
+## Interaactions: Hypothetical drugs
+
+- $\beta_{AB}$ can be used to measure whether or not the effects of the two drugs are additive or not.
+
+- An alternate way to think about it is that the effect of drug B may differ depending on whether the patient is already given drug A.
+
+- e.g. the effect for drug B may be to increase the diagnostic measurement by 5 units in the absence of other treatment, but if the patient is on drug A as well, then the effect of drug B may be less pronounced.
+
 ## Interactions in RStudio
 
 In R, an interaction is specified by adding the two terms separated by a colon.
@@ -267,7 +275,36 @@ anova(mod3)
 ```
 As the interaction here is between factors, it should be evaluated using the ANOVA table.
 
-## Example: Petrels
+## Interactions in RStudio
+
+```{r, echo=FALSE}
+pval=round(anova(mod3)[,5],3)
+names(pval)=rownames(anova(mod3))
+```
+- From the `anova` table we see the interaction term is not significant (P=`r pval["Sex:Area"]`).
+
+- Thus, there is no evidence in the data to suggest that the comparative size of male and female petrels differ between areas.
+
+## Summary table of interactions{.smaller}
+
+```{r, echo=FALSE}
+summary(mod3)
+co3=round(coef(mod3),2)
+```
+
+## Summary table of interactions
+
+- While the interaction term isn't significant (thus all the interaction coefficients could be zero in the population) let's assess what each row represents.
+
+- The Intercept contains the first levels of each factor, so males in area 1 have on average `r co3["(Intercept)"]`cm right wing lengths.
+
+- The `SexFemale` term is the difference to the baseline, so this describes how females in area 1 differ. They have right wing lengths `r -co3["SexFemale"]`cm smaller.
+
+- The `Area2` term is the difference to the baseline, so this describes how males in area 2 differ from those in area 1. Their right wing lengths are `r -co3["Area2"]`cm smaller.
+
+- The `SexFemale:Area2` is the differential effect of females in area 2 over and above the `SexFemale` and `Area2` effects. Compared with males in area 1, females in area 2 are $`r -co3["SexFemale"]`+`r -co3["Area2"]`+`r -co3["SexFemale:Area2"]`=`r -sum(co3[c("SexFemale","Area2","SexFemale:Area2")])`$cm smaller.
+
+## Interactions: Petrels data
 
 ```{r, echo=FALSE, fig.width=9.5}
 par(mar=c(5,5,1,0), cex.axis=1.5, cex.lab=1.5)
@@ -277,3 +314,131 @@ plot(R.Wing.Lth ~ interaction(Sex,Area), data=petrels, ylab="Right wing length (
 mtext(rep(c("M","F"), 6),side=1, at=at, line=0.5)
 mtext(paste("Area",1:6),side=1, at=1:6*2.5+1.5, line=2)
 ```
+
+## Interactions: Petrels model fit with interaction
+
+```{r, echo=FALSE, fig.width=9.5}
+par(mar=c(5,5,1,0), cex.axis=1.5, cex.lab=1.5)
+at = rep(1:2,6) + rep(1:6*2.5,each=2)
+plot(R.Wing.Lth ~ interaction(Sex,Area), data=petrels, ylab="Right wing length (cm)", border=c("#0000005f", "#ff00005f"), xaxt="n", xlab="",
+     at=at)
+mtext(rep(c("M","F"), 6),side=1, at=at, line=0.5)
+mtext(paste("Area",1:6),side=1, at=1:6*2.5+1.5, line=2)
+new_data = expand.grid(Sex=factor(c("Male", "Female")), Area=factor(1:6))
+fit_int = predict(mod3, new_data, interval="confidence")
+points(at, fit_int[,1], col="blue", cex=1, pch=19)
+segments(at, y0=fit_int[,2], y1=fit_int[,3], col="blue", lwd=2)
+segments(at-0.1, y0=fit_int[,2], x1=at+0.1, col="blue", lwd=2)
+segments(at-0.1, y0=fit_int[,3], x1=at+0.1, col="blue", lwd=2)
+```
+
+## Interactions: Petrels model fit without interaction
+
+```{r, echo=FALSE, fig.width=9.5}
+par(mar=c(5,5,1,0), cex.axis=1.5, cex.lab=1.5)
+at = rep(1:2,6) + rep(1:6*2.5,each=2)
+plot(R.Wing.Lth ~ interaction(Sex,Area), data=petrels, ylab="Right wing length (cm)", border=c("#0000005f", "#ff00005f"), xaxt="n", xlab="",
+     at=at)
+mtext(rep(c("M","F"), 6),side=1, at=at, line=0.5)
+mtext(paste("Area",1:6),side=1, at=1:6*2.5+1.5, line=2)
+new_data = expand.grid(Sex=factor(c("Male", "Female")), Area=factor(1:6))
+fit_int = predict(mod, new_data, interval="confidence")
+points(at, fit_int[,1], col="blue", cex=1, pch=19)
+segments(at, y0=fit_int[,2], y1=fit_int[,3], col="blue", lwd=2)
+segments(at-0.1, y0=fit_int[,2], x1=at+0.1, col="blue", lwd=2)
+segments(at-0.1, y0=fit_int[,3], x1=at+0.1, col="blue", lwd=2)
+```
+
+## Interactions: Petrels model fits
+
+```{r, echo=FALSE, fig.width=9.5}
+par(mar=c(5,5,1,0), cex.axis=1.5, cex.lab=1.5)
+at = rep(1:2,6) + rep(1:6*2.5,each=2)
+plot(R.Wing.Lth ~ interaction(Sex,Area), data=petrels, ylab="Right wing length (cm)", border=c("#0000005f", "#ff00005f"), xaxt="n", xlab="",
+     at=at)
+mtext(rep(c("M","F"), 6),side=1, at=at, line=0.5)
+mtext(paste("Area",1:6),side=1, at=1:6*2.5+1.5, line=2)
+new_data = expand.grid(Sex=factor(c("Male", "Female")), Area=factor(1:6))
+fit_int = predict(mod3, new_data, interval="confidence")
+points(at-0.1, fit_int[,1], col="red", cex=1, pch=19)
+segments(at-0.1, y0=fit_int[,2], y1=fit_int[,3], col="red", lwd=2)
+segments(at-0.2, y0=fit_int[,2], x1=at, col="red", lwd=2)
+segments(at-0.2, y0=fit_int[,3], x1=at, col="red", lwd=2)
+fit_int = predict(mod, new_data, interval="confidence")
+points(at+0.1, fit_int[,1], col="blue", cex=1, pch=19)
+segments(at+0.1, y0=fit_int[,2], y1=fit_int[,3], col="blue", lwd=2)
+segments(at, y0=fit_int[,2], x1=at+0.2, col="blue", lwd=2)
+segments(at, y0=fit_int[,3], x1=at+0.2, col="blue", lwd=2)
+legend("bottomright", legend=c("With interaction", "No interaction"), col=c("red", "blue"), pch=19, bty="n")
+```
+
+## Other types of interaction
+
+What about an interaction between a numeric variable and a factor? Consider
+$$
+\mathsf{mean}(y) = \alpha + \beta_1 x + \beta_2 z
+$$
+where $x$ is a numeric variable and $z$ is an indicator variable for the 2nd level of a factor variable.
+
+Then if we're in the first level of the factor variable, $z=0$ so the equation is $\mathsf{mean}(y) = \alpha + \beta_1 x$, whereas if we're in the second level, $z=1$ so that $\mathsf{mean}(y) = \alpha + \beta_1 x + \beta_2 = (\alpha + \beta_2) + \beta_1 x$.
+
+The model fit is thus two parallel lines, separated by $\beta_2$.
+
+## Petrels: Left and right wing lengths
+
+```{r, echo=FALSE, fig.align='center', fig.width=7, fig.height=5}
+col = c("#0000ff1F", "#FF00001F")
+par(mar=c(4,4,1,1), cex=1.5)
+plot(R.Wing.Lth ~ L.Wing.Lth, data=petrels, ylab="Right wing length (cm)", xlab="Left wing length (cm)", col=col[Sex], pch=19, asp=1)
+legend("bottomright", legend=levels(petrels$Sex), fill=c("red", "blue"), bty="n", cex=1)
+mod4 = lm(R.Wing.Lth ~  Sex + L.Wing.Lth, data=petrels)
+abline(coef(mod4)[1], coef(mod4)[3], col="blue", lwd=2)
+abline(coef(mod4)[1]+coef(mod4)[2], coef(mod4)[3], col="red", lwd=2)
+```
+
+## Interaction of numeric variables and factors
+
+We could add another term
+$$
+\mathsf{mean}(y) = \alpha + \beta_1 x + \beta_2 z + \beta_3 x \times z
+$$
+where $x$ is a numeric variable and $z$ is an indicator variable for the 2nd level of a factor variable.
+
+Then if we're in the first level of the factor variable, $z=0$ so the equation is $\mathsf{mean}(y) = \alpha + \beta_1 x$, whereas if we're in the second level, $z=1$ so that $\mathsf{mean}(y) = \alpha + \beta_1 x + \beta_2 + \beta_3 x = (\alpha + \beta_2) + (\beta_1 + \beta_3) x$.
+
+The model fit is thus two separate lines.
+
+## Petrels: Left and right wing lengths
+
+```{r}
+mod5 = lm(R.Wing.Lth ~ L.Wing.Lth + Sex + L.Wing.Lth:Sex, data=petrels)
+anova(mod5)
+```
+
+## Petrels: Left and right wing lengths{.smaller}
+
+```{r, echo=FALSE}
+summary(mod5)
+```
+
+## Petrels: Left and right wing lengths
+
+```{r, echo=FALSE, fig.align='center', fig.width=7, fig.height=5}
+col = c("#0000ff1F", "#FF00001F")
+par(mar=c(4,4,1,1), cex=1.5)
+plot(R.Wing.Lth ~ L.Wing.Lth, data=petrels, ylab="Right wing length (cm)", xlab="Left wing length (cm)", col=col[Sex], pch=19, asp=1)
+legend("bottomright", legend=levels(petrels$Sex), fill=c("red", "blue"), bty="n", cex=1)
+mod4 = lm(R.Wing.Lth ~  Sex + L.Wing.Lth, data=petrels)
+abline(coef(mod5)[1], coef(mod5)[2], col="blue", lwd=2)
+abline(coef(mod5)[1]+coef(mod5)[3], coef(mod5)[2]+coef(mod5)[4], col="red", lwd=2)
+```
+
+## Determining the 'best' model
+
+- The best model depends on what questions you want to answer.
+
+- If the goal of the model is to use it for prediction purposes, then you don't want to include extra terms that aren't significant.
+
+- However, if the goal of the model is to answer questions about which variables effect the outcome, a model containing insignficant terms may be appropriate.
+
+## TODO: Comparing models with anova table?
