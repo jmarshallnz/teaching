@@ -243,6 +243,10 @@ Both drugs    $\mathsf{mean}(y)=\alpha + \beta_A + \beta_B$
 
 - We need a bit more flexibility in the model.
 
+## Example: Hypothetical drugs
+
+<iframe src="http://it056230.massey.ac.nz:8080/227215/shiny/twoway/ style="border: none"></iframe>
+
 ## Interactions: Hypothetical drugs
 
 We add another indicator variable $z_{AB}$ which is 1 when both drugs are in use.
@@ -258,13 +262,17 @@ $$
 $$
 Thus, $\beta_{AB}$ can be used to measure whether or not the effects of the two drugs are additive or not.
 
-## Interaactions: Hypothetical drugs
+## Interactions: Hypothetical drugs
 
 - $\beta_{AB}$ can be used to measure whether or not the effects of the two drugs are additive or not.
 
 - An alternate way to think about it is that the effect of drug B may differ depending on whether the patient is already given drug A.
 
 - e.g. the effect for drug B may be to increase the diagnostic measurement by 5 units in the absence of other treatment, but if the patient is on drug A as well, then the effect of drug B may be less pronounced.
+
+## Example: Hypothetical drugs
+
+<iframe src="http://it056230.massey.ac.nz:8080/227215/shiny/twoway/ style="border: none"></iframe>
 
 ## Interactions in RStudio
 
