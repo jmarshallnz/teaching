@@ -440,5 +440,3 @@ abline(coef(mod5)[1]+coef(mod5)[3], coef(mod5)[2]+coef(mod5)[4], col="red", lwd=
 - If the goal of the model is to use it for prediction purposes, then you don't want to include extra terms that aren't significant.
 
 - However, if the goal of the model is to answer questions about which variables effect the outcome, a model containing insignficant terms may be appropriate.
-
-## TODO: Comparing models with anova table?
