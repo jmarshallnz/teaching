@@ -52,27 +52,34 @@ shinyServer(function(input, output, session) {
   output$data <- renderPlot({
     # plot the points and model fit
     par(mar=c(3,0,0,0), cex=2)
-    plot(NULL, xlim=c(0.5, 4+0.5), ylim=c(30,70) ,xaxt="n", yaxt="n", xlab="", ylab="")
+    plot(NULL, xlim=c(0.5, 4+0.5), ylim=c(40,60) ,xaxt="n", yaxt="n", xlab="", ylab="")
     print(val()$x)
     print(val()$y)
-    segments(-1,seq(30,70,by=2),5,seq(30,70,by=2),"grey80")
+    segments(-1,40:60,5,40:60,"grey80")
+    segments(-1,50,5,50,"black","dashed")
     points(as.numeric(val()$x) + val()$jitter, val()$y, col="#00000050", pch=19, xlab="", ylab="", xaxt="n", yaxt="n")
     axis(side=1, at=1:4, labels=c("Control", "Drug A", "Drug B", "Both A&B"))
     # model fit...
     fit_width <- 0.1
-    ci_width  <- 0.15
+    ci_width  <- 0.05
     new_data <- expand.grid(A=0:1, B=0:1)
     if (input$interaction) {
       ci1 <- predict(val()$lm1, new_data, interval="confidence")
       points(1:4-fit_width, ci1[,1], pch=19, cex=1.5, col="red")
       segments(1:4-fit_width, ci1[,2], 1:4-fit_width, ci1[,3], lwd=2, col="red")
+      segments(1:4-fit_width-ci_width, ci1[,2], 1:4-fit_width+ci_width, ci1[,2], lwd=2, col="red")
+      segments(1:4-fit_width-ci_width, ci1[,3], 1:4-fit_width+ci_width, ci1[,3], lwd=2, col="red")
       ci2 <- predict(val()$lm2, new_data, interval="confidence")
       points(1:4+fit_width, ci2[,1], pch=19, cex=1.5, col="blue")
       segments(1:4+fit_width, ci2[,2], 1:4+fit_width, ci2[,3], lwd=2, col="blue")
+      segments(1:4+fit_width-ci_width, ci2[,2], 1:4+fit_width+ci_width, ci2[,2], lwd=2, col="blue")
+      segments(1:4+fit_width-ci_width, ci2[,3], 1:4+fit_width+ci_width, ci2[,3], lwd=2, col="blue")
     } else {
       ci1 <- predict(val()$lm1, new_data, interval="confidence")
       points(1:4, ci1[,1], pch=19, cex=1.5, col="red")
       segments(1:4, ci1[,2], 1:4, ci1[,3], lwd=2, col="red")
+      segments(1:4-ci_width, ci1[,2], 1:4+ci_width, ci1[,2], lwd=2, col="red")
+      segments(1:4-ci_width, ci1[,3], 1:4+ci_width, ci1[,3], lwd=2, col="red")
     }
   })
 
