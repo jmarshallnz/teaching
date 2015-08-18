@@ -44,7 +44,7 @@ shinyServer(function(input, output, session) {
     # get rid of unused groups, and normalise residuals per group
     x <- data$A + 2*data$B
     data$r <- data$r - rep(tapply(data$r, x, mean), each=n)
-    data$y <- data$y + input$effectA*data$A + input$effectB*data$B + input$effectAB*data$A*data$B + data$r*input$resid*5
+    data$y <- data$y + input$effectA*data$A + input$effectB*data$B + (input$effectAB-input$effectA-input$effectB)*data$A*data$B + data$r*input$resid*5
 
     list(x=x+1, y=data$y, jitter=data$jitter, lm1=lm(y ~ A + B, data=data), lm2=lm(y ~ A + B + A:B, data=data))
   })
