@@ -84,7 +84,7 @@ $$
 \epsilon_{ij} = \mathsf{person}_i + \eta_{ij}
 $$
 
-where $\epsilon$ is the $j$-th residual of person $i$ from the linear model with just farm in it, $\mathsf{person}_i$ is the average residual for person $i$, and $\eta_{ij}$ is the left-over $j$-th after subtracting out the person level average.
+where $\epsilon_{ij}$ is the $j$-th residual of person $i$ from the linear model with just farm in it, $\mathsf{person}_i$ is the average residual for person $i$, and $\eta_{ij}$ is the left-over $j$-th after subtracting out the person level average.
 
 We do this in such a way that the mean of the person effects is 0. Thus, to predict for a new person, we just set the person effect to 0 and incorporate the variation in the person effects into prediction intervals.
 
@@ -107,4 +107,4 @@ To do this in R, we use the `nlme` library, which stands for "non-linear mixed e
 
 4. Summarise your results in a few comments in your R script file.
 
-5. All the best for the rest of the course!
+5. All the best for the rest of the course, and **make sure you remember to do the biostats survey**. It'd be great to get a representative sample of responses, so it's important that I get the *meh* responses as well as the *awesome* and *you suck* responses! :)
