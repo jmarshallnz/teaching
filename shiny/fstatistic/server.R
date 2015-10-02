@@ -27,7 +27,7 @@ shinyServer(function(input, output, session) {
     data$y <- input$strength / 50 * data$x + data$r * input$resid
     # subtract off the slope of this model
     c <- coef(lm(y ~ x, data=data))
-    data$y <- data$y - (c[2] - input$strength/50) * data$x - c[1]
+#    data$y <- data$y - (c[2] - input$strength/50) * data$x - c[1]
     list(x=data$x, y=data$y, lm=lm(y ~ x, data=data))
   })
 
@@ -36,7 +36,9 @@ shinyServer(function(input, output, session) {
     par(mar=c(1,0,0,0), cex=2)
     plot(NULL, xlim=range(dat$data$x), ylim=c(-2,2), xaxt="n", yaxt="n", xlab="", ylab="")
     points(val()$x, val()$y, col="#00000050", pch=19, xlab="", ylab="", xaxt="n", yaxt="n")
+    abline(0, input$strength/50, lwd=3, col="black")
     abline(coef(val()$lm), lwd=3, col="red")
+    legend("bottomright", c("Population", "Sample"), lwd=2, col=c("black", "red"), bty="n", cex=0.8)
   })
 
   output$fdist <- renderPlot({
