@@ -35,7 +35,7 @@ shinyServer(function(input, output, session) {
 
     # plot the points, residuals as lines, model fit and (mean(x),mean(y))
     par(mar=c(0,1,0,0), cex=2)
-    plot(NULL, xlim=range(x), ylim=range(y), xaxt="n", yaxt="n", xlab="", ylab="")
+    plot(NULL, xlim=range(x)+c(-1,1), ylim=range(y)+c(-0.5,0.5), xaxt="n", yaxt="n", xlab="", ylab="")
     points(x, y, col="#00000050", pch=19, xlab="", ylab="", xaxt="n", yaxt="n")
     abline(coef(line), col="#00000080", lwd=2)
     if (!is.null(point$x)) {
@@ -43,16 +43,16 @@ shinyServer(function(input, output, session) {
       points(point$x, point$y, pch=19, col="#ff00009f", cex=1.5)
       abline(coef(point$l2), col="#ff000090", lwd=3)
     }
-    text(3.2, 0.77, "Click to add a point", cex=1, col="grey70")
+    text(3.2, 0.77-0.5, "Click to add a point", cex=1, col="grey70")
   })
 
   output$cooks <- renderPlot({
 
     # plot the points, residuals as lines, model fit and (mean(x),mean(y))
     par(mar=c(0,0,0,1.5), cex=2)
-    lev_max <- 0.08
-    plot(NULL, xlim=c(0, lev_max), ylim=c(-6,6), xaxt="n", yaxt="n", xlab="Leverage", ylab="Residuals", xaxs="i")
-    text(0.04, -6, "Leverage", cex=1, col="grey50")
+    lev_max <- 0.135
+    plot(NULL, xlim=c(0, lev_max), ylim=c(-8,8), xaxt="n", yaxt="n", xlab="Leverage", ylab="Residuals", xaxs="i")
+    text(0.04, -8, "Leverage", cex=1, col="grey50")
     text(0.003, 0, "Residual", srt=90, cex=1, col="grey50")
     if (!is.null(point$x)) {
       r <- rstandard(point$l2)
@@ -68,7 +68,7 @@ shinyServer(function(input, output, session) {
     points(h, r, col=col, cex=cex, pch=19)
     
     cooks <- 0.5
-    hi <- seq(0.02,lev_max,by=0.01)
+    hi <- seq(0.01,lev_max,by=0.01)
     ri <- sqrt((1-hi)/hi * 2)
     lines(hi, ri*sqrt(0.5), col="red", lty="dashed")
     lines(hi, -ri*sqrt(0.5), col="red", lty="dashed")
