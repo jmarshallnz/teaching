@@ -52,7 +52,7 @@ shinyServer(function(input, output, session) {
     par(mar=c(0,0,0,1.5), cex=2)
     lev_max <- 0.135
     plot(NULL, xlim=c(0, lev_max), ylim=c(-8,8), xaxt="n", yaxt="n", xlab="Leverage", ylab="Residuals", xaxs="i")
-    text(0.04, -8, "Leverage", cex=1, col="grey50")
+    text(0.07, -8, "Leverage", cex=1, col="grey50")
     text(0.003, 0, "Residual", srt=90, cex=1, col="grey50")
     if (!is.null(point$x)) {
       r <- rstandard(point$l2)
