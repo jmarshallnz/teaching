@@ -146,7 +146,7 @@ $$
 
 - We often put hats on them ($\hat{\alpha}$, $\hat{\beta}$) to help us remember that they're sample statistics and not the true values from the population.
 
-- We'll add some assumptions later so we can our estimates to the population parameters.
+- We'll add some assumptions later so we can relate our estimates to the population parameters.
 
 ## Estimation of parameters
 
@@ -174,6 +174,10 @@ summary(mod)
 s <- summary(mod)$coefficients
 ```
 - The `Estimate` column gives us the values of our coefficients.
+    - The linear model equation would be
+    $$
+    \mathsf{Body weight} = `r round(s[1,1],1)` + `r round(s[2,1],2)` \times \mathsf{Heart girth}
+    $$
     - The estimate for `Heartgirth` means a 1 unit increase in heart girth corresponds to a `r round(coef(mod)[2],2)` unit increase in mean body weight.
 
 - The `Std. Error` column is the standard error of our estimates. We can use this to find confidence intervals.
@@ -207,7 +211,7 @@ $$
 
 - We can predict the mean of $y$ for any given value of $x$ by just substituting values into the estimated linear model equation.
 
-- We can utilise the standard errors of our estimates to give uncertainty for the predicted average.
+- We can utilise the standard errors of our estimates to give uncertainty for the predicted **mean**.
 
     - This is a **confidence interval**.
     
