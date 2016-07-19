@@ -12,7 +12,7 @@ output:
 
 In this lab we'll start looking at the linear model. The linear model forms the basis of much statistical analysis. It is the more general version of simple linear regression, and encompases regression, analysis of variance and many other situations. We'll also be looking at some extensions to the general linear model, such as mixed effects models which have particular application where data have been collected across multiple paddocks, farms or regions.
 
-This lab will also be used to show you how to construct an `R notebook' which is a document that combines the R code for your analysis, any comments you make about that analysis, and any output form R, including plots. The neat thing about this is it encapsulates the concept of **repeatable research**: As you change your analysis steps (or make changes to the data), the report can be re-generated automatically. This document can take the form of an HTML document (great for previewing or sharing on the web) or a Word document that you can then edit further if needed.
+This lab will also be used to remind you how to construct an `R notebook' which is a document that combines the R code for your analysis, any comments you make about that analysis, and any output form R, including plots. The neat thing about this is it encapsulates the concept of **repeatable research**: As you change your analysis steps (or make changes to the data), the report can be re-generated automatically. This document can take the form of an HTML document (great for previewing or sharing on the web) or a Word document that you can then edit further if needed.
 
 ## Exercise 1: Creating an RStudio project ##
 
@@ -107,7 +107,7 @@ just like the confidence interval for a mean.
 
 4. Write down the equation that relates the Body weight to the Heartgirth.
 
-5. Think about what the P-value for the slope means. What would be your conclusion for this? Write some notes about this into your R-script as comments (i.e. pre-fixed using hash-quote `#' `) If you're not sure, discuss with those around you, or with Jonathan, Penny or Khair.
+5. Think about what the P-value for the slope means. What would be your conclusion for this? Write some notes about this into your R-script as comments (i.e. pre-fixed using hash-quote `#' `) If you're not sure, discuss with those around you, or with Jonathan or the tutors.
 
 6. Think about what the $R^2$ value (at the bottom of the summary output) means for the relationship between body weight and heartgirth. Write some notes about this into your R-script as comments.
 
