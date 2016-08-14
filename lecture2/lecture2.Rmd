@@ -46,6 +46,18 @@ plot(Bodywt ~ Height, data=donkey, col=col_points, pch=19)
 
 - Predictions will be more precise (smaller confidence and prediction intervals).
 
+## Recall: The linear model
+
+- The linear model estimates the mean of the response variable for given values of a covariate
+$$
+\mathsf{mean}(y) = \alpha + \beta x
+$$
+- The model is fit by finding least squares estimates for $\alpha$ and $\beta$.
+
+- The model assumptions are defined in terms of the residuals.
+
+- When the assumptions hold we can take our model from the sample and generalise to the population.
+
 # The Linear model|Multiple covariates
 
 ## Multiple covariates
@@ -131,7 +143,7 @@ $$
 
 - The ratio of these, $F$ will increase as we explain more variation in the model.
 
-- Under the null hypothesis, the model doesn't explain anything, so we'd expect $F=0$.
+- Under the hypothesis that the model doesn't explain anything we'd expect $F=0$.
 
 - We can use the **F-distribution** to figure out how likely the $F$ from our sample
 would arise by chance, giving us the P-value.
@@ -299,6 +311,19 @@ summary(mod)
 ```{r}
 new_data <- data.frame(Area=factor(1:6))
 predict(mod, new_data, interval="confidence")
+```
+
+## Visualising the differences
+
+```{r, eval=FALSE}
+library(visreg)
+visreg(mod)
+```
+
+```{r, echo=FALSE, fig.width=9.5}
+library(visreg)
+par(mar=c(4,4,0,0))
+visreg(mod)
 ```
 
 ## The F-statistic for factors
