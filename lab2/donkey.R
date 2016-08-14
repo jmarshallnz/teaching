@@ -54,18 +54,18 @@ predict(lm1, new_data, interval="prediction")
 par(mfrow=c(2,2), mar=c(4,4,2,2)) # creates a 2x2 plot and makes the margins a bit smaller
 plot(lm1)
 #' From these plots we see
-#'  - There is a trend present on the residual vs fitted (and scale-location) plots. This suggests the linearity assumption
+#'  - There is a curvy trend present on the residual vs fitted plots. This suggests the linearity assumption
 #'  doesn't hold. This is quite serious as it means our estimates will be biased, so should be fixed.
 #'  
-#'  - There is also a 'fanning' in the residual vs fitted (and scale-location) plots suggesting that the residuals don't have
-#'  constant variance.
+#'  - There is also a 'fanning' in the residual vs fitted plot (increasing vertical scatter from left to right) 
+#'  suggesting that the residuals don't have constant variance.
 #'  
-#'  - The normal Q-Q plot shows no problems - the residuals appear to be normally distributed.
+#'  - The normal Q-Q plot shows no problems as the points mostly lie along the line - the residuals appear to be normally distributed.
 #'  
 #'  - There doesn't seem to be any points outside the cook's distance of 0.5, so no outliers to be concerned about.
 #'  
-#'  We should fix up the lack of linearity and constant variance. A usual fix is a log transform to both
-#'  independent and dependent variables.
+#'  We should fix up the lack of linearity and constant variance. A usual fix is a log transform to the independent variable
+#'  and maybe also to the dependent variables.
 
 #' Let's try modelling the log of body weight versus log heartgirth to see if we
 #' get a better model.
@@ -97,7 +97,29 @@ exp(predict(lm2, new_data, interval="confidence"))
 exp(predict(lm2, new_data, interval="prediction"))
 #' These are a both a little bit tighter than the equivalent intervals for the previous model, which is due to the lower residual
 #' variance (as the $R^2$ is higher)
+#' 
+#' ## Visualising the model
+#' 
+#' Visualise the model fit using the `visreg` package
+library(visreg)
+visreg(lm1)
 #'
+#' We can see that the model fit (blue line) and uncertainty around it (grey band) is a pretty good representation
+#' of the trend within the middle of the heartgirth range, but underestimates the weight of donkeys at either end of
+#' the heartgirth range. This is because the trend is really curved, so the straight line fit doesn't really work.
+
+#' Visualise the second model
+visreg(lm2)
+#' We can see that we have a curved relationship here, but the vertical axis is on the log scale rather than
+#' the normal scale. Nonetheless, you can see that the points (which represent where the data are) are captured quite
+#' well by the trend line, indicating we are modelling the trend quite well.
+#' 
+#' Use an exponential transformation to visualise the data and model on the natural scale
+visreg(lm2, trans=exp, partial=TRUE, ylab="Body weight (kg)")
+#' The above plot shows the data on the natural scale and better allows us to see the actual shape of the trend
+#' which is slightly curved up. Notice the trend now captures (i.e. goes through) the values at the lower and upper
+#' heartgirths now. We'd expect our predictions for animals with such heartgirths to be considerably better.
+#' 
 #' ## Multivariable model
 #'
 #' A linear model containing both heart and umbilical girths.
@@ -107,13 +129,13 @@ summary(lm3)
 #' of the variable **after adjusting for other variables**. The P-value is thus testing: "Is this variable important to body weight
 #' after accounting for other variables?" This is different to "Is this variable important"!
 #'
-#' Our conclusion would be that both heartgirth and umbilical girth are important for the bodyweight of the donkey, as both P-values
-#' are significant.
+#' Our conclusion would be that heartgirth and umbilical girth are both important for the bodyweight of the donkey after accounting for
+#' the other, as both P-values are significant.
 
 lm4 <- lm(Bodywt ~ Heartgirth + Umbgirth + Length + Height, data=donkey)
 summary(lm4)
 #' After adjusting for heart girth, umbilical girth and length, there is no evidence that Height is important for body-weight as the
-#' P-value is greater than 0.05 (thus the effect size of 0.25 kg/cm of Height might have arisen by chance)
+#' P-value is quite large (the effect size of 0.25 kg/cm of Height could arise by chance about 6% of the time, so may not be genuine).
 
 #' A linear model with just Height in it
 lm5 <- lm(Bodywt ~ Height, data=donkey)
@@ -122,6 +144,14 @@ summary(lm5)
 #' in bodyweight already by using heart and umbilical girths and length. Over and above those, the height didn't provide additional
 #' useful information. But absent of the other measures, height is ofcourse useful!
 
+#' Visualising the model.
+par(mfrow=c(2,2), mar=c(4,4,2,2))
+visreg(lm4)
+#' We can see the relationship with `Heartgirth` is the strongest, and with `Height` is weak - a flat line could fit within the uncertainty
+#' bands. Notice that the y-coordinates of the points don't correspond precisely to the actual body weights here: They differ from picture to
+#' picture. Instead, they're representations of the data points after accounting for the other 3 variables that are not present in each plot.
+#' i.e. in the heart girth plot, they represent where the data points are after accounting for the umbilical girth, length and height.
+#' 
 #' Model diagnostics
 par(mfrow=c(2,2), mar=c(4,4,2,2))
 plot(lm4)
