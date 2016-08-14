@@ -10,7 +10,7 @@ graphics: yes
 
 ## Introduction ##
 
-In this lab we'll look at a set of data on the birth weight of lambs, based on the data from last year's project. This will therefore be good practice for part A of your project this year!
+In this lab we'll look at a set of data on the birth weight of lambs, based on the data from a previous year's project. This will therefore be good practice for your project this year!
 
 Lamb birth weight is the single largest influence on survival of lambs in the first few days of life.  In this lab we'll be looking at a dataset on the birth weight of lambs collected during a trial at Massey in the late 1990s.
 
