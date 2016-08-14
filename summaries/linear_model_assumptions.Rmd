@@ -77,8 +77,8 @@ It should be noted that because of the **central limit theorem** deviances from 
 ```{r, echo=FALSE, dev='tikz', fig.align='center', fig.width=6.5, fig.height=3}
 y4 <- exp(5-1.5*x + rnorm(n)*0.03)
 par(mfrow=c(1,2))
-plot(lm(y4 ~ x), which=2)
 plot(lm(y1 ~ x), which=2)
+plot(lm(y4 ~ x), which=2)
 ```
 
 ### Equal variance
