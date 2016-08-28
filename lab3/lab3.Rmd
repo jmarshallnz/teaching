@@ -1,7 +1,7 @@
 ---
 title: "227.215 Biostats Lab 3"
 author: "Jonathan Marshall"
-date: "15 July 2015"
+date: "15 August 2016"
 output:
   pdf_document: null
   html_document: default
@@ -35,13 +35,13 @@ Variable      Description
 
 2. Create a new R script for todays lab.
 
-3. We'll add a special 'metadata' block to the top of the script that allows you to set the title and author. Copy and paste the following code block, then change the author as appropriate. More information on formatting up R notebooks (e.g. headings, subheadings, bullet points, emphasis etc.) can be found in the summary sheet on stream.
+3. Remember that you can add a special 'metadata' block to the top of the script that allows you to set the title and author. Copy and paste the following code block, then change the author as appropriate. There's a bunch of other stuff you can do to format up R notebooks (e.g. headings, subheadings, bullet points, emphasis etc.) that can be found in the summary sheet on stream.
 
     ```
     #' ---
     #' title:  227.215 Biostats, Lamb birthweight analysis
     #' author: Joanne Blogs
-    #' date:   4 August 2015
+    #' date:   16 August 2016
     #' ---
     ```
     
@@ -55,7 +55,23 @@ Variable      Description
 
 5. Compile your notebook and make sure the title and author etc. have been correctly set in the HTML or Word document.
 
-## Exercise 2: Exploratory analysis of birthweight data
+## Exercise 2: Was the experiment balanced?
+
+The goal of this exercise is to see if there were similar numbers of ewes in each treatment group.
+
+1. Take a look at the data. You should notice that each row represents a lamb rather than a ewe, thus any ewe with twins will have more than one row associated with it.
+
+2. Start by writing some code to pick out just the columns that are ewe-specific. i.e. you'll want `DamID`, `Feed` and `Shorn`. You can do this by choosing the columns by number using the square bracket notation, or by name, e.g. to pick out the 1st and 2nd columns you can use `births[, c(1,2)]` or `births[,c("DamID", "LambID")]`. You'll want to make sure you save the result by assigning it to a new variable name, say `ewe_cols`.
+
+3. Now that we have that, we can use the `unique` command on the `ewe_cols` data frame to produce a data frame with just the unique rows. As the `DamID` is included, this will give us one row per ewe (assuming each ewe was allocated to a single feed and shearing treatment!) Make sure you save the result of that, e.g. you could call it `ewes`.
+
+4. Using the `ewes` data frame, produce a table of the number of ewes in each feed treatment by the shearing treatment. Remember you can use the `table` command for tables.
+
+5. Make sure you add some hashquotes to your R script describing what is being done - you'll find it useful to be able to come back to this later!
+
+## Exercise 3: Exploratory analysis of birthweight data
+
+For this and the remaining exercises, we'll be using the original data `births`.
 
 1. Add some code and comments to your R script to produce some plots of `BirthWeight` versus the covariates `Rank`, `Sex`, `Feed` and `Shorn`.
 
@@ -63,7 +79,7 @@ Variable      Description
 
 3. What does the distribution of `BirthWeight` look like within each of the categories? Do you think the linear model assumptions will hold for these data?
 
-## Exercise 3: Linear modelling of birthweight data
+## Exercise 4: Linear modelling of birthweight data
 
 In this exercise we'll look at analysing the average birthweight with a linear model. **Remember to add comments to your R script so that when you compile the notebook you have some commentary to look back on later.**
 
@@ -97,5 +113,6 @@ In this exercise we'll look at analysing the average birthweight with a linear m
     
     f. Produce a prediction, with 95% interval, for the average weight of a female singles, born to an unshorn ewes on the MM feeding treatment.
     
-    g. Take a look at the model diagnostics for the model. Do the linear model assumptions seem to hold?
+    g. Load the `visreg` package using `library(visreg)`, and run `visreg` on the model. You'll notice you get four plots, one for each of the variables. You might like to use `par(mfrow=c(2,2))` to get a 2x2 plot before doing this.
 
+    h. Finally, take a look at the model diagnostics for the model. Do the linear model assumptions seem to hold?
