@@ -35,7 +35,7 @@ col_dark   <- "#5f4354"
 
 - Each P-value is testing whether that coefficient is zero or not.
 
-- Factors with more than 2 levels get **multiple rows**.
+- Factors with more than 2 levels get **multiple rows**, one for each comparison to the baseline.
 
 - We want to know if the factor is important, which means testing that multiple coefficients
 are zero at the same time.
@@ -48,7 +48,7 @@ are zero at the same time.
 
 - Can thus be used to test significance of factors directly.
 
-- Order can be important. Each row is adjusted for the ones above it (but not below it).
+- Order makes a difference. Each row is adjusted for the ones above it (but not below it).
 
 - Usually order isn't an issue, but if it is, it tells you something.
 
@@ -60,7 +60,7 @@ are zero at the same time.
 petrels <- read.csv("http://www.massey.ac.nz/~jcmarsha/227212/data/petrels.csv")
 petrels$Area <- as.factor(petrels$Area)
 petrels$Sex <- as.factor(petrels$Sex)
-levels(petrels$Sex) <- c("Male", "Female")
+levels(petrels$Sex) <- c("Female", "Male")
 par(mar=c(5,5,1,0), cex.axis=1.5, cex.lab=1.5)
 plot(R.Wing.Lth ~ Area, data=petrels, ylab="Right wing length (cm)")
 ```
@@ -97,16 +97,16 @@ co <- round(coef(mod),2)
 
 - From ANOVA table, both `Area` and `Sex` are important to the right wing length.
 
-- From summary table, we see that males have `r -co["SexFemale"]`cm larger right wing length than females **after accounting for differences between areas**.
+- From summary table, we see that males have `r co["SexMale"]`cm larger right wing length than females **after accounting for differences between areas**.
 
 ```{r, echo=FALSE}
 mf = tapply(petrels$R.Wing.Lth, petrels$Sex, mean, na.rm=TRUE)
-mf = round(mf[1]-mf[2],2)
+mf = round(mf[2]-mf[1],2)
 ar = tapply(petrels$R.Wing.Lth, petrels$Area, mean, na.rm=TRUE)
 ar = round(ar[5]-ar[1],2)
 ```
 
-- This doesn't mean that male birds have a `r -co["SexFemale"]`cm larger right wing length than females.
+- This doesn't mean that male birds have a `r co["SexMale"]`cm larger right wing length than females.
 
 - In fact
     ```{r}
@@ -151,7 +151,7 @@ co2 <- round(coef(mod2),2)
 
 - From the summary table, however, we note that the direction of the effect of `Sex` has changed!
 
-- It is now saying that females have `r co2["SexFemale"]`cm larger right wing lengths than males.
+- It is now saying that males have `r -co2["SexMale"]`cm smaller right wing lengths than females.
 
 - Again, we've **adjusted for the other covariates**.
 
@@ -160,7 +160,7 @@ co2 <- round(coef(mod2),2)
 ## Left and right wing lengths
 
 ```{r, echo=FALSE, fig.align='center', fig.width=7, fig.height=5}
-col = c("#0000ff5F", "#FF00005F")
+col = c("#FF00005F", "#0000ff5F")
 
 zones = matrix(c(2,0,1,3), ncol=2, byrow=T)
 layout(zones, widths=c(6,1), heights=c(1,6))
@@ -175,13 +175,13 @@ rm=density(na.omit(petrels$R.Wing.Lth[petrels$Sex == "Male"]))
 
 par(mar=c(0,4,0,0.5))
 plot(NULL, xlim=range(petrels$L.Wing.Lth, na.rm=TRUE), ylim=c(0,max(lf$y, lm$y)), axes=F, ann=FALSE)
-lines(lm, col=col[1], lwd=2)
-lines(lf, col=col[2], lwd=2)
+lines(lm, col=col[2], lwd=2)
+lines(lf, col=col[1], lwd=2)
 
 par(mar=c(4,0,0.5,1))
 plot(NULL, ylim=range(petrels$R.Wing.Lth, na.rm=TRUE), xlim=c(0,max(rf$y, rm$y)), axes=F, ann=FALSE)
-lines(rm$y, rm$x, col=col[1], lwd=2)
-lines(rf$y, rf$x, col=col[2], lwd=2)
+lines(rm$y, rm$x, col=col[2], lwd=2)
+lines(rf$y, rf$x, col=col[1], lwd=2)
 ```
 
 ## Left and right wing lengths
@@ -198,7 +198,7 @@ lines(rf$y, rf$x, col=col[2], lwd=2)
 
 - Always look at the `anova` table first, particularly if you have factors.
 
-- Look at the `summary` table next, and interpret the P-values there for significant variables from the `anova` table.
+- Look at the `summary` table next, and interpret the estimated coefficients there for the significant variables from the `anova` table.
 
 - If variables are not significant, then you can remove them and re-run the `anova` and `summary` tables.
 
@@ -261,7 +261,7 @@ $$
 \mathsf{mean}(y) = \alpha + \beta_A z_A + \beta_B z_B + \beta_{AB} z_{AB}
 $$
 
-The new indicator variable is just the product of the existing ones, as $z_{AB}=1$ only if both $z_A=1$ and $z_B=1$, and $z_{A} \times z_{B} = 1$ has the same property.
+*Mathematical aside: the new variable is the product of the existing ones, as $z_{AB}=1$ only if both $z_A=1$ and $z_B=1$. $z_{A} \times z_{B}$ has this property.*
 
 The means for the neither drug or single drug treatments are still the same, as $z_{AB}=0$ in those cases. The mean in the both drugs treatment is the only one that changes to
 $$
@@ -310,104 +310,94 @@ co3=round(coef(mod3),2)
 
 - While the interaction term isn't significant (thus all the interaction coefficients could be zero in the population) let's assess what each row represents.
 
-- The Intercept contains the first levels of each factor, so males in area 1 have on average `r co3["(Intercept)"]`cm right wing lengths.
+- The Intercept contains the first levels of each factor, so females in area 1 have on average `r co3["(Intercept)"]`cm right wing lengths.
 
-- The `SexFemale` term is the difference to the baseline, so this describes how females in area 1 differ. They have right wing lengths `r -co3["SexFemale"]`cm smaller.
+- The `SexMale` term is the difference to the baseline, so this describes how males in area 1 differ. They have right wing lengths `r co3["SexMale"]`cm larger.
 
-- The `Area2` term is the difference to the baseline, so this describes how males in area 2 differ from those in area 1. Their right wing lengths are `r -co3["Area2"]`cm smaller.
+- The `Area2` term is the difference to the baseline, so this describes how females in area 2 differ from those in area 1. Their right wing lengths are `r -co3["Area2"]`cm smaller.
 
-- The `SexFemale:Area2` is the differential effect of females in area 2 over and above the `SexFemale` and `Area2` effects. Compared with males in area 1, females in area 2 are $`r -co3["SexFemale"]`+`r -co3["Area2"]`+`r -co3["SexFemale:Area2"]`=`r -sum(co3[c("SexFemale","Area2","SexFemale:Area2")])`$cm smaller.
+- The `SexMale:Area2` is the differential effect of males in area 2 over and above the `SexMale` and `Area2` effects. Compared with females in area 1, males in area 2 are $`r co3["SexMale"]`+`r co3["Area2"]`+`r co3["SexMale:Area2"]`=`r sum(co3[c("SexMale","Area2","SexMale:Area2")])`$cm larger.
 
-## Interactions: Petrels data
+## Visualising models using visreg
 
-```{r, echo=FALSE, fig.width=9.5}
-par(mar=c(5,5,1,0), cex.axis=1.5, cex.lab=1.5)
-at = rep(1:2,6) + rep(1:6*2.5,each=2)
-plot(R.Wing.Lth ~ interaction(Sex,Area), data=petrels, ylab="Right wing length (cm)", border=c("black", "red"), xaxt="n", xlab="",
-     at=at)
-mtext(rep(c("M","F"), 6),side=1, at=at, line=0.5)
-mtext(paste("Area",1:6),side=1, at=1:6*2.5+1.5, line=2)
+When you have interactions, visualise the effect of one variable within the levels of another.
+
+Allows you to see how effects interact.
+
+Better way to present results from the model than summary table.
+
+```{r, echo=TRUE, eval=FALSE}
+library(visreg)
+visreg(mod3, "Area", by="Sex")
+visreg(mod3, "Area", by="Sex", overlay=TRUE)
 ```
 
-## Interactions: Petrels model fit with interaction
+## visreg: Model without interaction
 
-```{r, echo=FALSE, fig.width=9.5}
-par(mar=c(5,5,1,0), cex.axis=1.5, cex.lab=1.5)
-at = rep(1:2,6) + rep(1:6*2.5,each=2)
-plot(R.Wing.Lth ~ interaction(Sex,Area), data=petrels, ylab="Right wing length (cm)", border=c("#0000005f", "#ff00005f"), xaxt="n", xlab="",
-     at=at)
-mtext(rep(c("M","F"), 6),side=1, at=at, line=0.5)
-mtext(paste("Area",1:6),side=1, at=1:6*2.5+1.5, line=2)
-new_data = expand.grid(Sex=factor(c("Male", "Female")), Area=factor(1:6))
-fit_int = predict(mod3, new_data, interval="confidence")
-points(at, fit_int[,1], col="blue", cex=1, pch=19)
-segments(at, y0=fit_int[,2], y1=fit_int[,3], col="blue", lwd=2)
-segments(at-0.1, y0=fit_int[,2], x1=at+0.1, col="blue", lwd=2)
-segments(at-0.1, y0=fit_int[,3], x1=at+0.1, col="blue", lwd=2)
+```{r, echo=FALSE, fig.width=9.5, fig.height=5.5}
+library(visreg)
+par(mar=c(4,4,0,0))
+visreg(mod, "Area", by="Sex")
 ```
 
-## Interactions: Petrels model fit without interaction
+## visreg: Model with interaction
 
-```{r, echo=FALSE, fig.width=9.5}
-par(mar=c(5,5,1,0), cex.axis=1.5, cex.lab=1.5)
-at = rep(1:2,6) + rep(1:6*2.5,each=2)
-plot(R.Wing.Lth ~ interaction(Sex,Area), data=petrels, ylab="Right wing length (cm)", border=c("#0000005f", "#ff00005f"), xaxt="n", xlab="",
-     at=at)
-mtext(rep(c("M","F"), 6),side=1, at=at, line=0.5)
-mtext(paste("Area",1:6),side=1, at=1:6*2.5+1.5, line=2)
-new_data = expand.grid(Sex=factor(c("Male", "Female")), Area=factor(1:6))
-fit_int = predict(mod, new_data, interval="confidence")
-points(at, fit_int[,1], col="blue", cex=1, pch=19)
-segments(at, y0=fit_int[,2], y1=fit_int[,3], col="blue", lwd=2)
-segments(at-0.1, y0=fit_int[,2], x1=at+0.1, col="blue", lwd=2)
-segments(at-0.1, y0=fit_int[,3], x1=at+0.1, col="blue", lwd=2)
+```{r, echo=FALSE, fig.width=9.5, fig.height=5.5}
+library(visreg)
+par(mar=c(4,4,0,0))
+visreg(mod3, "Area", by="Sex")
 ```
 
-## Interactions: Petrels model fits
+## visreg: without interaction (`overlay=TRUE`)
 
-```{r, echo=FALSE, fig.width=9.5}
-par(mar=c(5,5,1,0), cex.axis=1.5, cex.lab=1.5)
-at = rep(1:2,6) + rep(1:6*2.5,each=2)
-plot(R.Wing.Lth ~ interaction(Sex,Area), data=petrels, ylab="Right wing length (cm)", border=c("#0000005f", "#ff00005f"), xaxt="n", xlab="",
-     at=at)
-mtext(rep(c("M","F"), 6),side=1, at=at, line=0.5)
-mtext(paste("Area",1:6),side=1, at=1:6*2.5+1.5, line=2)
-new_data = expand.grid(Sex=factor(c("Male", "Female")), Area=factor(1:6))
-fit_int = predict(mod3, new_data, interval="confidence")
-points(at-0.1, fit_int[,1], col="red", cex=1, pch=19)
-segments(at-0.1, y0=fit_int[,2], y1=fit_int[,3], col="red", lwd=2)
-segments(at-0.2, y0=fit_int[,2], x1=at, col="red", lwd=2)
-segments(at-0.2, y0=fit_int[,3], x1=at, col="red", lwd=2)
-fit_int = predict(mod, new_data, interval="confidence")
-points(at+0.1, fit_int[,1], col="blue", cex=1, pch=19)
-segments(at+0.1, y0=fit_int[,2], y1=fit_int[,3], col="blue", lwd=2)
-segments(at, y0=fit_int[,2], x1=at+0.2, col="blue", lwd=2)
-segments(at, y0=fit_int[,3], x1=at+0.2, col="blue", lwd=2)
-legend("bottomright", legend=c("With interaction", "No interaction"), col=c("red", "blue"), pch=19, bty="n")
+```{r, echo=FALSE, fig.width=9.5, fig.height=5.5}
+library(visreg)
+par(mar=c(4,4,1,0))
+visreg(mod, "Area", by="Sex", overlay=TRUE)
+```
+
+## visreg: with interaction (`overlay=TRUE`)
+
+```{r, echo=FALSE, fig.width=9.5, fig.height=5.5}
+library(visreg)
+par(mar=c(4,4,1,0))
+visreg(mod3, "Area", by="Sex", overlay=TRUE)
 ```
 
 ## Other types of interaction
 
-What about an interaction between a numeric variable and a factor? Consider
+Consider
 $$
 \mathsf{mean}(y) = \alpha + \beta_1 x + \beta_2 z
 $$
 where $x$ is a numeric variable and $z$ is an indicator variable for the 2nd level of a factor variable.
 
-Then if we're in the first level of the factor variable, $z=0$ so the equation is $\mathsf{mean}(y) = \alpha + \beta_1 x$, whereas if we're in the second level, $z=1$ so that $\mathsf{mean}(y) = \alpha + \beta_1 x + \beta_2 = (\alpha + \beta_2) + \beta_1 x$.
+Then if we're in the first level of the factor variable, $z=0$ so the equation is
+$$
+\mathsf{mean}(y) = \alpha + \beta_1 x
+$$
+If we're in the second level, $z=1$ so that
+$$
+\mathsf{mean}(y) = \alpha + \beta_1 x + \beta_2 = (\alpha + \beta_2) + \beta_1 x.
+$$
 
 The model fit is thus two parallel lines, separated by $\beta_2$.
 
 ## Petrels: Left and right wing lengths
 
+```{r, echo=FALSE}
+mod4 = lm(R.Wing.Lth ~ L.Wing.Lth + Sex, data=petrels)
+```
+```{r, echo=TRUE, eval=FALSE}
+visreg(mod4, "L.Wing.Lth", by="Sex", overlay=TRUE)
+```
+
 ```{r, echo=FALSE, fig.align='center', fig.width=7, fig.height=5}
-col = c("#0000ff1F", "#FF00001F")
-par(mar=c(4,4,1,1), cex=1.5)
-plot(R.Wing.Lth ~ L.Wing.Lth, data=petrels, ylab="Right wing length (cm)", xlab="Left wing length (cm)", col=col[Sex], pch=19, asp=1)
-legend("bottomright", legend=levels(petrels$Sex), fill=c("red", "blue"), bty="n", cex=1)
-mod4 = lm(R.Wing.Lth ~  Sex + L.Wing.Lth, data=petrels)
-abline(coef(mod4)[1], coef(mod4)[3], col="blue", lwd=2)
-abline(coef(mod4)[1]+coef(mod4)[2], coef(mod4)[3], col="red", lwd=2)
+par(mar=c(4,4,1,1))
+points.col = c("#0000ff1F", "#FF00001F")
+lines.col = c("#0000FFFF", "#FF0000FF")
+bands.col = c("#0000FF5F", "#FF00005F")
+visreg(mod4, "L.Wing.Lth", by="Sex", overlay=TRUE, points.par=list(col=points.col, cex=1.2), line.par=list(col=lines.col), fill.par=list(col=bands.col))
 ```
 
 ## Interaction of numeric variables and factors
@@ -417,8 +407,14 @@ $$
 \mathsf{mean}(y) = \alpha + \beta_1 x + \beta_2 z + \beta_3 (x z).
 $$
 
-Then if we're in the first level of the factor variable, $z=0$ so the equation is $\mathsf{mean}(y) = \alpha + \beta_1 x$, whereas if we're in the second level, $z=1$ so that $\mathsf{mean}(y) = \alpha + \beta_1 x + \beta_2 + \beta_3 x = (\alpha + \beta_2) + (\beta_1 + \beta_3) x$.
-
+Then if we're in the first level of the factor variable, $z=0$ so the equation is
+$$
+\mathsf{mean}(y) = \alpha + \beta_1 x
+$$
+whereas if we're in the second level, $z=1$ so that
+$$
+\mathsf{mean}(y) = \alpha + \beta_1 x + \beta_2 + \beta_3 x = (\alpha + \beta_2) + (\beta_1 + \beta_3) x.
+$$
 The model fit is thus two separate lines.
 
 ## Petrels: Left and right wing lengths
@@ -430,21 +426,41 @@ anova(mod5)
 
 ## Petrels: Left and right wing lengths{.smaller}
 
-```{r, echo=FALSE}
+```{r}
 summary(mod5)
 ```
 
-## Petrels: Left and right wing lengths
+## Petrels: `visreg` the interaction
+
+```{r, echo=TRUE, eval=FALSE}
+visreg(mod5, "L.Wing.Lth", by="Sex", overlay=TRUE)
+```
 
 ```{r, echo=FALSE, fig.align='center', fig.width=7, fig.height=5}
-col = c("#0000ff1F", "#FF00001F")
-par(mar=c(4,4,1,1), cex=1.5)
-plot(R.Wing.Lth ~ L.Wing.Lth, data=petrels, ylab="Right wing length (cm)", xlab="Left wing length (cm)", col=col[Sex], pch=19, asp=1)
-legend("bottomright", legend=levels(petrels$Sex), fill=c("red", "blue"), bty="n", cex=1)
-mod4 = lm(R.Wing.Lth ~  Sex + L.Wing.Lth, data=petrels)
-abline(coef(mod5)[1], coef(mod5)[2], col="blue", lwd=2)
-abline(coef(mod5)[1]+coef(mod5)[3], coef(mod5)[2]+coef(mod5)[4], col="red", lwd=2)
+par(mar=c(4,4,1,1))
+points.col = c("#0000ff1F", "#FF00001F")
+lines.col = c("#0000FFFF", "#FF0000FF")
+bands.col = c("#0000FF5F", "#FF00005F")
+visreg(mod5, "L.Wing.Lth", by="Sex", overlay=TRUE, points.par=list(col=points.col, cex=1.2), line.par=list(col=lines.col), fill.par=list(col=bands.col))
 ```
+
+## Petrels: Points with large influence?
+
+```{r, echo=FALSE, fig.align='center', fig.width=7, fig.height=5}
+par(mar=c(4,4,1,1))
+plot(mod5, which=5)
+```
+
+## Petrels: Points with large influence?
+
+```{r}
+mod5b = lm(R.Wing.Lth ~ L.Wing.Lth + Sex + L.Wing.Lth:Sex, data=petrels[-c(492,638),])
+anova(mod5b)
+```
+
+<div align='center'>
+**ALWAYS PLOT THE DATA**
+</div>
 
 ## Determining the 'best' model
 
