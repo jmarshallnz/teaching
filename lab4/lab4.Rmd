@@ -44,7 +44,7 @@ After that, we'll look at a set of data on plate meter measurements of grass, an
     plot(BirthWeight ~ interaction(Shorn, Rank), data=births)
     ```
 
-   Does this plot agree with your anova results?
+    Does this plot agree with your anova results?
    
 6. Try visualising your model fit using `visreg`. We're interested in visualising the effect of the shearing treatment by rank. We can do this using
 
