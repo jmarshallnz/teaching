@@ -11,7 +11,7 @@ output:
 
 ```{r setup, echo=FALSE}
 library(knitr)
-opts_chunk$set(dev.args=list(bg='transparent'), comment='')
+opts_chunk$set(dev.args=list(bg='transparent'), comment='', warning=FALSE)
 col_points <- "#7f577492"
 col_dark   <- "#5f4354"
 ```
@@ -350,16 +350,14 @@ visreg(mod3, "Area", by="Sex")
 
 ## visreg: without interaction (`overlay=TRUE`)
 
-```{r, echo=FALSE, fig.width=9.5, fig.height=5.5}
-library(visreg)
+```{r, echo=FALSE, fig.width=9.5, fig.height=5.5, warning=FALSE}
 par(mar=c(4,4,1,0))
 visreg(mod, "Area", by="Sex", overlay=TRUE)
 ```
 
 ## visreg: with interaction (`overlay=TRUE`)
 
-```{r, echo=FALSE, fig.width=9.5, fig.height=5.5}
-library(visreg)
+```{r, echo=FALSE, fig.width=9.5, fig.height=5.5, warning=FALSE}
 par(mar=c(4,4,1,0))
 visreg(mod3, "Area", by="Sex", overlay=TRUE)
 ```
