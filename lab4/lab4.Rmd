@@ -1,7 +1,7 @@
 ---
 title: "227.215 Biostats Lab 4"
 author: "Jonathan Marshall"
-date: "9 August 2015"
+date: "30 August 2016"
 output:
   pdf_document: null
   html_document: default
@@ -44,9 +44,21 @@ After that, we'll look at a set of data on plate meter measurements of grass, an
     plot(BirthWeight ~ interaction(Shorn, Rank), data=births)
     ```
 
-6. Does this plot agree with your anova results?
+   Does this plot agree with your anova results?
+   
+6. Try visualising your model fit using `visreg`. We're interested in visualising the effect of the shearing treatment by rank. We can do this using
 
-7. Repeat the above, this time adding an interaction term between `Feed` and `Rank`. Is there evidence of a differential effect of feed between twins and singles?
+    ```
+    library(visreg)
+    visreg(mod_rank, "Shorn", by="Rank")
+    ```
+
+    This should produce side by side plots of the model fit - compare these to the boxplots you did above.
+
+7.  You can also show them on the same plot by adding `overlay=TRUE` into the `visreg` command. Try this to see what you get. Compare your plots with
+the output in the summary table. They're be telling you the same thing!
+
+8.  Repeat the above, this time adding an interaction term between `Feed` and `Rank`. Is there evidence of a differential effect of feed between twins and singles?
 
 ## Exercise 3: Create a new R script
 
@@ -107,4 +119,4 @@ To do this in R, we use the `nlme` library, which stands for "non-linear mixed e
 
 4. Summarise your results in a few comments in your R script file.
 
-5. All the best for the rest of the course, and **make sure you remember to do the biostats survey**. It'd be great to get a representative sample of responses, so it's important that I get the *meh* responses as well as the *awesome* and *you suck* responses! :)
+5. All the best for the rest of the course! I'd love to get feedback from you on the biostats portion of the course - feel free to tell me what you think via email or an anonymous note under my door! It'd be great to get a representative sample of responses, so it's important that I get the *meh* responses as well as the *awesome* and *you suck* responses! :)
