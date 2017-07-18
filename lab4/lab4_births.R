@@ -161,10 +161,10 @@ plot(lm3)
 #'  
 #'  From this, we'd conclude the model assumptions are likely to hold, so our conclusions are likely OK.
 #'  
-#'  ## Lab 4
+#' ## Lab 4
 #'  
-#'  We start by assessing whether the effect of shearing differs between twins and singles. We do this by including
-#'  an **interaction** term in the linear model.
+#' We start by assessing whether the effect of shearing differs between twins and singles. We do this by including
+#' an **interaction** term in the linear model.
 
 mod_rank <- lm(BirthWeight ~ Sex + Rank + Feed + Shorn + Shorn:Rank, data=births)
 anova(mod_rank)

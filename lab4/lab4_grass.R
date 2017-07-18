@@ -28,9 +28,19 @@ anova(mod2)
 summary(mod2)
 #' It looks like farm C has higher readings than farm A and B.
 
-#' The problem with this model is that we can't use it for future measurements unless the same people are doing the measuring.
-#' In general this won't be the case, so ideally we'll want to account for the variation between people while not actually
-#' having to estimate a separate mean for each person.
+#' The problem with this model is two fold:
+#' 
+#' 1. We can't use it for future measurements unless the same people are doing the measuring, as we'll need the
+#' individual 'person' effect, and we won't know that for future people.
+#' 
+#' 2. If we **don't** include the people in the model (to get around problem 1) then the residuals won't be
+#' independent, so any conclusions from the model may be wrong. This is because repeat measures were taken by
+#' the same people, so we'd expect measures taken by the same person to be more similar to each other than to
+#' measures taken by other people (due to the person effect).
+#' 
+#' Ideally we'll want to account for the variation between people while not actually having to estimate a
+#' separate mean for each person. This will account for the lack of independence in the residuals, and also
+#' allow us to predict for new people measuring in the future.
 #' 
 #' We do this by incorporating a **random effect**.
 #'
