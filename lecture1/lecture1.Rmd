@@ -1,17 +1,42 @@
 ---
 title: "Linear models"
 author: "Jonathan Marshall"
-date: ""
-output: 
-  ioslides_presentation: 
-    highlight: tango
-    widescreen: true
+date: ''
+output:
+  ioslides_presentation:
     css: jm.css
+    highlight: tango
+    widescreen: yes
+  beamer_presentation:
+    highlight: tango
+    includes:
+      in_header: header.tex
+    keep_tex: yes
+graphics: yes
 ---
 
 ```{r setup, echo=FALSE}
 library(knitr)
 opts_chunk$set(dev.args=list(bg='transparent'), comment="")
+#print(knit_hooks$get('output'))
+knit_hooks$set(output=function (x, options) {
+#  cat("OPTIONS=", names(options), "\n")
+  cache_path <- unlist(strsplit(options$cache.path, '/'))
+#  cat("Cache_path length=", length(cache_path), "\n")
+  out_format <- cache_path[length(cache_path)]
+  if (out_format == "html") {
+    knitr:::escape_html(x)
+    x = paste(x, collapse = "\\n")
+    sprintf("<div class=\"%s\"><pre class=\"knitr %s\">%s</pre></div>\\n", 
+        'output', tolower(options$engine), x)
+  } else {
+    paste(c("\\begin{ROutput}",
+            sub("\n$", "", x),
+            "\\end{ROutput}",
+            ""),
+          collapse="\n")
+  }
+})
 col_points <- "#7f577492"
 col_dark   <- "#5f4354"
 ```
@@ -72,7 +97,7 @@ plot(Bodywt ~ Sex, data=donkey, horizontal=TRUE)
 
 - Try to explain the variation in one measurement using other measurements.
 
-- Key is to model the mean of one variable conditional on the values of other variables.
+- Key is to model the **mean** of one variable conditional on the values of other variables.
 
 - Once we have a model, we can use that model for **prediction** or for quantifying the extent of the relationship.
 
@@ -126,14 +151,14 @@ the true parameters $\alpha$ and $\beta$ in the population.
 
 - The difference between the real $y_i$ and fitted $\hat{y}_i$ is the **residual** $\epsilon_i = y_i - \hat{y}_i$.
 
-- We find the optimal $\alpha$ and $\beta$ by minimising the variance of the residuals.
+- We find the optimal $\alpha$ and $\beta$ by minimising the variance of the residuals, subject to their mean being 0.
 
 - This is called **least squares** estimation as the formula for variance contains a sum of squares
 $$
-\begin{align}
+\begin{aligned}
 \mathsf{var}(\epsilon_i) &= \frac{1}{n}\sum_{i=1}^n (\epsilon_i - 0)^2\\
 &= \frac{1}{n}\sum_{i=1}^n (y_i - (\alpha + \beta x_i))^2
-\end{align}
+\end{aligned}
 $$
 
 ## Estimation of parameters
@@ -150,7 +175,7 @@ $$
 
 ## Estimation of parameters
 
-<iframe src="http://it056230.massey.ac.nz:8080/227215/shiny/leastsquares/" style="border: none"></iframe>
+<iframe src="http://it056230.massey.ac.nz:8080/apps/227215/shiny/leastsquares/" style="border: none"></iframe>
 
 # Linear models in RStudio
 
@@ -161,7 +186,7 @@ mod <- lm(Bodywt ~ Heartgirth, data=donkey)
 summary(mod)
 ```
 
-## Linear models in RStudio
+## Linear models in RStudio {.fragile}
 
 ```{r, comment="", echo=FALSE}
 mod <- lm(Bodywt ~ Heartgirth, data=donkey)
@@ -202,22 +227,67 @@ $$
 
 - The `Multiple R-squared` value is the proportion of variation in body weight explained by the model (i.e. explained by heart girth).
 $$
-R^2 = \frac{\sigma_\mathsf{Y}^2 - \sigma_\mathsf{res}^2}{\sigma_\mathsf{Y}^2} = \frac{SS_\mathsf{total} - SS_\mathsf{res}}{SS_\mathsf{total}}
+\begin{aligned}
+R^2 &= \frac{\mathsf{Var_{Explained}}}{\mathsf{{Var}_{Bodywt}}} = \frac{\mathsf{Var_{Bodywt}} - \mathsf{Var_{Residuals}}}{\mathsf{Var_{Bodywt}}}\\
+&= \frac{\sigma_\mathsf{Y}^2 - \sigma_\mathsf{res}^2}{\sigma_\mathsf{Y}^2} = \frac{SS_\mathsf{total} - SS_\mathsf{res}}{SS_\mathsf{total}}
+\end{aligned}
 $$
+- A high $R^2$ value suggests that the model explains a lot of the variation of the outcome variable.
+
+- i.e. Once you know the value of the heartgirth, you have a much lower range of potential values for the body weight.
+
+## $R^2$ for Donkeys
+
+<iframe src="http://it056230.massey.ac.nz:8080/apps/227215/shiny/rsquared/" style="border: none"></iframe>
+
+## Linear models in RStudio
+
 - The `p-value` for the model (last line) is testing whether **anything** in the model helps explain body weight.
-    - Same as P-value for heart girth in this case, as only thing in the model.
 
-## Prediction
+- Same as P-value for heart girth in this case, as only thing in the model.
 
-- We can predict the mean of $y$ for any given value of $x$ by just substituting values into the estimated linear model equation.
+- In models with more than one covariate, it will be assessing whether any of them help explain the outcome variable.
 
-- We can utilise the standard errors of our estimates to give uncertainty for the predicted **mean**.
+## Prediction {.fragile}
 
-    - This is a **confidence interval**.
-    
-- We can combine this with the variance of the residuals to give a prediction of the spread of individual values around the average.
+- We can predict the mean of $y$ for any given value of $x$ by just substituting values into the estimated linear model equation. e.g. for $\mathsf{Heartgirth}=120$:
 
-    - This is a **prediction interval**.
+    $$
+    \begin{aligned}
+    \mathsf{Body weight} &= `r round(s[1,1],1)` + `r round(s[2,1],2)` \times \mathsf{Heart girth}\\
+    & = `r round(s[1,1],1)` + `r round(s[2,1],2)` \times 120\\
+    & = `r round(s[1,1] + s[2,1] * 120,1)`
+    \end{aligned}
+    $$
+
+- In RStudio we can use the `predict` function for this:
+
+```{r, comment=""}
+predict(mod, newdata = data.frame(Heartgirth=120))
+```
+
+## Prediction in RStudio {.fragile}
+
+- We can utilise the standard errors of our estimates to give uncertainty for the predicted **mean**. This is a **confidence interval**.
+
+    ```{r, comment=""}
+    new.data <- data.frame(Heartgirth=120)
+    predict(mod, new.data, interval="confidence")
+    ```
+
+- We can combine this with the variance of the residuals to give a prediction for the spread of individual values. This is a **prediction interval**.
+
+    ```{r, comment=""}
+    predict(mod, new.data, interval="prediction")
+    ```
+
+## Prediction in RStudio: Two at once {.fragile}
+
+```{r, comment=""}
+new.data <- data.frame(Heartgirth=c(100,120))
+predict(mod, new.data, interval="confidence")
+predict(mod, new.data, interval="prediction")
+```
 
 ## Prediction
 
@@ -231,14 +301,6 @@ polygon(c(xv,rev(xv)),c(yv_p[,2], rev(yv_p[,3])), col="#00000020", border=NA)
 polygon(c(xv,rev(xv)),c(yv_c[,2], rev(yv_c[,3])), col="#00000040", border=NA)
 abline(coef(line), lwd=2)
 legend("bottomright", fill=c("#00000060", "#00000020"), legend=c("Confidence interval", "Prediction interval"), bty="n")
-```
-
-## Prediction in RStudio
-
-```{r, comment=""}
-new.data <- data.frame(Heartgirth=c(100,120))
-predict(mod, new.data, interval="confidence")
-predict(mod, new.data, interval="prediction")
 ```
 
 # Assumptions
@@ -280,6 +342,17 @@ $$
     - The standard errors of $\hat\alpha$ and $\hat\beta$ decrease with $n$ in the same way that the standard error of the sample mean decreases with $n$.
     - We can test hypotheses about $\alpha$ and $\beta$ using these distributions.
 
+
+## Importance of assumptions
+
+- **Linearity** is the most important. Does the form of your model equation make sense?
+
+- **Independence**. Do you have clustering of observations? Depends on data collection. Standard errors might be wrong.
+
+- **Normality**. This is the least important due to the central limit theorem that says it will hold anyway! More important for prediction intervals than model estimates.
+
+- **Equal variance**. Usually OK if linearity is OK. If not, standard errors might be wrong.
+
 ## Checking the assumptions
 
 - We can check the linear model assumptions by producing **diagnostic plots** of the model.
@@ -290,17 +363,48 @@ $$
 
 - In RStudio, we can use `plot(model)` to get diagnostic plots.
 
+<div class="centered">
+*A log transformation often fixes linearity or unequal variance.*
+</div>
+
+
 ## Diagnostic plots: Residuals versus fits
 
 ```{r, results='asis', echo=FALSE, fig.height=6, fig.width=4.5, out.extra=''}
 # hack-hack
-cat("<table class='container'><tr>")
-cat("<td style='width:500px'>")
+is_pdf <- rmarkdown::all_output_formats("lecture1.Rmd")[1] == "beamer_presentation"
+start_table <- function(is_pdf) {
+  if (is_pdf) {
+    cat("\\begin{minipage}{5cm}")
+  } else { # HTML
+    cat("<table class='container'><tr>")
+    cat("<td style='width:500px'>")
+  }
+}
+next_column <- function(is_pdf) {
+  if (is_pdf) {
+    cat("\\end{minipage}\n")
+#    cat("\\begin{minipage}{5cm}")
+  } else {
+    cat("</td>")
+    cat("<td style='vertical-align:top'>")
+  }
+}
+end_table <- function(is_pdf) {
+  if (is_pdf) {
+    cat("")
+#    cat("\\end{minipage}")
+  } else {
+    cat("</td>")
+    cat("</tr></table>")
+  }
+}
+start_table(is_pdf)
 par(omi=c(2,0,0,0), mar=rep(0,4))
 plot(mod, which=1, pch=19, col="#00000040", xaxt="n")
-cat("</td>")
-cat("<td style='vertical-align:top'>")
+next_column(is_pdf)
 ```
+
 - Allows us to assess **linearity**.
 
 - There should be no curve.
@@ -312,20 +416,20 @@ cat("<td style='vertical-align:top'>")
 - When either of these fail, a log transform of $y$ and/or $x$ often straightens things out.
 
 ```{r, results='asis', echo=FALSE, out.extra=''}
-cat("</td>")
-cat("</tr></table>")
+end_table(is_pdf)
 ```
+
+## Residuals versus fits
+
+<iframe src="http://it056230.massey.ac.nz:8080/apps/227215/shiny/linearity/" style="border: none"></iframe>
 
 ## Diagnostic plots: Normal Q-Q plot
 
 ```{r, results='asis', echo=FALSE, fig.height=6, fig.width=4.5, out.extra=''}
-# hack-hack
-cat("<table class='container'><tr>")
-cat("<td style='width:500px'>")
+start_table(is_pdf)
 par(omi=c(2,0,0,0), mar=rep(0,4))
 plot(mod, which=2, pch=19, col="#00000040", xaxt="n")
-cat("</td>")
-cat("<td style='vertical-align:top'>")
+next_column(is_pdf)
 ```
 - Allows us to assess **normality**.
 
@@ -333,21 +437,19 @@ cat("<td style='vertical-align:top'>")
 
 - A slight S shaped curve is OK.
 
+- Central limit theorem means this can generally be ignored.
+
 ```{r, results='asis', echo=FALSE, out.extra=''}
-cat("</td>")
-cat("</tr></table>")
+end_table(is_pdf)
 ```
 
 ## Diagnostic plots: Scale-location plot
 
 ```{r, results='asis', echo=FALSE, fig.height=6, fig.width=4.5, out.extra=''}
-# hack-hack
-cat("<table class='container'><tr>")
-cat("<td style='width:500px'>")
+start_table(is_pdf)
 par(omi=c(2,0,0,0), mar=rep(0,4))
 plot(mod, which=3, pch=19, col="#00000040", xaxt="n")
-cat("</td>")
-cat("<td style='vertical-align:top'>")
+next_column(is_pdf)
 ```
 - Allows us to assess **equal variance**.
 
@@ -356,20 +458,16 @@ cat("<td style='vertical-align:top'>")
 - Residuals versus fit often tells you this just as well.
 
 ```{r, results='asis', echo=FALSE, out.extra=''}
-cat("</td>")
-cat("</tr></table>")
+end_table(is_pdf)
 ```
 
 ## Diagnostic plots: Residuals versus Leverage
 
 ```{r, results='asis', echo=FALSE, fig.height=6, fig.width=4.5, out.extra=''}
-# hack-hack
-cat("<table class='container'><tr>")
-cat("<td style='width:500px'>")
+start_table(is_pdf)
 par(omi=c(2,0,0,0), mar=rep(0,4))
 plot(mod, which=5, pch=19, col="#00000040", xaxt="n")
-cat("</td>")
-cat("<td style='vertical-align:top'>")
+next_column(is_pdf)
 ```
 - Allows us to look for **influential outliers**.
 
@@ -378,8 +476,7 @@ cat("<td style='vertical-align:top'>")
 - Points outside Cook's distance of 1 have excessive influence.
 
 ```{r, results='asis', echo=FALSE, out.extra=''}
-cat("</td>")
-cat("</tr></table>")
+end_table(is_pdf)
 ```
 
 ## Influential outliers
@@ -396,18 +493,10 @@ cat("</tr></table>")
 
 ## Influential outliers
 
-<iframe src="http://it056230.massey.ac.nz:8080/227215/shiny/influence/" style="border: none"></iframe>
+<iframe src="http://it056230.massey.ac.nz:8080/apps/227215/shiny/influence/" style="border: none"></iframe>
 
-## When assumptions don't hold
+## Summary
 
-- **Linearity**. Estimates will be **biased**. Fix this before looking at other assumptions.
+- The residuals vs fitted plot should be looked at first. If you see curvature or increasing scatter from left to right, try a log transform and re-fit the model.
 
-- **Independence**. Estimates will be unbiased, but standard errors will be wrong. P-values may be underestimated.
-
-- **Normality**. Estimates will be unbiased, but coefficients may not have the $t$&nbsp;distribution we expect. As long as sample size is reasonable and shape not too extreme the **central limit theorem** comes to the rescue.
-
-- **Equal variance**. Estimates will be unbiased, but standard errors will be wrong. P-values may be underestimated.
-
-<div class="centered">
-*A log transformation often fixes linearity or unequal variance.*
-</div>
+- Next look at residuals vs leverage. If you have influential outliers then look at the effect of removing those observations.
