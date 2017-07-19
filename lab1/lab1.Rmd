@@ -1,7 +1,6 @@
 ---
 title: "227.215 Biostats Lab 1"
 author: "Jonathan Marshall"
-date: "15 July 2015"
 graphics: yes
 output:
   pdf_document: null
@@ -14,21 +13,7 @@ In this lab we'll start looking at the linear model. The linear model forms the 
 
 This lab will also be used to remind you how to construct an `R notebook' which is a document that combines the R code for your analysis, any comments you make about that analysis, and any output form R, including plots. The neat thing about this is it encapsulates the concept of **repeatable research**: As you change your analysis steps (or make changes to the data), the report can be re-generated automatically. This document can take the form of an HTML document (great for previewing or sharing on the web) or a Word document that you can then edit further if needed.
 
-## Exercise 1: Creating an RStudio project ##
-
-In this exercise we'll get to know about RStudio projects. RStudio projects are a folder (in your Documents folder) that hold all the content for a set of analyses using RStudio. It is where any R scripts, along with your history, workspace, and also output documents are saved.
-
-1. Start by loading up RStudio.
-2. Next, create a new RStudio project by going to `File->New Project...`.
-3. When prompted, select `New Directory`.
-4. Next, select `Empty Project`.
-5. Type in the name of the project (e.g. "BiostatsLabs") and select the folder you want it to be in (by default it will go into your "Documents" folder).
-
-You'll see that RStudio will restart, and the Files pane down the bottom left will be inside the folder you created (and there'll be a Lab1.rproj file there).
-
-Now, go and shut down RStudio, then navigate to `Documents/BiostatsLabs` in the Windows Explorer and open the `BiostatsLabs.Rproj` file. RStudio will re-start and you'll be back where you were.
-
-## Exercise 2: Creating an R notebook from an R script ##
+## Exercise 1: Creating an R notebook from an R script ##
 
 In this exercise we'll create a new R script, do some simple exploratory analysis, and then generate an R notebook from that.
 
@@ -37,7 +22,7 @@ In this exercise we'll create a new R script, do some simple exploratory analysi
 2. Now type (or copy/paste) the following into the RScript file.
 
     ```
-    #' 227.215 Biostats.
+    #' ## 227.215 Biostats
     
     #' In this notebook we'll take another look at data on Moroccan donkeys that we looked at
     #' in semester 1.
@@ -55,22 +40,11 @@ plot(donkey[,3:7])
 ```
 
 5. Run that code to make sure you get the plot you want.
-6. Now we'll produce an R notebook. Click on the little spiral-bound notebook on the toolbar (it will say `Compile Notebook` when you hover over it). It will prompt you to first save your R script - call it something like `donkey.R`. Once done, select `HTML` as the type of notebook to compile. It will do it's thing, and produce an HTML document that should look something like what is below.
+6. Now we'll produce an R notebook. Click on the little spiral-bound notebook on the toolbar (it will say `Compile Notebook` when you hover over it). It will prompt you to first save your R script - call it something like `donkey.R`. Once done, select `HTML` as the type of notebook to compile. It will do it's thing, and produce an HTML document.
 
-```{r, echo=FALSE, fig.width=3, fig.height=5, fig.align='center'}
-library(png)
-fig <- readPNG("r_notebook.png")
-p <- par("fin")
-par(mar=rep(0,4), fin=c(p[1], dim(fig)[1]/dim(fig)[2]*p[1]))
-plot(c(0,dim(fig)[2]), c(0,dim(fig)[1]), type="n", xaxt="n", yaxt="n",xlab="", ylab="", xaxs="i", yaxs="i")
-rasterImage(fig, 0, 0, dim(fig)[2], dim(fig)[1])
-```
+## Exercise 2: The linear model ##
 
-7. Try re-building the notebook and this time selecting `Word` as the type of notebook. It will generate a word document for you :)
-
-## Exercise 3: The linear model ##
-
-In this exercise we'll look at modelling the donkey `Bodywt` using the `Heartgirth`. You should be able to see from your plot that this was the best variable to use for modelling the `Bodywt`.
+In this exercise we'll look at modelling the donkey `Bodywt` using the `Heartgirth`, like we saw in the first lecture. You should be able to see from your plot that this was the best variable to use for modelling the `Bodywt`.
 
 1. Change the line of code in your R script to just generate a scatterplot of `Bodywt` versus `Heartgirth`. To jog your memory, try
 ```
@@ -129,3 +103,61 @@ predict(lm1, new_data)
     predict(lm1, new_data, interval="prediction")
     ```
     The first accounts only for the error in the line itself. That is, it is a *confidence* interval for the **average** weight for all donkeys with heartgirth 110cm.  The second accounts for the error in the line plus the variation of individuals about the line. Thus, it gives a *prediction* interval for the weight of an **individual** donkey with heartgirth 110cm. This is the range we expect individuals to be in.
+
+## Exercise 3: Model diagnostics
+
+1. Add the following code to produce diagnostic plots for the linear model we fitted last time.
+
+    ```
+    #' Diagnostic plots for the linear model.
+    par(mfrow=c(2,2), mar=c(4,4,2,2)) # creates a 2x2 plot and makes the margins a bit smaller
+    plot(lm1)
+    ```
+
+2. Take a good look at the diagnostic plots. Recall what the 4 assumptions of the linear model are, and see whether each of them is satistifed or not. Discuss this with those around you and **add a comment to your R script about each assumption**
+
+3. A transformation is one way to deal with the non-linearity of the model. Instead of modelling the body weight in terms of the heart girth directly, we could instead take log transforms of both body weight and heart girth to get rid of the curvature in the relationship.
+
+    ```
+    #' Let's try modelling the log of body weight versus log heartgirth to see if we
+    #' get a better model.
+    lm2 <- lm(log(Bodywt) ~ log(Heartgirth), data=donkey)
+    summary(lm2)
+    ```
+
+4. Add the necessary code to include model diagnostics for this new model. How is the assumption of linearity now? What about the other assumptions? *remember to add comments to your R script so they appear in your Word document at the end*
+
+5. Compare the summary output of the two models you have. Which do you think is better? Why?
+
+6. In the last lab we produced confidence and prediction intervals for a donkey with heartgirth equal to 110cm. Re-do these using your model. Remember that you'll need to exponentiate the resulting intervals! (Why?)
+
+7. How do these intervals compare with your previous ones? *Add some comments to your R script about this.*
+
+## Exercise 4: Visualising the model.
+
+One way to visualise a linear model fit is by using the `visreg` package.
+
+You might first need to install this package using the `Packages` menu in the bottom right. Just click the install button and type in `visreg`, then install.
+
+1. Once you've installed the `visreg` package, start by visualising our first model. As we only have a single variable in the model (Heart girth) we can just call `visreg` directly on the model object:
+
+    ```
+    #' Visualise the model fit using the `visreg` package.
+    library(visreg)
+    visreg(lm1)
+    ```
+
+    You should see that the fit is pretty good within the mid-range of `Heartgirth` but isn't so good at either end, where most of the observations are above the line rather than scattered on either side, due to the curvature. *Add a comment to your R script about this*.
+
+2. Now try visualising the second linear model. You should notice that the x-axis is on the normal scale (even though we applied a log transformation in the model formula) but the y-axis is on the log scale. Nonetheless, the model fit should be a bit better, and will be curved. Notice that we've used a **linear** model to fit a curved relationship. The key is that the linearity of the model is in terms of the coefficients (each term can contain only one $\beta$, and terms must be added together) not in terms of the way $y$ and $x$ are related. You can apply any transformation you like to $x$ and $y$ as needed to fit the data.
+
+3. You can visualise the second linear model on the natural body weight scale by applying a transformation in the `visreg` command. Try the following:
+
+    ```
+    visreg(lm2, trans=exp, partial=TRUE)
+    ```
+
+    The `trans=exp` uses exponentiation to transform the outcome variable. The `partial=TRUE` means that residuals (and thus data values) are plotted as points as well. You may want to change the y-axis label by adding `ylab="Body weight (kg)"` to the above command.
+
+    *Add some comments to your R script about the model fit and how well you think it does. Notice that the confidence
+    bands at the ends are larger than in the middle. Why is this?*
