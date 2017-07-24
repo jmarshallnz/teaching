@@ -1,21 +1,54 @@
 ---
 title: "Linear models 2"
 author: "Jonathan Marshall"
-date: ""
-output: 
-  ioslides_presentation: 
-    highlight: tango
-    widescreen: true
+date: ''
+output:
+  ioslides_presentation:
     css: jm.css
+    highlight: tango
+    widescreen: yes
+  beamer_presentation:
+    highlight: tango
+    includes:
+      in_header: ../header.tex
+    keep_tex: yes
+graphics: yes
 ---
 
 ```{r setup, echo=FALSE}
 library(knitr)
-opts_chunk$set(dev.args=list(bg='transparent'), comment='')
+opts_chunk$set(dev.args=list(bg='transparent'), comment="")
+#print(knit_hooks$get('output'))
+knit_hooks$set(output=function (x, options) {
+#  cat("OPTIONS=", names(options), "\n")
+  cache_path <- unlist(strsplit(options$cache.path, '/'))
+#  cat("Cache_path length=", length(cache_path), "\n")
+  out_format <- cache_path[length(cache_path)]
+  if (out_format == "html") {
+    knitr:::escape_html(x)
+    x = paste(x, collapse = "\\n")
+    sprintf("<div class=\"%s\"><pre class=\"knitr %s\">%s</pre></div>\\n", 
+        'output', tolower(options$engine), x)
+  } else {
+    paste(c("\\begin{ROutput}",
+            sub("\n$", "", x),
+            "\\end{ROutput}",
+            ""),
+          collapse="\n")
+  }
+})
 col_points <- "#7f577492"
 col_dark   <- "#5f4354"
 ```
+
+```{r, echo=FALSE}
+donkey <- read.csv("http://www.massey.ac.nz/~jcmarsha/227215/data/donkey.csv")
+mod <- lm(Bodywt ~ Heartgirth, data=donkey)
+```
+
 ## Learning outcomes
+
+- Assumptions.
 
 - Adding more covariates.
 
@@ -23,7 +56,177 @@ col_dark   <- "#5f4354"
 
 - Models with factor variables.
 
-# Example: Donkeys
+# Assumptions
+
+## Assumptions of linear models
+
+**L**inearity
+
+ - Residuals don't depend on $x$.
+
+**I**ndependence
+
+ - Residuals don't depend on each other.
+
+**N**ormality
+
+ - Residuals are distributed normally.
+
+**E**qual variance
+
+ - Residuals have constant variance.
+
+## Checking the assumptions
+
+- We can check the linear model assumptions by producing **diagnostic plots** of the model.
+
+- Using these, we can assess linearity, normality, and equal variance, but we usually can't assess independence without using other information from the data (such as how it was collected).
+
+- In addition, we can also see whether there are outliers in the data that have undue **influence** on our model fit.
+
+- In RStudio, we can use `plot(model)` to get diagnostic plots.
+
+## Example: Donkeys
+
+```{r, echo=FALSE, fig.align='center', fig.width=8, fig.height=5}
+par(mfrow=c(2,2), mar=c(4,2,2,2))
+plot(mod, pch=19, col="#00000040", xaxt="n")
+```
+
+## Diagnostic plots: Residuals versus fits
+
+```{r, results='asis', echo=FALSE, fig.height=6, fig.width=4.5, out.extra=''}
+# hack-hack
+is_pdf <- rmarkdown::all_output_formats("lecture2.Rmd")[1] == "beamer_presentation"
+start_table <- function(is_pdf) {
+  if (is_pdf) {
+    cat("\\begin{minipage}{5cm}")
+  } else { # HTML
+    cat("<table class='container'><tr>")
+    cat("<td style='width:500px'>")
+  }
+}
+next_column <- function(is_pdf) {
+  if (is_pdf) {
+    cat("\\end{minipage}\n")
+#    cat("\\begin{minipage}{5cm}")
+  } else {
+    cat("</td>")
+    cat("<td style='vertical-align:top'>")
+  }
+}
+end_table <- function(is_pdf) {
+  if (is_pdf) {
+    cat("")
+#    cat("\\end{minipage}")
+  } else {
+    cat("</td>")
+    cat("</tr></table>")
+  }
+}
+start_table(is_pdf)
+par(omi=c(2,0,0,0), mar=rep(0,4))
+plot(mod, which=1, pch=19, col="#00000040", xaxt="n")
+next_column(is_pdf)
+```
+
+- Allows us to assess **linearity**.
+
+- There should be no curve.
+
+- Also allows assessing **equal variance**.
+
+- The points shouldn't fan out.
+
+- When either of these fail, a log transform of $y$ and/or $x$ often straightens things out.
+
+```{r, results='asis', echo=FALSE, out.extra=''}
+end_table(is_pdf)
+```
+
+## Residuals versus fits
+
+<iframe src="http://it056230.massey.ac.nz:8080/apps/227215/shiny/linearity/" style="border: none"></iframe>
+
+## Diagnostic plots: Normal Q-Q plot
+
+```{r, results='asis', echo=FALSE, fig.height=6, fig.width=4.5, out.extra=''}
+start_table(is_pdf)
+par(omi=c(2,0,0,0), mar=rep(0,4))
+plot(mod, which=2, pch=19, col="#00000040", xaxt="n")
+next_column(is_pdf)
+```
+- Allows us to assess **normality**.
+
+- Ideally the points will lie on the straight line.
+
+- A slight S shaped curve is OK.
+
+- Central limit theorem means this can generally be ignored.
+
+```{r, results='asis', echo=FALSE, out.extra=''}
+end_table(is_pdf)
+```
+
+## Diagnostic plots: Scale-location plot
+
+```{r, results='asis', echo=FALSE, fig.height=6, fig.width=4.5, out.extra=''}
+start_table(is_pdf)
+par(omi=c(2,0,0,0), mar=rep(0,4))
+plot(mod, which=3, pch=19, col="#00000040", xaxt="n")
+next_column(is_pdf)
+```
+- Allows us to assess **equal variance**.
+
+- Ideally should not be increasing or decreasing.
+
+- Residuals versus fit often tells you this just as well.
+
+```{r, results='asis', echo=FALSE, out.extra=''}
+end_table(is_pdf)
+```
+
+## Diagnostic plots: Residuals versus Leverage
+
+```{r, results='asis', echo=FALSE, fig.height=6, fig.width=4.5, out.extra=''}
+start_table(is_pdf)
+par(omi=c(2,0,0,0), mar=rep(0,4))
+plot(mod, which=5, pch=19, col="#00000040", xaxt="n")
+next_column(is_pdf)
+```
+- Allows us to look for **influential outliers**.
+
+- Points should ideally be inside red bands (Cook's distance) at 0.5.
+
+- Points outside Cook's distance of 1 have excessive influence.
+
+```{r, results='asis', echo=FALSE, out.extra=''}
+end_table(is_pdf)
+```
+
+## Influential outliers
+
+- Points can be outliers in two ways:
+
+    - They can have extreme $x$ values compared to the rest of the data. Such points are said to have high **leverage**.
+    
+    - They can have extreme $y$ values, given their $x$ value (i.e. a large residual.)
+
+- Points have large **influence** if they exhibit both these properties.
+
+- **Cook's distance** is a measure of influence. Cook's distance larger than 1 means the points have large influence on the model fit. Removing these points may change the model quite a bit.
+
+## Influential outliers
+
+<iframe src="http://it056230.massey.ac.nz:8080/apps/227215/shiny/influence/" style="border: none"></iframe>
+
+## Summary
+
+- The residuals vs fitted plot should be looked at first. If you see curvature or increasing scatter from left to right, try a log transform and re-fit the model.
+
+- Next look at residuals vs leverage. If you have influential outliers then look at the effect of removing those observations.
+
+# The Linear model|Multiple covariates
 
 ## Relationships: Donkeys
 
@@ -57,8 +260,6 @@ $$
 - The model assumptions are defined in terms of the residuals.
 
 - When the assumptions hold we can take our model from the sample and generalise to the population.
-
-# The Linear model|Multiple covariates
 
 ## Multiple covariates
 
@@ -97,7 +298,7 @@ where $p$ is the number of covariates, and $n$ is the number of observations.
 
 - This is equivalent to: **"Which of the $\beta$'s are non-zero?"**
 
-## Summary output for multiple covariates {.smaller}
+## Summary output for multiple covariates {.smaller .fragile}
 
 ```{r, echo=FALSE}
 mod <- lm(Bodywt ~ Heartgirth + Umbgirth + Length + Height, data=donkey)
@@ -108,11 +309,25 @@ summary(mod)
 
 ## Summary output for multiple covariates
 
-- Heart girth, umbilical girth and length are all significant after accounting for other covariates.
+- Heart girth, umbilical girth and length are all important after accounting for other covariates.
 
-- Height is not significant after accounting for the other covariates.
+- Height is not important after accounting for the other covariates.
 
-- The $R^2$ for the model is `r rs`, so the model is explaining `r 100*rs`% of the variation in body weight.
+- **This doesn't mean that height isn't important for body weight!**
+
+## But wait!
+
+```{r}
+summary(lm(Bodywt ~ Height, data=donkey))
+```
+
+## Summary output for multiple covariates
+
+- Heart girth, umbilical girth and length are all important after accounting for other covariates.
+
+- Height is not important after accounting for the other covariates.
+
+- The $R^2$ for the model is `r rs`, so the model is explaining `r rs*100`% of the variation in body weight.
 
 - What is the overall P-value telling us?
 
@@ -128,18 +343,16 @@ summary(mod)
 
 - We use the **F-statistic** for this.
 $$
-F = \frac{(SS_\mathsf{total} - SS_\mathsf{res})/p}{SS_\mathsf{res}/(n-p-1)}
+F = \frac{(\sigma^2_\mathsf{total} - \sigma^2_\mathsf{res})/p}{\sigma^2_\mathsf{res}/(n-p-1)}
 $$
 where $p$ is the number of covariates, and $n$ the number of observations.
 
 ## The F-test
 $$
-F = \frac{(SS_\mathsf{total} - SS_\mathsf{res})/p}{SS_\mathsf{res}/(n-p-1)}
+F = \frac{(\sigma^2_\mathsf{total} - \sigma^2_\mathsf{res})/p}{\sigma^2_\mathsf{res}/(n-p-1)}
 $$
 
-- On the numerator we have a measure of variance explained by the model.
-
-- On the denominator we have a measure of variance left over in the residuals.
+- On the top we have variance explained by the model, and on bottom variance left over in residuals.
 
 - The ratio of these, $F$ will increase as we explain more variation in the model.
 
@@ -147,6 +360,9 @@ $$
 
 - We can use the **F-distribution** to figure out how likely the $F$ from our sample
 would arise by chance, giving us the P-value.
+
+- We use the P-value for our decision about the model. $F$ is just the way the maths gets us
+there (like $t$ in the $t$-test).
 
 ## The F-statistic in summary output
 
@@ -169,10 +385,6 @@ F-statistic: 546.4 on 4 and 380 DF,  p-value: < 2.2e-16
 ```
 
 An F value of `r fv` is really unlikely to arise by chance, so our model is telling us something about body weight.
-
-## The F distribution
-
-<iframe src="http://it056230.massey.ac.nz:8080/227215/shiny/fstatistic/" style="border: none"></iframe>
 
 # Linear models with factors
 
@@ -234,7 +446,7 @@ co <- summary(lm(Bodywt ~ Sex, data=donkey))$coefficients
 ```
 - The intercept is the mean body weight of female donkeys (`r round(co[1,1],1)` kg).
 
-- The coefficient labelled SexMale is the difference between females and males (males `r round(co[2,1],2)` kg heavier).
+- The coefficient labelled `SexMale` is the difference between females and males (males `r round(co[2,1],2)` kg heavier).
 
 - This difference isn't significant (P=`r round(co[2,4],3)`).
 
@@ -290,7 +502,7 @@ plot(R.Wing.Lth ~ Area, data=petrels, ylab="Right wing length (cm)")
 ```
 
 
-## Example: Petrels {.smaller}
+## Example: Petrels {.smaller .fragile}
 
 ```{r, echo=FALSE}
 mod <- lm(R.Wing.Lth ~ Area, data=petrels)
@@ -324,78 +536,4 @@ visreg(mod)
 library(visreg)
 par(mar=c(4,4,0,0))
 visreg(mod)
-```
-
-## The F-statistic for factors
-
-$$
-F = \frac{(SS_\mathsf{total} - SS_\mathsf{res})/p}{SS_\mathsf{res}/(n-p-1)}
-$$
-
-- The numerator is variation explained by the model. In this case this is variation between groups, as the model
-is just giving a different mean to each group.
-
-- The denominator is residual variation, which in this case is variation within groups (residuals are values minus
-fit, which is the group mean).
-
-- Thus F is a ratio of between-group variation to within-group variation.
-
-## The F-statistic for factors
-
-<iframe src="http://it056230.massey.ac.nz:8080/227215/shiny/anova/" style="border: none"></iframe>
-
-## What if we have more than one factor?
-
-- We include a block of indicator variables for each factor.
-
-- The first level, or **baseline** of each of the factors is what contributes to the intercept.
-
-- Subsequent levels are treated as differences compared to the baseline level.
-
-- The overall F-test and P-value for the model is testing whether any of the factors in the model are important.
-
-- We need another way to compute P-values for each factor separately.
-
-## Example: Summary output for two factors {.smaller}
-
-```{r, echo=FALSE}
-mod.2 <- lm(R.Wing.Lth ~ Sex + Area, data=petrels)
-summary(mod.2)
-```
-
-## Example: The anova function
-
-```{r}
-mod.2 <- lm(R.Wing.Lth ~ Sex + Area, data=petrels)
-anova(mod.2)
-```
-
-- Each row in the anova table corresponds to a factor (or numeric covariate).
-
-- P-values thus can be read out.
-
-## Process of assessing a factor covariate
-
-- Fit linear model.
-
-- Do `anova()` to check the factor is significant.
-
-- If it is significant, look at the `summary()` to see how the levels differ.
-
-- Multiple testing problem on the latter, which is why we do the overall test first.
-
-- **Order can be important in the anova table.**
-
-- Each row's P-values are adjusting for previous rows.
-
-## Example: Order matters
-
-```{r}
-anova(lm(R.Wing.Lth ~ Sex + Area, data=petrels))
-```
-
-## Example: Order matters
-
-```{r}
-anova(lm(R.Wing.Lth ~ Area + Sex, data=petrels))
 ```
