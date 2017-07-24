@@ -336,6 +336,57 @@ X = \left[\begin{array}{c c c c}
 \end{array}\right]
 \] where \(p\) is the number of covariates, and \(n\) is the number of observations.</p>
 
+</article></slide><slide class=''><hgroup><h2>Example: Donkeys</h2></hgroup><article  id="example-donkeys-1" class="fragile">
+
+<div class="output">
+<pre class="knitr r">
+Call:
+lm(formula = Bodywt ~ Heartgirth, data = donkey)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-40.343  -6.829   0.486   6.432  45.909 
+
+Coefficients:
+              Estimate Std. Error t value Pr(>|t|)    
+(Intercept) -194.48580    7.99203  -24.34   <2e-16 ***
+Heartgirth     2.82883    0.07118   39.74   <2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 10.83 on 383 degrees of freedom
+Multiple R-squared:  0.8048,    Adjusted R-squared:  0.8043 
+F-statistic:  1580 on 1 and 383 DF,  p-value: < 2.2e-16
+</pre></div>
+
+<p></p>
+
+</article></slide><slide class=''><hgroup><h2>Example: Donkeys</h2></hgroup><article  id="example-donkeys-2" class="fragile">
+
+<div class="output">
+<pre class="knitr r">
+Call:
+lm(formula = Bodywt ~ Heartgirth + Umbgirth, data = donkey)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-34.651  -6.349   0.749   5.902  43.932 
+
+Coefficients:
+              Estimate Std. Error t value Pr(>|t|)    
+(Intercept) -200.64500    7.75418  -25.88  < 2e-16 ***
+Heartgirth     2.38832    0.10290   23.21  < 2e-16 ***
+Umbgirth       0.42207    0.07366    5.73 2.04e-08 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 10.41 on 382 degrees of freedom
+Multiple R-squared:  0.8203,    Adjusted R-squared:  0.8193 
+F-statistic: 871.8 on 2 and 382 DF,  p-value: < 2.2e-16
+</pre></div>
+
+<p></p>
+
 </article></slide><slide class=''><hgroup><h2>Testing multiple covariates</h2></hgroup><article  id="testing-multiple-covariates">
 
 <ul>
@@ -381,9 +432,7 @@ F-statistic: 546.4 on 4 and 380 DF,  p-value: < 2.2e-16
 <li><p><strong>This doesn&#39;t mean that height isn&#39;t important for body weight!</strong></p></li>
 </ul>
 
-</article></slide><slide class=''><hgroup><h2>But wait!</h2></hgroup><article  id="but-wait">
-
-<pre class = 'prettyprint lang-r'>summary(lm(Bodywt ~ Height, data=donkey))</pre>
+</article></slide><slide class=''><hgroup><h2>But wait!</h2></hgroup><article  id="but-wait" class="fragile">
 
 <div class="output">
 <pre class="knitr r">
@@ -458,8 +507,7 @@ Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’
 
 Residual standard error: 9.476 on 380 degrees of freedom
 Multiple R-squared:  0.8519,    Adjusted R-squared:  0.8503 
-<b>F-statistic: 546.4 on 4 and 380 DF,  p-value: &lt; 2.2e-16
-</b></pre>
+F-statistic: 546.4 on 4 and 380 DF,  p-value: &lt; 2.2e-16</pre>
 
 <p>An F value of 546.4 is really unlikely to arise by chance, so our model is telling us something about body weight.</p>
 
@@ -506,7 +554,7 @@ z = \left\{
 <li><p>Testing for a difference between groups is then just testing whether \(\beta = 0\).</p></li>
 </ul>
 
-</article></slide><slide class=''><hgroup><h2>Example: Donkeys</h2></hgroup><article  id="example-donkeys-1" class="smaller">
+</article></slide><slide class=''><hgroup><h2>Example: Donkeys</h2></hgroup><article  id="example-donkeys-3" class="smaller">
 
 <pre class = 'prettyprint lang-r'>mod &lt;- lm(Bodywt ~ Sex, data=donkey)
 summary(mod)</pre>
@@ -534,7 +582,7 @@ F-statistic: 0.4963 on 1 and 383 DF,  p-value: 0.4816
 
 <p></p>
 
-</article></slide><slide class=''><hgroup><h2>Example: Donkeys</h2></hgroup><article  id="example-donkeys-2">
+</article></slide><slide class=''><hgroup><h2>Example: Donkeys</h2></hgroup><article  id="example-donkeys-4">
 
 <ul>
 <li><p>The intercept is the mean body weight of female donkeys (121.4 kg).</p></li>
@@ -543,7 +591,7 @@ F-statistic: 0.4963 on 1 and 383 DF,  p-value: 0.4816
 <li><p>This is <strong>exactly the same</strong> as a two sample t-test where we assume the variance in each group is the same.</p></li>
 </ul>
 
-</article></slide><slide class=''><hgroup><h2>Example: Donkeys</h2></hgroup><article  id="example-donkeys-3">
+</article></slide><slide class=''><hgroup><h2>Example: Donkeys</h2></hgroup><article  id="example-donkeys-5">
 
 <pre class = 'prettyprint lang-r'>t.test(Bodywt ~ Sex, data=donkey, var.equal=TRUE)</pre>
 
@@ -619,7 +667,6 @@ Area6        -9.2667     2.6332  -3.519 0.000461 ***
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 Residual standard error: 8.926 on 701 degrees of freedom
-  (15 observations deleted due to missingness)
 Multiple R-squared:  0.1719,    Adjusted R-squared:  0.166 
 F-statistic: 29.11 on 5 and 701 DF,  p-value: < 2.2e-16
 </pre></div>

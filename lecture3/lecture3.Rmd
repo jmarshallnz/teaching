@@ -21,6 +21,81 @@ col_dark   <- "#5f4354"
 
 - Interactions.
 
+
+## The F-statistic for factors
+
+$$
+F = \frac{(SS_\mathsf{total} - SS_\mathsf{res})/p}{SS_\mathsf{res}/(n-p-1)}
+$$
+
+- The numerator is variation explained by the model. In this case this is variation between groups, as the model
+is just giving a different mean to each group.
+
+- The denominator is residual variation, which in this case is variation within groups (residuals are values minus
+fit, which is the group mean).
+
+- Thus F is a ratio of between-group variation to within-group variation.
+
+## The F-statistic for factors
+
+<iframe src="http://it056230.massey.ac.nz:8080/227215/shiny/anova/" style="border: none"></iframe>
+
+## What if we have more than one factor?
+
+- We include a block of indicator variables for each factor.
+
+- The first level, or **baseline** of each of the factors is what contributes to the intercept.
+
+- Subsequent levels are treated as differences compared to the baseline level.
+
+- The overall F-test and P-value for the model is testing whether any of the factors in the model are important.
+
+- We need another way to compute P-values for each factor separately.
+
+## Example: Summary output for two factors {.smaller}
+
+```{r, echo=FALSE}
+mod.2 <- lm(R.Wing.Lth ~ Sex + Area, data=petrels)
+summary(mod.2)
+```
+
+## Example: The anova function
+
+```{r}
+mod.2 <- lm(R.Wing.Lth ~ Sex + Area, data=petrels)
+anova(mod.2)
+```
+
+- Each row in the anova table corresponds to a factor (or numeric covariate).
+
+- P-values thus can be read out.
+
+## Process of assessing a factor covariate
+
+- Fit linear model.
+
+- Do `anova()` to check the factor is significant.
+
+- If it is significant, look at the `summary()` to see how the levels differ.
+
+- Multiple testing problem on the latter, which is why we do the overall test first.
+
+- **Order can be important in the anova table.**
+
+- Each row's P-values are adjusting for previous rows.
+
+## Example: Order matters
+
+```{r}
+anova(lm(R.Wing.Lth ~ Sex + Area, data=petrels))
+```
+
+## Example: Order matters
+
+```{r}
+anova(lm(R.Wing.Lth ~ Area + Sex, data=petrels))
+```
+
 # Review
 
 ## Summary table

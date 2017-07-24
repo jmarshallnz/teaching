@@ -290,6 +290,20 @@ X = \left[\begin{array}{c c c c}
 $$
 where $p$ is the number of covariates, and $n$ is the number of observations.
 
+## Example: Donkeys {.fragile}
+
+```{r, echo=FALSE}
+mod <- lm(Bodywt ~ Heartgirth, data=donkey)
+summary(mod)
+```
+
+## Example: Donkeys {.fragile}
+
+```{r, echo=FALSE}
+mod <- lm(Bodywt ~ Heartgirth + Umbgirth, data=donkey)
+summary(mod)
+```
+
 ## Testing multiple covariates
 
 - We don't want to just answer the question **"Which of the variables are important?"**
@@ -315,9 +329,9 @@ summary(mod)
 
 - **This doesn't mean that height isn't important for body weight!**
 
-## But wait!
+## But wait! {.fragile}
 
-```{r}
+```{r, echo=FALSE}
 summary(lm(Bodywt ~ Height, data=donkey))
 ```
 
@@ -379,9 +393,7 @@ Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’
 
 Residual standard error: 9.476 on 380 degrees of freedom
 Multiple R-squared:  0.8519,	Adjusted R-squared:  0.8503 
-### <b>
 F-statistic: 546.4 on 4 and 380 DF,  p-value: < 2.2e-16
-### </b>
 ```
 
 An F value of `r fv` is really unlikely to arise by chance, so our model is telling us something about body weight.
@@ -495,6 +507,7 @@ $$
 
 ```{r, echo=FALSE, fig.width=9.5}
 petrels <- read.csv("http://www.massey.ac.nz/~jcmarsha/227212/data/petrels.csv")
+petrels <- petrels[!is.na(petrels$Area) & !is.na(petrels$R.Wing.Lth),]
 petrels$Area <- as.factor(petrels$Area)
 petrels$Sex <- as.factor(petrels$Sex)
 par(mar=c(5,5,1,0), cex.axis=1.5, cex.lab=1.5)
