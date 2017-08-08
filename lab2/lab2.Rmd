@@ -40,7 +40,7 @@ In this exercise, we'll extend our linear model to take into account some of the
 
 6. Do a linear model relating `Bodywt` to only `Height`. You should find that `Height` is highly significant. Why is it not significant in the larger model?
 
-7. Try removing `Height` and adding `Sex` into your model. Recall that it didn't look as if there was an effect of sex when we did the boxplot last week. What is your conclusion now? Why would this be?
+7. Try removing `Height` and adding `Sex` into your model. Recall that it didn't look as if there was an effect of sex when we saw the boxplot, or when we looked at a linear model containing just `Sex` in lectures. What is your conclusion now? Why would this be?
 
 8. Take a look at visualising your model with all four variables using `visreg`. You'll notice that it will produce 4 plots, one for each of the variables. You can see them all at once by adding `par(mfrow=c(2,2), mar=c(4,4,2,2))` before your `visreg` command.
 
