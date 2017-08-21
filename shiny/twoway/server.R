@@ -1,7 +1,9 @@
 library(shiny)
+library(ggplot2)
+library(visreg)
 
 y0 = 50
-n  = 20
+n  = 40
 
 # computes jitter according to the distribution of y
 dist_jitter <- function(y, jitter=0.2) {
@@ -26,6 +28,9 @@ get_data <- function(y0, a, b, ab, n) {
   # jitter for plotting
   x = factor(A + 2*B)
   jitter <- do.call(c, tapply(r, x, dist_jitter, jitter=0.07))
+
+  r <- r - rep(tapply(r, x, mean), each=n)
+
   data.frame(y, r, A, B, jitter=jitter)
 }
 
@@ -38,48 +43,25 @@ shinyServer(function(input, output, session) {
     dat$data <- get_data(y0, input$effectA, input$effectB, input$effectAB, n)
   })
 
-  val <- reactive({
-    data <- dat$data #get_data(y0, input$effectA, input$effectB, input$effectAB, n)
-
-    # get rid of unused groups, and normalise residuals per group
-    x <- data$A + 2*data$B
-    data$r <- data$r - rep(tapply(data$r, x, mean), each=n)
-    data$y <- data$y + input$effectA*data$A + input$effectB*data$B + (input$effectAB-input$effectA-input$effectB)*data$A*data$B + data$r*input$resid*5
-
-    list(x=x+1, y=data$y, jitter=data$jitter, lm1=lm(y ~ A + B, data=data), lm2=lm(y ~ A + B + A:B, data=data))
-  })
-
   output$data <- renderPlot({
     # plot the points and model fit
     par(mar=c(3,0,0,0), cex=2)
-    plot(NULL, xlim=c(0.5, 4+0.5), ylim=c(40,60) ,xaxt="n", yaxt="n", xlab="", ylab="")
-    print(val()$x)
-    print(val()$y)
-    segments(-1,40:60,5,40:60,"grey80")
-    segments(-1,50,5,50,"black","dashed")
-    points(as.numeric(val()$x) + val()$jitter, val()$y, col="#00000050", pch=19, xlab="", ylab="", xaxt="n", yaxt="n")
-    axis(side=1, at=1:4, labels=c("Control", "Drug A", "Drug B", "Both A&B"))
-    # model fit...
-    fit_width <- 0.1
-    ci_width  <- 0.05
-    new_data <- expand.grid(A=0:1, B=0:1)
-    if (input$interaction) {
-      ci1 <- predict(val()$lm1, new_data, interval="confidence")
-      points(1:4-fit_width, ci1[,1], pch=19, cex=1.5, col="red")
-      segments(1:4-fit_width, ci1[,2], 1:4-fit_width, ci1[,3], lwd=2, col="red")
-      segments(1:4-fit_width-ci_width, ci1[,2], 1:4-fit_width+ci_width, ci1[,2], lwd=2, col="red")
-      segments(1:4-fit_width-ci_width, ci1[,3], 1:4-fit_width+ci_width, ci1[,3], lwd=2, col="red")
-      ci2 <- predict(val()$lm2, new_data, interval="confidence")
-      points(1:4+fit_width, ci2[,1], pch=19, cex=1.5, col="blue")
-      segments(1:4+fit_width, ci2[,2], 1:4+fit_width, ci2[,3], lwd=2, col="blue")
-      segments(1:4+fit_width-ci_width, ci2[,2], 1:4+fit_width+ci_width, ci2[,2], lwd=2, col="blue")
-      segments(1:4+fit_width-ci_width, ci2[,3], 1:4+fit_width+ci_width, ci2[,3], lwd=2, col="blue")
+    data <- dat$data
+#    data$y <- data$y + input$effectA*data$A + input$effectB*data$B + (input$effectAB-input$effectA-input$effectB)*data$A*data$B + data$r*input$resid*5
+    data$y <- data$y + input$effectA*data$A + input$effectB*data$B + (input$effectAB)*data$A*data$B + data$r*input$resid*5
+    data$A <- factor(data$A, levels=0:1, labels=c("Control", "Drug A"))
+    data$B <- factor(data$B, levels=0:1, labels=c("Control", "Drug B"))
+    if (!input$show_model) {
+      # show the data
+      ggplot(data) + geom_boxplot(aes(x=A, y=y)) + scale_y_continuous(name = "Effect", limits=c(40,60)) + xlab("") + facet_wrap(~B) + theme_bw(base_size=15)
     } else {
-      ci1 <- predict(val()$lm1, new_data, interval="confidence")
-      points(1:4, ci1[,1], pch=19, cex=1.5, col="red")
-      segments(1:4, ci1[,2], 1:4, ci1[,3], lwd=2, col="red")
-      segments(1:4-ci_width, ci1[,2], 1:4+ci_width, ci1[,2], lwd=2, col="red")
-      segments(1:4-ci_width, ci1[,3], 1:4+ci_width, ci1[,3], lwd=2, col="red")
+      if (input$interaction) {
+        lm2 <- lm(y ~ A*B, data=data)
+        print(visreg(lm2, "A", by="B", gg=TRUE, points.par=c(size=1.5)) + scale_y_continuous(name = "Effect", limits=c(40,60)) + xlab("") + theme_bw(base_size=15))
+      } else {
+        lm1 <- lm(y ~ A+B, data=data)
+        print(visreg(lm1, "A", by="B", gg=TRUE, points.par=c(size=1.5)) + scale_y_continuous(name = "Effect", limits=c(40,60)) + xlab("") + theme_bw(base_size=15))
+      }
     }
   })
 
