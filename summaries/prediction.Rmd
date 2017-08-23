@@ -34,7 +34,6 @@ Consider the following linear model for the petrels data.
 ```{r}
 petrels = read.csv("http://www.massey.ac.nz/~jcmarsha/227215/data/petrels.csv")
 petrels$Area = as.factor(petrels$Area)
-petrels$Sex = as.factor(petrels$Sex)
 mod = lm(R.Wing.Lth ~ L.Wing.Lth + Area + Sex, data=petrels)
 anova(mod)
 summary(mod)
@@ -44,14 +43,14 @@ summary(mod)
 co = round(coef(mod),3)
 ```
 
-You can see we're modelling the average right wing length using the left wing length, the area and the sex. The left wing length is numeric, whereas the area and sex are both factors. From the anova table we see that all variables are significant, and from the summary table we can see that for each unit (1cm) increase in left wing length the right wing length increases by `r co["L.Wing.Lth"]`cm after adjusting for the differences due to area and sex. Further, we see that females have right wing length `r co["Sex2"]`cm larger than males (after adjusting for other covariates) and area 4 birds significantly differ from area 1 birds after adjusting for other covariates (they have larger right wing lengths by `r co["Area4"]`cm).
+You can see we're modelling the average right wing length using the left wing length, the area and the sex. The left wing length is numeric, whereas the area and sex are both factors. From the anova table we see that all variables are significant, and from the summary table we can see that for each unit (1cm) increase in left wing length the right wing length increases by `r co["L.Wing.Lth"]`cm after adjusting for the differences due to area and sex. Further, we see that males have right wing length `r abs(co["SexMale"])`cm smaller than females (after adjusting for other covariates) and area 4 birds significantly differ from area 1 birds after adjusting for other covariates (they have larger right wing lengths by `r co["Area4"]`cm).
 
 These last two are interesting, as if left wing length isn't in the model then the direction of the effect changes! (Male birds are typically larger than female). The key here is that **each of the coefficients in the summary table are adjusted for the others**. i.e. after taking into account the left wing length (which for females will be smaller!) the right wing length in females is larger than in males. The reason is that the difference in left wing length between the sexes is larger in left wings than in right.
 
 Suppose now we want to predict the average right wing length for male birds in area 3 whose left wing length is 370cm. We do so by placing these values into a new data frame. Notice that we'll need the sex and area to be factors while the left wing length will be numeric. **We surround the value in quotes if we want it to be interpreted as a factor. Numeric variables don't use quotes.**
 
 ```{r}
-new_data = data.frame(Sex="1", Area="3", L.Wing.Lth=370)
+new_data = data.frame(Sex="Male", Area="3", L.Wing.Lth=370)
 new_data
 str(new_data)
 ```
@@ -72,6 +71,51 @@ The first `predict` line is giving us a confidence interval for the **mean** rig
 
 The second `predict` line is giving us a prediction interval for the right wing length of an **individual** male bird from area 3 whose left wing length is 370cm. We'd be 95% confident that the right wing length of such birds would be between `r p_pi[2]` and `r p_pi[3]`cm.
 
+### Using a plot for predictions
+
+Sometimes it's useful to present your predictions, particularly when comparing groups, in a graphical way rather than just as a table or with some numbers. The trick to doing this is to create a data frame that holds the values you want to predict on, and combining this with the output from predict.
+
+The easiest way is to use `visreg` for this like we did in the labs. There's other options though as well, which we detail below. They're way more complicated though!
+
+e.g. suppose with the petrels data that we wanted to compare the mean right wing length in each of the areas. We could do this by fitting a linear model for the right wing length in terms of area, as that models the mean in each area. Visreg then makes it easy:
+
+```{r}
+# Model for just area
+mod_area = lm(R.Wing.Lth ~ Area, data=petrels)
+library(visreg)
+visreg(mod_area)
+```
+
+Alternatively, we can build the plots up by using `predict` to compute predictions and confidence intervals. First using base R:
+
+```{r}
+# The groupings we want predictions (mean/CIs) for (the levels of Area)
+new_data = data.frame(Area = levels(petrels$Area))
+# predict the mean in each group + confidence intervals
+mod_pred = predict(mod_area, new_data, interval="confidence")
+# combine this with the data
+area_pred = cbind(new_data, mod_pred)
+area_pred
+```
+
+Now we can work on a plot combining that information. It's a bit messy in base R:
+
+```{r}
+a = as.numeric(area_pred$Area) # need numbers to get a scatterplot
+plot(a, area_pred$fit,
+     ylim=range(area_pred$lwr, area_pred$upr),
+     type='p', pch=19, xlab="Area", ylab="Right Wing Length (mm)")
+segments(x0=a, y0=area_pred$lwr, y1=area_pred$upr)
+```
+
+An alternate is `qplot` from `ggplot2`. You usually need to combine two plotting types though like we did above. This time I plot the segments first, then the points by adding on a 'point' geometry.
+
+```{r}
+library(ggplot2)
+qplot(x=Area, y=lwr, xend=Area, yend=upr, geom="segment", data=area_pred) +
+  geom_point(aes(x=Area, y=fit)) + ylab("Right Wing Length (mm)") + theme_bw()
+```
+
 ### Common errors
 
 The two most common errors when predicting are:
@@ -79,17 +123,17 @@ The two most common errors when predicting are:
 1. Not correctly specifying the type of the variable (particularly factors whose levels are numbers)
 
     ```{r, error=TRUE}
-    new_data_bad1 = data.frame(Sex=1, Area=3, L.Wing.Lth=370)
+    new_data_bad1 = data.frame(Sex="Male", Area=3, L.Wing.Lth=370)
     predict(mod, new_data_bad1, interval="confidence")
-    new_data_bad2 = data.frame(Sex="1", Area="3", L.Wing.Lth="370")
+    new_data_bad2 = data.frame(Sex="Male", Area="3", L.Wing.Lth="370")
     predict(mod, new_data_bad2, interval="confidence")
     ```
 
 2. Not correctly specifying all variables, or naming them differently.
 
     ```{r, error=TRUE}
-    new_data_bad3 = data.frame(Sex="1", Area="3")
+    new_data_bad3 = data.frame(Sex="Male", Area="3")
     predict(mod, new_data_bad3, interval="confidence")
-    new_data_bad4 = data.frame(Sex="1", Area="3", Left.Wing.Lth=370)
+    new_data_bad4 = data.frame(Sex="Male", Area="3", Left.Wing.Lth=370)
     predict(mod, new_data_bad4, interval="confidence")
     ```
