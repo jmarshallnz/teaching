@@ -1,7 +1,12 @@
-#' 227.215 Biostats.
-#'
+#' ---
+#' title: 227.215 Biostats, Donkeys
+#' author: Jonathan
+#' ---
+
 #' ## Lab 1
 #' 
+#' ### Exercise 1
+#'
 #' In this notebook we'll take another look at data on Moroccan donkeys that we looked at
 #' in semester 1.
 donkey <- read.csv("http://www.massey.ac.nz/~jcmarsha/227215/data/donkey.csv")
@@ -12,6 +17,8 @@ head(donkey)
 #' A pairs plot of all measurement variables (columns 3 through 7)
 plot(donkey[,3:7])
 
+#' ### Exercise 2
+#'
 #' Plot of body weight versus heart girth
 plot(Bodywt ~ Heartgirth, data=donkey)
 
@@ -20,20 +27,20 @@ lm1 <- lm(Bodywt ~ Heartgirth, data=donkey)
 summary(lm1)
 
 #' The equation is $\mathsf{Bodywt} = -194.5 + 2.83 \times \mathsf{Heartgirth}$.
-#'
+
 #' The P-value for `Heartgirth` is really tiny. The null hypothesis being tested is whether this is 0 in the population. If it was
 #' zero in the population, it would be really unlikely that we'd get the value of 2.83 in our sample. Thus we'd conclude that
 #' it is unlikely to be zero in the population! Therefore, there's evidence that there is a relationship between body weight
 #' and heart girth.
-#'
+
 #' The $R^2$ value is 0.8, which means that 80% of the variation in body weight is explained by the linear model (i.e. once
 #' we know what the heart girth is.) This means there's only about 20% of residual variation (variation about the line).
-#'
+
 #' Using the equation, we can work out the average body weight for donkeys that have heartgirth equal to 110cm by substitution 110
 #' into the equation above:
 -194.5 + 2.83 * 110
 #' Our best guess is 116.8 kg.
-#'
+
 #' Using R to do this instead via the predict function we have
 new_data <- data.frame(Heartgirth = 110)
 predict(lm1, new_data)
@@ -47,26 +54,19 @@ predict(lm1, new_data, interval="prediction")
 #' The second gives us a 95% prediction interval for the weight of **individual** donkeys whose heartgirth is 110cm.
 #' i.e. we're 95% confident that a donkey with heartgirth 110cm will have a weight between 95.4kg and 138.0kg.
 #' (95% of individual donkeys will be in this range).
-#'
-#' ## Lab 2
+
+#' ### Exercise 3
 #' 
-#' Diagnostic plots for the linear model.
-par(mfrow=c(2,2), mar=c(4,4,2,2)) # creates a 2x2 plot and makes the margins a bit smaller
-plot(lm1)
-#' From these plots we see
-#'  - There is a curvy trend present on the residual vs fitted plots. This suggests the linearity assumption
+#' Residual vs fitted plot
+plot(lm1, which=1)
+#' From this plots we see
+#'  - There is a curvy trend present. This suggests the linearity assumption
 #'  doesn't hold. This is quite serious as it means our estimates will be biased, so should be fixed.
 #'  
-#'  - There is also a 'fanning' in the residual vs fitted plot (increasing vertical scatter from left to right) 
-#'  suggesting that the residuals don't have constant variance.
+#'  - There is also a 'fanning' (increasing vertical scatter from left to right) 
+#'  suggesting that the residuals don't have constant variance. These two things (non-linearity
+#'  and non-constant variance) often occur at the same time.
 #'  
-#'  - The normal Q-Q plot shows no problems as the points mostly lie along the line - the residuals appear to be normally distributed.
-#'  
-#'  - There doesn't seem to be any points outside the cook's distance of 0.5, so no outliers to be concerned about.
-#'  
-#'  We should fix up the lack of linearity and constant variance. A usual fix is a log transform to the independent variable
-#'  and maybe also to the dependent variables.
-
 #' Let's try modelling the log of body weight versus log heartgirth to see if we
 #' get a better model.
 lm2 <- lm(log(Bodywt) ~ log(Heartgirth), data=donkey)
@@ -82,23 +82,20 @@ summary(lm2)
 #' $$
 #' \mathsf{Bodywt} = 0.0006 \mathsf{Heartgirth}^2.58
 #' $$
-
-par(mfrow=c(2,2), mar=c(4,4,2,2)) # creates a 2x2 plot and makes the margins a bit smaller
-plot(lm2, cex=0.8)
-#' Model diagnostics look much better here. The trend and fanning in residuals vs fitted is gone, so linearity and constant variance
-#' hold, normality is still OK, and no points have high influence.
-#'
-#' Comparing the model summaries, we see the new model has a higher $R^2$ than the previous one. So not only does it actually meet
-#' the model assumptions, but it's a better fit as well.
-#'
-#' We can do a prediction for a donkey with heart girth 110cm as follows
+plot(lm2, which=1)
+#' By the looks linearity and constant variance both seem to be OK with this plot now,
+#' so this model seems to better satisfy the assumptions.
+#' 
+#' From the summary we also see that the R^2 is larger for the log-log model, suggesting
+#' it explains a bit more of the variance in body weight than the first model. We'd thus
+#' expect confidence and prediction intervals to be a bit tighter.
 new_data <- data.frame(Heartgirth=110)
 exp(predict(lm2, new_data, interval="confidence"))
 exp(predict(lm2, new_data, interval="prediction"))
 #' These are a both a little bit tighter than the equivalent intervals for the previous model, which is due to the lower residual
 #' variance (as the $R^2$ is higher)
-#' 
-#' ## Visualising the model
+#'
+#' ### Exercise 4
 #' 
 #' Visualise the model fit using the `visreg` package
 library(visreg)
@@ -120,8 +117,10 @@ visreg(lm2, trans=exp, partial=TRUE, ylab="Body weight (kg)")
 #' which is slightly curved up. Notice the trend now captures (i.e. goes through) the values at the lower and upper
 #' heartgirths now. We'd expect our predictions for animals with such heartgirths to be considerably better.
 #' 
-#' ## Multivariable model
-#'
+#' ## Lab 2
+#' 
+#' ### Exercise 2
+#' 
 #' A linear model containing both heart and umbilical girths.
 lm3 <- lm(Bodywt ~ Heartgirth + Umbgirth, data=donkey)
 summary(lm3)
@@ -144,16 +143,33 @@ summary(lm5)
 #' in bodyweight already by using heart and umbilical girths and length. Over and above those, the height didn't provide additional
 #' useful information. But absent of the other measures, height is ofcourse useful!
 
+#' A linear model similar to `lm4` but with `Sex` replacing `Height`
+lm6 <- lm(Bodywt ~ Heartgirth + Umbgirth + Length + Sex, data=donkey)
+summary(lm6)
+#' We see that Sex is related to body weight after accounting for the other variables,
+#' while Sex wasn't important in the boxplots we looked at, or in the model we looked
+#' at in lectures. Reason for this is once we have explained most of what contributes
+#' to weight (i.e. body size) the things that contribute a bit less, such as Sex can
+#' now be important for explaining the rest of the variation in weight.
+
 #' Visualising the model.
 par(mfrow=c(2,2), mar=c(4,4,2,2))
-visreg(lm4)
-#' We can see the relationship with `Heartgirth` is the strongest, and with `Height` is weak - a flat line could fit within the uncertainty
-#' bands. Notice that the y-coordinates of the points don't correspond precisely to the actual body weights here: They differ from picture to
-#' picture. Instead, they're representations of the data points after accounting for the other 3 variables that are not present in each plot.
-#' i.e. in the heart girth plot, they represent where the data points are after accounting for the umbilical girth, length and height.
-#' 
-#' Model diagnostics
+visreg(lm6)
+#' Here we can see that heartgirth, umbilical girth and length all result in increasing
+#' weights, and males are a bit heavier than females.
+#'
+#' Assessing model diagnostics
 par(mfrow=c(2,2), mar=c(4,4,2,2))
-plot(lm4)
-#' We can see from the plot that it looks like we still have curvature and perhaps also non-constant variance. A log-transform of
-#' the body-weight variable (and perhaps some of the others) would be advised!
+plot(lm6, add.smooth=FALSE)
+#' We can see that linearity and equal variance don't seem to hold very well. Note that
+#' the `add.smooth=FALSE` here turns off the red curves which can be a bit better for
+#' judging the residual plots. Ideally we should include a transformation.
+#' e.g. using a log transform for bodyweight is better:
+lm7 <- lm(log(Bodywt) ~ Heartgirth + Umbgirth + Length + Sex, data=donkey)
+par(mfrow=c(2,2), mar=c(4,4,2,2))
+plot(lm7, add.smooth=FALSE)
+#' And this also explains about 1% more of the variation:
+summary(lm7)
+#' The visreg plots look as though the model is fitting near the ends a bit better too
+par(mfrow=c(2,2), mar=c(4,4,2,2))
+visreg(lm7, trans=exp, ylab="Bodyweight", partial=TRUE)

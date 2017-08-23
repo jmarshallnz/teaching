@@ -33,21 +33,19 @@ Variable      Description
 
 1. You can create a new RStudio project for this lab if you like (or use a previous one - up to you).
 
-2. Create a new R script for todays lab.
+2. Remember that you can add a special 'metadata' block to the top of the script that allows you to set the title and author. Copy and paste the following code block, then change the author as appropriate. There's a bunch of other stuff you can do to format up R notebooks (e.g. headings, subheadings, bullet points, emphasis etc.) that can be found in the summary sheet on stream.
 
-3. Remember that you can add a special 'metadata' block to the top of the script that allows you to set the title and author. Copy and paste the following code block, then change the author as appropriate. There's a bunch of other stuff you can do to format up R notebooks (e.g. headings, subheadings, bullet points, emphasis etc.) that can be found in the summary sheet on stream.
-
-    ```
+    ```{r, eval=FALSE}
     #' ---
     #' title:  227.215 Biostats, Lamb birthweight analysis
     #' author: Joanne Blogs
-    #' date:   16 August 2016
+    #' date:   25 August 2017
     #' ---
     ```
     
 4. Add the following code to read the dataset in and take a look at the first few rows.
 
-    ```
+    ```{r, eval=FALSE}
     #' Read in the lamb birthweight data
     births <- read.csv("http://www.massey.ac.nz/~jcmarsha/227215/data/birthweight.csv")
     head(births)
@@ -55,64 +53,67 @@ Variable      Description
 
 5. Compile your notebook and make sure the title and author etc. have been correctly set in the HTML or Word document.
 
-## Exercise 2: Was the experiment balanced?
-
-The goal of this exercise is to see if there were similar numbers of ewes in each treatment group.
-
-1. Take a look at the data. You should notice that each row represents a lamb rather than a ewe, thus any ewe with twins will have more than one row associated with it.
-
-2. Start by writing some code to pick out just the columns that are ewe-specific. i.e. you'll want `DamID`, `Feed` and `Shorn`. You can do this by choosing the columns by number using the square bracket notation, or by name, e.g. to pick out the 1st and 2nd columns you can use `births[, c(1,2)]` or `births[,c("DamID", "LambID")]`. You'll want to make sure you save the result by assigning it to a new variable name, say `ewe_cols`.
-
-3. Now that we have that, we can use the `unique` command on the `ewe_cols` data frame to produce a data frame with just the unique rows. As the `DamID` is included, this will give us one row per ewe (assuming each ewe was allocated to a single feed and shearing treatment!) Make sure you save the result of that, e.g. you could call it `ewes`.
-
-4. Using the `ewes` data frame, produce a table of the number of ewes in each feed treatment by the shearing treatment. Remember you can use the `table` command for tables.
-
-5. Make sure you add some hashquotes to your R script describing what is being done - you'll find it useful to be able to come back to this later!
-
-## Exercise 3: Exploratory analysis of birthweight data
-
-For this and the remaining exercises, we'll be using the original data `births`.
+## Exercise 2: Exploratory analysis of birthweight data
 
 1. Add some code and comments to your R script to produce some plots of `BirthWeight` versus the covariates `Rank`, `Sex`, `Feed` and `Shorn`.
 
-2. Is there any graphical evidence for a relationship between `BirthWeight` and these variables?
+2. Why do you think you can't see much difference between the `Feed` treatment groups in these data?
 
-3. What does the distribution of `BirthWeight` look like within each of the categories? Do you think the linear model assumptions will hold for these data?
+3. To try and better see what is going on, we could look at subsetting the data
+by the variables we know will make a difference. e.g. we could do
 
-## Exercise 4: Linear modelling of birthweight data
+    ```{r, eval=FALSE}
+    plot(BirthWeight ~ Feed, data=subset(births, Rank == 'Twin'))
+    plot(BirthWeight ~ Feed, data=subset(births, Rank == 'Single'))
+    ```
+
+4. Try doing plots for male and female as well.
+
+5. An even better way to do this is to utilise the `ggplot2` library to produce "small multiples" which share a common scale. It works a little different to the standard plotting, in that the first two parameters are `x` and `y` rather than using a formula `y ~ x`. e.g. try:
+    ```{r, eval=FALSE}
+    library(ggplot2)
+    qplot(Feed, BirthWeight, data=births)
+    ```
+    You should get scatterplots. This is because the default 'geometry' to use is points. You can change this by adding `geom='boxplot'` to the `qplot` command to get boxplots.
+
+6. The `ggplot2` library then allows us to split the data over multiple plots by 'adding on' the `facet_wrap` or `facet_grid` commands. Try:
+    ```{r, eval=FALSE}
+    qplot(Feed, BirthWeight, data=births, geom='boxplot') + facet_wrap(~Rank)
+    ```
+    Try also doing a plot of Birthweight versus feed for each sex.
+
+7. The `facet_grid` option can then be used to split over two variables in a grid. e.g. try adding
+    ```{r, eval=FALSE}
+    facet_grid(Sex ~ Rank)
+    ```
+    in place of `facet_wrap` to put rows for each sex, and columns for each rank.
+
+8. What is your conclusion about the effect of feed on birthweight?
+
+## Exercise 3: Linear modelling of birthweight data
 
 In this exercise we'll look at analysing the average birthweight with a linear model. **Remember to add comments to your R script so that when you compile the notebook you have some commentary to look back on later.**
 
-1. Fit a linear model to the data using only the `Shorn` variable.
+1. Fit a linear model to the birthweight data using only the `Feed` variable. Use the `anova` and `summary` tables to make a conclusion as to whether the feed treatment matters according to this model. Does this make sense based on what we've seen in the plots we did earlier?
 
-    a. What is the linear model equation?
-    
-    b. Produce an ANOVA table and model summary table.
-    
-    c. Is the ewe being shorn important for birthweight according to this model?
+2. Fit a multivariable linear model using the four covariates `Sex`, `Rank`, `Feed` and `Shorn`. Use the `anova` and `summary` tables to make conclusions about the importance of each of these variables to birthweight. Note down whether these make sense given the plots we did earlier.
 
-2. Fit a linear model to the data using only the `Feed` variable.
+3. Produce predictions, with 95% intervals, for:
+    a. The weight of a male twin, born to an unshorn ewe on the HM feeding treatment.
+    b. The average weight of a female singles, born to an unshorn ewes on the MM feeding treatment.
 
-    a. How has `Feed` been incorporated into the linear model?
-    
-    b. Produce an ANOVA table and model summary table.
-    
-    c. Is the ewes feeding treatment important for birthweight according to this model?
+4. Visualise your results using the `visreg` package.
 
-3. Fit a multivariable linear model using the four covariates `Sex`, `Rank`, `Feed` and `Shorn`.
+## Exercise 4: Interactions and model diagnostics.
 
-    a. Produce an ANOVA table and model summary table.
-    
-    b. Which variables (if any) are important for birth weight?
-    
-    c. Interpret the summary table coefficients and write some comments into your R script about this.
-    
-    d. Are your results consistent with part 1 and 2? If not, why not?
-    
-    e. Produce a prediction, with 95% interval, for the weight of a male twin, born to an unshorn ewe on the HM feeding treatment.
-    
-    f. Produce a prediction, with 95% interval, for the average weight of a female singles, born to an unshorn ewes on the MM feeding treatment.
-    
-    g. Load the `visreg` package using `library(visreg)`, and run `visreg` on the model. You'll notice you get four plots, one for each of the variables. You might like to use `par(mfrow=c(2,2))` to get a 2x2 plot before doing this.
+1. Add an interaction to your multivariable model to assess whether the effect of shearing might differ between twins and singles. What is your conclusion?
 
-    h. Finally, take a look at the model diagnostics for the model. Do the linear model assumptions seem to hold?
+2. Visualise the effect of shearing on birthweight for twins and singles. You can do this via
+
+    ```{r, eval=FALSE}
+    visreg(model, "Shorn", by="Rank")
+    ```
+
+    You can optionally add `overlay=TRUE` to overlay the effects rather than using side by side, and `gg=TRUE` for using the ggplot2 library instead.
+    
+3. Check the model diagnostics for your model with the interaction. Are the model assumptions met?
