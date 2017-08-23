@@ -1,44 +1,136 @@
 ---
 title: "Linear models 3"
 author: "Jonathan Marshall"
-date: ""
-output: 
-  ioslides_presentation: 
-    highlight: tango
-    widescreen: true
+date: ''
+output:
+  ioslides_presentation:
     css: jm.css
+    highlight: tango
+    widescreen: yes
+  beamer_presentation:
+    highlight: tango
+    includes:
+      in_header: ../header.tex
+    keep_tex: yes
 ---
 
 ```{r setup, echo=FALSE}
 library(knitr)
-opts_chunk$set(dev.args=list(bg='transparent'), comment='', warning=FALSE)
+opts_chunk$set(dev.args=list(bg='transparent'), comment="")
+#print(knit_hooks$get('output'))
+knit_hooks$set(output=function (x, options) {
+#  cat("OPTIONS=", names(options), "\n")
+  cache_path <- unlist(strsplit(options$cache.path, '/'))
+#  cat("Cache_path length=", length(cache_path), "\n")
+  out_format <- cache_path[length(cache_path)]
+  if (out_format == "html") {
+    knitr:::escape_html(x)
+    x = paste(x, collapse = "\\n")
+    sprintf("<div class=\"%s\"><pre class=\"knitr %s\">%s</pre></div>\\n", 
+        'output', tolower(options$engine), x)
+  } else {
+    paste(c("\\begin{ROutput}",
+            sub("\n$", "", x),
+            "\\end{ROutput}",
+            ""),
+          collapse="\n")
+  }
+})
 col_points <- "#7f577492"
 col_dark   <- "#5f4354"
 ```
 ## Learning outcomes
 
-- Review interpretation of `summary` and `anova` tables.
+- Review
 
-- Interactions.
+- Multiple factors
+
+- Interactions
+
+# Review
+
+## Review
+
+The linear model estimates the **mean** of the outcome given the covariates.
+
+- the mean body weight for a given heart girth.
+
+- the mean body weight given heart girth, umbilical girth, length and sex.
+
+- the mean right wing length for different areas.
+
+It also gives uncertainties, i.e. confidence intervals.
+
+## Review
+
+- For factor (grouping) variables, it estimates a separate mean for each level.
+
+- The first level (baselines) goes into the intercept.
+
+- Each other level is represented by the difference to the baseline.
+
+- The overall F-test tells us whether the grouping variable is important.
 
 
 ## The F-statistic for factors
 
 $$
-F = \frac{(SS_\mathsf{total} - SS_\mathsf{res})/p}{SS_\mathsf{res}/(n-p-1)}
+F = \frac{(\sigma^2_\mathsf{total} - \sigma^2_\mathsf{res})/p}{\sigma^2_\mathsf{res}/(n-p-1)}
 $$
 
-- The numerator is variation explained by the model. In this case this is variation between groups, as the model
-is just giving a different mean to each group.
+- The numerator is variation explained by the model. In this case this is variation between groups, as the model is just giving a different mean to each group.
 
-- The denominator is residual variation, which in this case is variation within groups (residuals are values minus
-fit, which is the group mean).
+- The denominator is residual variation, which in this case is variation within groups (residuals are values minus fit, which is the group mean).
 
 - Thus F is a ratio of between-group variation to within-group variation.
 
-## The F-statistic for factors
+## Example: Petrels
 
-<iframe src="http://it056230.massey.ac.nz:8080/227215/shiny/anova/" style="border: none"></iframe>
+```{r, echo=FALSE, fig.width=9.5}
+petrels <- read.csv("http://www.massey.ac.nz/~jcmarsha/227212/data/petrels.csv")
+petrels$Area <- as.factor(petrels$Area)
+petrels$Sex <- as.factor(petrels$Sex)
+par(mar=c(5,5,1,0), cex.axis=1.5, cex.lab=1.5)
+plot(R.Wing.Lth ~ Area, data=petrels, ylab="Right wing length (cm)")
+```
+
+## Example: Petrels {.fragile .smaller}
+
+```{r, echo=FALSE}
+mod <- lm(R.Wing.Lth ~ Area, data=petrels)
+summary(mod)
+```
+
+## Example: Petrels
+
+- The overall F-test's P-value suggests average right wing length differs between areas.
+
+- Summary table suggests that Area 5 has largest birds, having 4.14cm larger ring wing lengths compared to those in Area 1.
+
+- Birds in Area 6 are smallest, having 9.27 cm smaller right wing lengths compared to those in Area 1.
+
+- We can get confidence intervals for the mean using the predict function
+
+## Example: Petrels
+```{r}
+new_data <- data.frame(Area=factor(1:6))
+predict(mod, new_data, interval="confidence")
+```
+
+## Visualising the differences
+
+```{r, eval=FALSE}
+library(visreg)
+visreg(mod)
+```
+
+```{r, echo=FALSE, fig.width=9.5}
+library(visreg)
+par(mar=c(4,4,0,0))
+visreg(mod)
+```
+
+# Multiple factors
 
 ## What if we have more than one factor?
 
@@ -52,18 +144,18 @@ fit, which is the group mean).
 
 - We need another way to compute P-values for each factor separately.
 
-## Example: Summary output for two factors {.smaller}
+## Summary output for two factors {.fragile .smaller}
 
 ```{r, echo=FALSE}
 mod.2 <- lm(R.Wing.Lth ~ Sex + Area, data=petrels)
 summary(mod.2)
 ```
 
-## Example: The anova function
+## The anova function{.fragile}
 
 ```{r}
-mod.2 <- lm(R.Wing.Lth ~ Sex + Area, data=petrels)
-anova(mod.2)
+mod2 <- lm(R.Wing.Lth ~ Sex + Area, data=petrels)
+anova(mod2)
 ```
 
 - Each row in the anova table corresponds to a factor (or numeric covariate).
@@ -74,9 +166,9 @@ anova(mod.2)
 
 - Fit linear model.
 
-- Do `anova()` to check the factor is significant.
+- Do `anova()` to check the factor is important (small P).
 
-- If it is significant, look at the `summary()` to see how the levels differ.
+- If it is important, look at the `summary()` to see how the levels differ (or `visreg()` to visualise them).
 
 - Multiple testing problem on the latter, which is why we do the overall test first.
 
@@ -96,76 +188,21 @@ anova(lm(R.Wing.Lth ~ Sex + Area, data=petrels))
 anova(lm(R.Wing.Lth ~ Area + Sex, data=petrels))
 ```
 
-# Review
-
-## Summary table
-
-- Each row is **adjusted** for the other rows.
-
-- The coefficients are thus the effect after adjusting for the others.
-
-- The P-values are whether that effect is significant, after adjusting for the others.
-
-## Summary table for factors
-
-- Each P-value is testing whether that coefficient is zero or not.
-
-- Factors with more than 2 levels get **multiple rows**, one for each comparison to the baseline.
-
-- We want to know if the factor is important, which means testing that multiple coefficients
-are zero at the same time.
-
-- We must use an F-test for this, i.e. the `anova` table.
-
 ## ANOVA table
 
-- Each row represents a covariate, regardless of whether it's numeric or a factor.
+- Each row represents a single variable (factor or numeric).
 
-- Can thus be used to test significance of factors directly.
+- Each row adjusted for what is above it (but not below).
 
-- Order makes a difference. Each row is adjusted for the ones above it (but not below it).
+- Order can be important but probably tells you something if it changes things.
 
-- Usually order isn't an issue, but if it is, it tells you something.
+- If a factor is important, look at summary table to see which groups differ (or visualise model).
 
-# Example: Petrels
-
-## Example: Petrels
-
-```{r, echo=FALSE, fig.width=9.5}
-petrels <- read.csv("http://www.massey.ac.nz/~jcmarsha/227212/data/petrels.csv")
-petrels$Area <- as.factor(petrels$Area)
-petrels$Sex <- as.factor(petrels$Sex)
-levels(petrels$Sex) <- c("Female", "Male")
-par(mar=c(5,5,1,0), cex.axis=1.5, cex.lab=1.5)
-plot(R.Wing.Lth ~ Area, data=petrels, ylab="Right wing length (cm)")
-```
-
-## Example: Petrels
-
-```{r, echo=FALSE, fig.width=7, fig.align='center'}
-par(mar=c(5,5,1,0), cex.axis=1.5, cex.lab=1.5)
-plot(R.Wing.Lth ~ Sex, data=petrels, ylab="Right wing length (cm)", xlab="", las=1, horizontal=TRUE)
-```
-
-## Petrels: ANOVA table
-
-```{r}
-mod = lm(R.Wing.Lth ~ Sex + Area, data=petrels)
-anova(mod)
-```
-
-## Petrels: ANOVA table
-
-```{r}
-mod = lm(R.Wing.Lth ~ Area + Sex, data=petrels)
-anova(mod)
-```
-
-## Petrels: Summary table {.smaller}
+## Petrels: Summary table {.fragile .smaller}
 
 ```{r, echo=FALSE}
-summary(mod)
-co <- round(coef(mod),2)
+summary(mod2)
+co <- round(coef(mod2),2)
 ```
 
 ## Petrels: Conclusion
@@ -199,85 +236,15 @@ ar = round(ar[5]-ar[1],2)
     ```
     they're `r ar`cm larger across both sexes.
 
-## What about left wing length?
-
-```{r, echo=FALSE, fig.align='center', fig.width=7, fig.height=5}
-par(mar=c(4,4,0,1))
-plot(R.Wing.Lth ~ L.Wing.Lth, data=petrels, ylab="Right wing length (cm)", xlab="Left wing length (cm)", col=col_points, pch=19)
-```
-
-## Adding in left wing length
-
-```{r}
-mod2 = lm(R.Wing.Lth ~ L.Wing.Lth + Sex + Area, data=petrels)
-anova(mod2)
-```
-
-## Adding in left wing length{.smaller}
-
-```{r, echo=FALSE}
-summary(mod2)
-co2 <- round(coef(mod2),2)
-```
-
-## Adding in left wing length
-
-- From the ANOVA table, we see left wing length, sex and area are all still significant.
-
-- From the summary table, however, we note that the direction of the effect of `Sex` has changed!
-
-- It is now saying that males have `r -co2["SexMale"]`cm smaller right wing lengths than females.
-
-- Again, we've **adjusted for the other covariates**.
-
-- **WEIRD!**
-
-## Left and right wing lengths
-
-```{r, echo=FALSE, fig.align='center', fig.width=7, fig.height=5}
-col = c("#FF00005F", "#0000ff5F")
-
-zones = matrix(c(2,0,1,3), ncol=2, byrow=T)
-layout(zones, widths=c(6,1), heights=c(1,6))
-
-par(mar=c(4,4,0.5,0.5),cex=1.5)
-plot(R.Wing.Lth ~ L.Wing.Lth, data=petrels, ylab="Right wing length (cm)", xlab="Left wing length (cm)", col=col[Sex], pch=19, asp=1)
-legend("bottomright", legend=levels(petrels$Sex), fill=col, bty="n", cex=1)
-lf=density(na.omit(petrels$L.Wing.Lth[petrels$Sex == "Female"]))
-lm=density(na.omit(petrels$L.Wing.Lth[petrels$Sex == "Male"]))
-rf=density(na.omit(petrels$R.Wing.Lth[petrels$Sex == "Female"]))
-rm=density(na.omit(petrels$R.Wing.Lth[petrels$Sex == "Male"]))
-
-par(mar=c(0,4,0,0.5))
-plot(NULL, xlim=range(petrels$L.Wing.Lth, na.rm=TRUE), ylim=c(0,max(lf$y, lm$y)), axes=F, ann=FALSE)
-lines(lm, col=col[2], lwd=2)
-lines(lf, col=col[1], lwd=2)
-
-par(mar=c(4,0,0.5,1))
-plot(NULL, ylim=range(petrels$R.Wing.Lth, na.rm=TRUE), xlim=c(0,max(rf$y, rm$y)), axes=F, ann=FALSE)
-lines(rm$y, rm$x, col=col[2], lwd=2)
-lines(rf$y, rf$x, col=col[1], lwd=2)
-```
-
-## Left and right wing lengths
-
-- In both left and right wing lengths, males are bigger.
-
-- However, the difference is larger in the left wing lengths than the right.
-
-- So after accounting for the left wing length (where we're incorporating that large difference in the sexes) we have to reduce the difference to get back down to the difference we see in the right wing lengths.
-
-- The only way to do that is if the `Sex` coefficient is negative.
-
 ## Summary
 
 - Always look at the `anova` table first, particularly if you have factors.
 
 - Look at the `summary` table next, and interpret the estimated coefficients there for the significant variables from the `anova` table.
 
-- If variables are not significant, then you can remove them and re-run the `anova` and `summary` tables.
+- Use `visreg` to visualise the effects - easier to see effect sizes/uncertainty.
 
-- **But this depends on what question we're answering!**
+- Remember that 'not significant' does not mean 'not important'.
 
 # Interactions
 
@@ -285,8 +252,7 @@ lines(rf$y, rf$x, col=col[1], lwd=2)
 
 - Our current models have been assuming that each effect is **additive**.
 
-- e.g. the difference in the right wing length between the sexes is common across all areas, and similarly the
-area effects are common for males and females.
+- e.g. the difference in the right wing length between the sexes is common across all areas, and similarly the area effects are common for males and females.
 
 - This is often not the case.
 
@@ -327,7 +293,7 @@ Both drugs    $\mathsf{mean}(y)=\alpha + \beta_A + \beta_B$
 
 ## Example: Hypothetical drugs
 
-<iframe src="http://it056230.massey.ac.nz:8080/227215/shiny/twoway/" style="border: none"></iframe>
+<iframe src="http://it056230.massey.ac.nz:8080/apps/227215/shiny/twoway/" style="border: none"></iframe>
 
 ## Interactions: Hypothetical drugs
 
@@ -354,7 +320,7 @@ Thus, $\beta_{AB}$ can be used to measure whether or not the effects of the two 
 
 ## Example: Hypothetical drugs
 
-<iframe src="http://it056230.massey.ac.nz:8080/227215/shiny/twoway/" style="border: none"></iframe>
+<iframe src="http://it056230.massey.ac.nz:8080/apps/227215/shiny/twoway/" style="border: none"></iframe>
 
 ## Interactions in RStudio
 
@@ -374,7 +340,7 @@ names(pval)=rownames(anova(mod3))
 
 - Thus, there is no evidence in the data to suggest that the comparative size of male and female petrels differ between areas.
 
-## Summary table of interactions{.smaller}
+## Summary table of interactions{.fragile .smaller}
 
 ```{r, echo=FALSE}
 summary(mod3)
@@ -395,11 +361,11 @@ co3=round(coef(mod3),2)
 
 ## Visualising models using visreg
 
-When you have interactions, visualise the effect of one variable within the levels of another.
+- When you have interactions, visualise the effect of one variable within the levels of another.
 
-Allows you to see how effects interact.
+- Allows you to see how effects interact.
 
-Better way to present results from the model than summary table.
+- Better way to present results from the model than summary table.
 
 ```{r, echo=TRUE, eval=FALSE}
 library(visreg)
@@ -410,15 +376,13 @@ visreg(mod3, "Area", by="Sex", overlay=TRUE)
 ## visreg: Model without interaction
 
 ```{r, echo=FALSE, fig.width=9.5, fig.height=5.5}
-library(visreg)
 par(mar=c(4,4,0,0))
-visreg(mod, "Area", by="Sex")
+visreg(mod2, "Area", by="Sex")
 ```
 
 ## visreg: Model with interaction
 
 ```{r, echo=FALSE, fig.width=9.5, fig.height=5.5}
-library(visreg)
 par(mar=c(4,4,0,0))
 visreg(mod3, "Area", by="Sex")
 ```
@@ -427,7 +391,7 @@ visreg(mod3, "Area", by="Sex")
 
 ```{r, echo=FALSE, fig.width=9.5, fig.height=5.5, warning=FALSE}
 par(mar=c(4,4,1,0))
-visreg(mod, "Area", by="Sex", overlay=TRUE)
+visreg(mod2, "Area", by="Sex", overlay=TRUE)
 ```
 
 ## visreg: with interaction (`overlay=TRUE`)
@@ -456,28 +420,40 @@ $$
 
 The model fit is thus two parallel lines, separated by $\beta_2$.
 
-## Petrels: Left and right wing lengths
+## Example: Calfweights
 
-```{r, echo=FALSE}
-mod4 = lm(R.Wing.Lth ~ L.Wing.Lth + Sex, data=petrels)
-```
-```{r, echo=TRUE, eval=FALSE}
-visreg(mod4, "L.Wing.Lth", by="Sex", overlay=TRUE)
+```{r, echo=FALSE, fig.width=8.5, fig.height=5.5, fig.align='center'}
+calf <- read.csv("http://www.massey.ac.nz/~jcmarsha/227215/data/calfweight.csv")
+par(mar=c(4,4,1,2))
+plot(Weight ~ Age, data=calf, col=Breed, pch=as.numeric(Treatment), xlab="Age (days)", ylab="Weight (kg)")
+legend('topleft', legend=levels(calf$Breed), col=1:3, pch=1, title="Breed")
+legend('bottomright', legend=levels(calf$Treatment), pch=1:2, title="Treatment")
 ```
 
-```{r, echo=FALSE, fig.align='center', fig.width=7, fig.height=5}
-par(mar=c(4,4,1,1))
-points.col = c("#0000ff1F", "#FF00001F")
-lines.col = c("#0000FFFF", "#FF0000FF")
-bands.col = c("#0000FF5F", "#FF00005F")
-visreg(mod4, "L.Wing.Lth", by="Sex", overlay=TRUE, points.par=list(col=points.col, cex=1.2), line.par=list(col=lines.col), fill.par=list(col=bands.col))
+## Example: Calf weights
+
+```{r}
+c1 = lm(Weight ~ BirthWeight + Breed + Treatment + Age, data=calf)
+anova(c1)
+```
+
+## Example: Calf weights
+
+```{r, fig.width=8, fig.height=5.5, fig.align='center'}
+visreg(c1, "Age", by="Treatment", overlay=TRUE)
+```
+
+## Example: Calf weights
+
+```{r, fig.width=8, fig.height=5.5, fig.align='center'}
+visreg(c1, "Age", by="Breed", overlay=TRUE)
 ```
 
 ## Interaction of numeric variables and factors
 
 We could add another term using the product of the numeric variable $x$ and the indicator for the second level of the factor $z$
 $$
-\mathsf{mean}(y) = \alpha + \beta_1 x + \beta_2 z + \beta_3 (x z).
+\mathsf{mean}(y) = \alpha + \beta_1 x + \beta_2 z + \beta_3 x z.
 $$
 
 Then if we're in the first level of the factor variable, $z=0$ so the equation is
@@ -490,55 +466,130 @@ $$
 $$
 The model fit is thus two separate lines.
 
-## Petrels: Left and right wing lengths
+## Example: Calfweights
+
+```{r, echo=FALSE, fig.width=8, fig.height=5.5, fig.align='center'}
+par(mar=c(4,4,1,2))
+plot(Weight ~ Age, data=calf, col=Breed, pch=as.numeric(Treatment), xlab="Age (days)", ylab="Weight (kg)")
+legend('topleft', legend=levels(calf$Breed), col=1:3, pch=1, title="Breed")
+legend('bottomright', legend=levels(calf$Treatment), pch=1:2, title="Treatment")
+```
+
+## Example: Calf weights
+
+- Want to see if high vs low treatment has an effect on weight gain.
+
+- Need to account for breed, and initial weight.
+
+- Weight gain is increase in weight as age increases. How does the slope change
+with treatment?
+
+- Slope can probably also differ by breed as well.
+
+- Need interactions for Age and Treatment and Age and Breed.
+
+## Example: Calf weights
 
 ```{r}
-mod5 = lm(R.Wing.Lth ~ L.Wing.Lth + Sex + L.Wing.Lth:Sex, data=petrels)
-anova(mod5)
+c2 <- lm(Weight ~ BirthWeight + Breed + Treatment + Age +
+           Age:Treatment + Age:Breed, data=calf)
+anova(c2)
 ```
 
-## Petrels: Left and right wing lengths{.smaller}
+## Calf weight summary{.fragile .smaller}
+
+```{r, echo=FALSE}
+summary(c2)
+```
+
+## Calf weights{.smaller}
+
+```{r, fig.width=8, fig.height=5.5, fig.align='center'}
+visreg(c2, "Age", by="Breed", overlay=TRUE)
+```
+
+## Calf weights{.smaller}
+
+```{r, fig.width=8, fig.height=5.5, fig.align='center'}
+visreg(c2, "Age", by="Treatment", overlay=TRUE)
+```
+
+## Diagnostics
+
+```{r, echo=FALSE, fig.width=8, fig.height=5.5, fig.align='center'}
+par(mfrow=c(2,2), mar=c(4,4,2,2))
+plot(c2, add.smooth=FALSE)
+```
+
+## Better model
 
 ```{r}
-summary(mod5)
+c3 <- lm(log(Weight) ~ log(BirthWeight) + Breed + Treatment + Age + 
+         Age:Treatment + Age:Breed, data=calf)
+anova(c3)
 ```
 
-## Petrels: `visreg` the interaction
+## Better model: Diagnostics
 
-```{r, echo=TRUE, eval=FALSE}
-visreg(mod5, "L.Wing.Lth", by="Sex", overlay=TRUE)
+```{r, echo=FALSE, fig.width=8, fig.height=5.5, fig.align='center'}
+par(mfrow=c(2,2), mar=c(4,4,2,2))
+plot(c3, add.smooth=FALSE)
 ```
 
-```{r, echo=FALSE, fig.align='center', fig.width=7, fig.height=5}
-par(mar=c(4,4,1,1))
-points.col = c("#0000ff1F", "#FF00001F")
-lines.col = c("#0000FFFF", "#FF0000FF")
-bands.col = c("#0000FF5F", "#FF00005F")
-visreg(mod5, "L.Wing.Lth", by="Sex", overlay=TRUE, points.par=list(col=points.col, cex=1.2), line.par=list(col=lines.col), fill.par=list(col=bands.col))
+## Better model: Fit{.smaller}
+
+```{r, fig.width=8, fig.height=5.5, fig.align='center'}
+visreg(c3, "Age", by="Breed", trans=exp, partial=TRUE, overlay=TRUE, ylab="Weight")
 ```
 
-## Petrels: Points with large influence?
+## Better model: Fit{.smaller}
 
-```{r, echo=FALSE, fig.align='center', fig.width=7, fig.height=5}
-par(mar=c(4,4,1,1))
-plot(mod5, which=5)
+```{r, fig.width=8, fig.height=5.5, fig.align='center'}
+visreg(c3, "Age", by="Treatment", trans=exp, partial=TRUE, overlay=TRUE, ylab="Weight")
 ```
 
-## Petrels: Points with large influence?
+## Another problem though!
 
-```{r}
-mod5b = lm(R.Wing.Lth ~ L.Wing.Lth + Sex + L.Wing.Lth:Sex, data=petrels[-c(492,638),])
-anova(mod5b)
+- We know here that we have multiple calves measured through time.
+
+- Residuals from the same calf likely more similar to each other than to those
+of other calves.
+
+- The residuals are unlikely to be independent.
+
+- In this case can check by plotting the residuals versus the
+calf identifier.
+
+## Another problem?
+
+```{r, fig.width=9, fig.height=4.5, fig.align='center', echo=2}
+par(mar=c(4,5,0,1))
+boxplot(resid(c3) ~ Calf, data=calf, xlab="Calf", ylab="Residual")
 ```
 
-<div align='center'>
-**ALWAYS PLOT THE DATA**
-</div>
+## Solution: See lab 4!
 
-## Determining the 'best' model
+```{r, eval=FALSE}
+library(nlme)
+mixed = lme(log(Weight) ~ log(BirthWeight) + Breed + Treatment + Age + 
+            Breed:Age + Treatment:Age, random=~1|Calf, data=calf)
+boxplot(resid(mixed) ~ Calf, data=calf)
+```
 
-- The best model depends on what questions you want to answer.
+## Solution: See lab 4!
 
-- If the goal of the model is to use it for prediction purposes, then you don't want to include extra terms that aren't significant.
+```{r, echo=FALSE, fig.width=9, fig.height=5, fig.align='center'}
+library(nlme)
+mixed = lme(log(Weight) ~ log(BirthWeight) + Breed + Treatment + Age + 
+            Breed:Age + Treatment:Age, random=~1|Calf, data=calf)
+par(mar=c(4,4,0,1))
+boxplot(resid(mixed) ~ Calf, data=calf, xlab="Calf", ylab="Residual")
+```
 
-- However, if the goal of the model is to answer questions about which variables effect the outcome, a model containing insignficant terms may be appropriate.
+## Learning outcomes
+
+- Review
+
+- Multiple factors
+
+- Interactions
