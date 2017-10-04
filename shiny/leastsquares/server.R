@@ -23,10 +23,18 @@ shinyServer(function(input, output, session) {
     alpha <- my - input$beta*mx
     yhat <- alpha + input$beta*x
 
+    square_col <- function(x, max_x = 1.5) {
+      x <- abs(x)
+      x <- ifelse(x > max_x, max_x, x)
+      strength <- (x/max_x)^2
+      colorFunc <- colorRamp(c("#b0b0b0", "#FF0000"), space='Lab')
+      rgb(colorFunc(strength), maxColorValue = 255)
+    }
+
     # plot the points, residuals as lines, model fit and (mean(x),mean(y))
     par(mar=c(2,2,0,0), cex=2)
     plot(NULL, xlim=range(x), ylim=c(min(y)-0.5, max(y)+0.5), xaxt="n", yaxt="n", xlab="", ylab="")
-    segments(x, yhat, x, ifelse(y > yhat, y-0.05, y+0.05), col="#b0b0b0", lwd=2)
+    segments(x, yhat, x, ifelse(y > yhat, y-0.05, y+0.05), col=square_col(y-yhat), lwd=2)
     points(x, y, col="#00000050", pch=19, xlab="", ylab="", xaxt="n", yaxt="n")
     points(mx, my, pch=19)
     abline(alpha, input$beta, lwd=2)
