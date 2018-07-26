@@ -17,6 +17,8 @@ graphics: yes
 
 ```{r setup, echo=FALSE}
 library(knitr)
+library(ggplot2); theme_set(theme_bw(base_size=15))
+library(patchwork)
 opts_chunk$set(dev.args=list(bg='transparent'), comment="")
 #print(knit_hooks$get('output'))
 knit_hooks$set(output=function (x, options) {
@@ -55,6 +57,18 @@ mod <- lm(Bodywt ~ Heartgirth, data=donkey)
 - The $F$-test.
 
 - Models with factor variables.
+
+## Recall: The linear model
+
+- The linear model estimates the mean of the response variable for given values of a covariate
+$$
+\mathsf{mean}(y) = \alpha + \beta x
+$$
+- The model is fit by finding least squares estimates for $\alpha$ and $\beta$.
+
+- The model assumptions are defined in terms of the residuals.
+
+- When the assumptions hold we can take our model from the sample and generalise to the population.
 
 # Assumptions
 
@@ -132,11 +146,11 @@ next_column(is_pdf)
 
 - Allows us to assess **linearity**.
 
-- There should be no curve.
+- There should be no curve in the trend.
 
 - Also allows assessing **equal variance**.
 
-- The points shouldn't fan out.
+- The points shouldn't fan out around the trend.
 
 - When either of these fail, a log transform of $y$ and/or $x$ often straightens things out.
 
@@ -146,7 +160,7 @@ end_table(is_pdf)
 
 ## Residuals versus fits
 
-<iframe src="http://it056230.massey.ac.nz:8080/apps/227215/shiny/linearity/" style="border: none"></iframe>
+<iframe src="http://shiny.massey.ac.nz/jcmarsha/linearity" style="border: none"></iframe>
 
 ## Diagnostic plots: Normal Q-Q plot
 
@@ -180,7 +194,7 @@ next_column(is_pdf)
 
 - Ideally should not be increasing or decreasing.
 
-- Residuals versus fit often tells you this just as well.
+- Residuals versus fit is just as good (and more understandable!)
 
 ```{r, results='asis', echo=FALSE, out.extra=''}
 end_table(is_pdf)
@@ -218,7 +232,7 @@ end_table(is_pdf)
 
 ## Influential outliers
 
-<iframe src="http://it056230.massey.ac.nz:8080/apps/227215/shiny/influence/" style="border: none"></iframe>
+<iframe src="http://shiny.massey.ac.nz/jcmarsha/influence/" style="border: none"></iframe>
 
 ## Summary
 
@@ -232,11 +246,11 @@ end_table(is_pdf)
 
 ```{r, echo=FALSE, fig.align="center", fig.width=8, fig.height=5}
 donkey <- read.csv("http://www.massey.ac.nz/~jcmarsha/227215/data/donkey.csv")
-par(mfrow=c(2,2), mar=c(4,4,1,1))
-plot(Bodywt ~ Heartgirth, data=donkey, col=col_points, pch=19)
-plot(Bodywt ~ Umbgirth, data=donkey, col=col_points, pch=19)
-plot(Bodywt ~ Length, data=donkey, col=col_points, pch=19)
-plot(Bodywt ~ Height, data=donkey, col=col_points, pch=19)
+g1 <- ggplot(donkey, aes(x=Heartgirth, y=Bodywt)) + geom_point(col=col_points)
+g2 <- ggplot(donkey, aes(x=Umbgirth, y=Bodywt)) + geom_point(col=col_points)
+g3 <- ggplot(donkey, aes(x=Length, y=Bodywt)) + geom_point(col=col_points)
+g4 <- ggplot(donkey, aes(x=Height, y=Bodywt)) + geom_point(col=col_points)
+g1 + g2 + g3 + g4 + plot_layout(ncol=2)
 ```
 
 ## Relationships: Donkeys
@@ -249,21 +263,9 @@ plot(Bodywt ~ Height, data=donkey, col=col_points, pch=19)
 
 - Predictions will be more precise (smaller confidence and prediction intervals).
 
-## Recall: The linear model
-
-- The linear model estimates the mean of the response variable for given values of a covariate
-$$
-\mathsf{mean}(y) = \alpha + \beta x
-$$
-- The model is fit by finding least squares estimates for $\alpha$ and $\beta$.
-
-- The model assumptions are defined in terms of the residuals.
-
-- When the assumptions hold we can take our model from the sample and generalise to the population.
-
 ## Multiple covariates
 
-- Adding other covariates is as simple as adding another term to the linear model equation.
+- Adding extra covariates is as simple as adding another term to the linear model equation.
 $$
 \mathsf{mean}(y) = \alpha + \beta_1 x_1 + \beta_2 x_2 + \cdots
 $$
@@ -273,7 +275,7 @@ $$
 
 - We get additional lines in our output for each covariate we add to the model.
 
-## Matrix version of the linear model
+## Sidenote: Matrix version of the linear model
 
 We can formulate the linear model in terms of a **matrix equation**
 $$
@@ -355,25 +357,26 @@ summary(lm(Bodywt ~ Height, data=donkey))
 
 - We can do this by comparing the variation in the residuals to the total variation in $y$.
 
-- We use the **F-statistic** for this.
+- We use the **F-statistic** for this. It's similar to $R^2$, but results in nicer maths.
 $$
-F = \frac{(\sigma^2_\mathsf{total} - \sigma^2_\mathsf{res})/p}{\sigma^2_\mathsf{res}/(n-p-1)}
+F = \frac{\mathsf{Variation\ explained}}{\mathsf{Variation\ unexplained}} = \frac{(\sigma^2_\mathsf{total} - \sigma^2_\mathsf{res})/p}{\sigma^2_\mathsf{res}/(n-p-1)}
 $$
 where $p$ is the number of covariates, and $n$ the number of observations.
 
+- This process is also known as **ANalysis Of VAriance** or **ANOVA**.
+
 ## The F-test
 $$
-F = \frac{(\sigma^2_\mathsf{total} - \sigma^2_\mathsf{res})/p}{\sigma^2_\mathsf{res}/(n-p-1)}
+F = \frac{\mathsf{Variation\ explained}}{\mathsf{Variation\ unexplained}} = \frac{(\sigma^2_\mathsf{total} - \sigma^2_\mathsf{res})/p}{\sigma^2_\mathsf{res}/(n-p-1)}
 $$
 
 - On the top we have variance explained by the model, and on bottom variance left over in residuals.
 
 - The ratio of these, $F$ will increase as we explain more variation in the model.
 
-- Under the hypothesis that the model doesn't explain anything we'd expect $F=0$.
+- Under the hypothesis that the model doesn't explain anything we'd expect $F=0$. If the model is useful, we'd expect $F > 0$.
 
-- We can use the **F-distribution** to figure out how likely the $F$ from our sample
-would arise by chance, giving us the P-value.
+- The **F-distribution** is used to figure out how likely the $F$ from our sample would arise by chance, giving us the P-value.
 
 - We use the P-value for our decision about the model. $F$ is just the way the maths gets us
 there (like $t$ in the $t$-test).
@@ -404,12 +407,9 @@ An F value of `r fv` is really unlikely to arise by chance, so our model is tell
 
 - The linear model equation is describing the **mean** of the outcome variable given the value of the covariates.
 
-- So we can use a linear model to estimate a mean just by not including any covariates, e.g. by using the model equation
-$$
-\mathsf{mean}(y) = \alpha
-$$
-
 - When we have a factor, or categorical covariate, the linear model will estimate the mean within each group.
+
+- To do this, we'll need to convert the categorical variable to a numeric variable in some way.
 
 ## Factors with two levels
 
@@ -501,17 +501,16 @@ $$
 
 - This is the same as "Are any of the $\beta$'s non-zero?"
 
-- The F-test!
+- The F-test, or Analysis of Variance!
 
 ## Example: Petrels
 
 ```{r, echo=FALSE, fig.width=9.5}
-petrels <- read.csv("http://www.massey.ac.nz/~jcmarsha/227212/data/petrels.csv")
+petrels <- read.csv("http://www.massey.ac.nz/~jcmarsha/227215/data/petrels.csv")
 petrels <- petrels[!is.na(petrels$Area) & !is.na(petrels$R.Wing.Lth),]
 petrels$Area <- as.factor(petrels$Area)
 petrels$Sex <- as.factor(petrels$Sex)
-par(mar=c(5,5,1,0), cex.axis=1.5, cex.lab=1.5)
-plot(R.Wing.Lth ~ Area, data=petrels, ylab="Right wing length (cm)")
+ggplot(petrels, aes(x=Area, y=R.Wing.Lth)) + geom_boxplot() + ylab("Right wing length (mm)")
 ```
 
 
@@ -548,5 +547,5 @@ visreg(mod)
 ```{r, echo=FALSE, fig.width=9.5}
 library(visreg)
 par(mar=c(4,4,0,0))
-visreg(mod)
+visreg(mod, gg=TRUE)
 ```
