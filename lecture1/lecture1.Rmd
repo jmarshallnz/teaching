@@ -4,20 +4,22 @@ author: "Jonathan Marshall"
 date: ''
 output:
   ioslides_presentation:
-    css: jm.css
+    css: ../jm.css
     highlight: tango
     widescreen: yes
   beamer_presentation:
     highlight: tango
     includes:
-      in_header: header.tex
+      in_header: ../header.tex
     keep_tex: yes
 graphics: yes
 ---
 
 ```{r setup, echo=FALSE}
 library(knitr)
-opts_chunk$set(dev.args=list(bg='transparent'), comment="")
+library(ggplot2); theme_set(theme_bw(base_size=15))
+library(patchwork)
+opts_chunk$set(dev.args=list(bg='transparent'), comment="", warning=FALSE)
 #print(knit_hooks$get('output'))
 knit_hooks$set(output=function (x, options) {
 #  cat("OPTIONS=", names(options), "\n")
@@ -68,17 +70,17 @@ Height     Height to the withers (cm)
 
 ```{r, echo=FALSE, fig.align="center", fig.width=8, fig.height=5}
 donkey <- read.csv("http://www.massey.ac.nz/~jcmarsha/227215/data/donkey.csv")
-par(mfrow=c(2,2), mar=c(4,4,1,1))
-plot(Bodywt ~ Heartgirth, data=donkey, col=col_points, pch=19)
-plot(Bodywt ~ Umbgirth, data=donkey, col=col_points, pch=19)
-plot(Bodywt ~ Length, data=donkey, col=col_points, pch=19)
-plot(Bodywt ~ Height, data=donkey, col=col_points, pch=19)
+g1 <- ggplot(donkey, aes(x=Heartgirth, y=Bodywt)) + geom_point(col=col_points)
+g2 <- ggplot(donkey, aes(x=Umbgirth, y=Bodywt)) + geom_point(col=col_points)
+g3 <- ggplot(donkey, aes(x=Length, y=Bodywt)) + geom_point(col=col_points)
+g4 <- ggplot(donkey, aes(x=Height, y=Bodywt)) + geom_point(col=col_points)
+g1 + g2 + g3 + g4 + plot_layout(ncol=2)
 ```
 
 ## Relationships: Donkeys
 
 ```{r, echo=FALSE, fig.align="center"}
-plot(Bodywt ~ Sex, data=donkey, horizontal=TRUE)
+ggplot(donkey, aes(x=Sex, y=Bodywt)) + geom_boxplot() + coord_flip()
 ```
 
 ## Relationships: Donkeys
@@ -100,6 +102,41 @@ plot(Bodywt ~ Sex, data=donkey, horizontal=TRUE)
 - Key is to model the **mean** of one variable conditional on the values of other variables.
 
 - Once we have a model, we can use that model for **prediction** or for quantifying the extent of the relationship.
+
+## Linear modelling
+
+```{r, echo=FALSE, fig.align="center", fig.width=8, fig.height=5}
+ab <- coef(lm(Bodywt ~ Heartgirth, data=donkey))
+ggplot(donkey, aes(x=Heartgirth, y=Bodywt)) + geom_point(col=col_points) +
+  geom_abline(intercept=ab[1], slope=ab[2]) + ylab("Response (Body weight in kg)") +
+  xlab("Explanatory variable (Heart girth in cm)") +
+  annotate('text', x=95, y=130, label = "Mean body weight\nfor a given heart girth", hjust=1) +
+  annotate('curve', x=95, y=130, curvature = -0.2, xend = 110, yend = ab[1] + ab[2]*110, arrow=arrow(angle=20, type='closed', length=unit(0.15, 'inches'))) +
+  scale_x_continuous(limits=c(77,143), expand=c(0,0)) +
+  scale_y_continuous(limits=c(42,230), expand=c(0,0))
+```
+
+## Linear modelling
+
+```{r, echo=FALSE, fig.align="center", fig.width=8, fig.height=5}
+l <- lm(Bodywt ~ Heartgirth, data=donkey)
+ab <- coef(l)
+p <- as.data.frame(predict(l, newdata=data.frame(Heartgirth=70:150), interval='prediction'))
+ggplot(donkey, aes(x=Heartgirth, y=Bodywt)) + geom_point(col=col_points) +
+  geom_abline(intercept=ab[1], slope=ab[2]) + ylab("Response (Body weight in kg)") +
+  xlab("Explanatory variable (Heart girth in cm)") +
+#  annotate('segment', x=91, y = ab[1] + ab[2]*90, xend = 135, yend = ab[1] + ab[2]*90, arrow=arrow(angle=20, type='closed', ends = 'both', length=unit(0.15, 'inches'))) +
+#  annotate('text', x=(91+135)/2, y=ab[1] + ab[2]*90, label="Variation in heart girth", vjust=-0.3) +
+  annotate('segment', x=90, y = ab[1] + ab[2]*90, xend = 136, yend = ab[1] + ab[2]*136, arrow=arrow(angle=20, type='closed', ends = 'both', length=unit(0.15, 'inches')), size=1) +
+  annotate('text', x=120, y=80, label=expression(atop("Variation in "* bold(mean)*" body weight", "explained by heart girth")), hjust=0, parse=TRUE) +
+  annotate('curve', x=120, y=80, curvature = -0.2, xend = 110, yend = ab[1] + ab[2]*110-2, arrow=arrow(angle=20, type='closed', length=unit(0.15, 'inches'))) +
+  annotate('line', x=70:150, y = p[,2], linetype = 'dotted') +
+  annotate('line', x=70:150, y = p[,3], linetype = 'dotted') +
+  annotate('text', x=95, y=160, label = expression(atop("Variation in body weight", "around the mean (unexplained)")), hjust=1) +
+  annotate('curve', x=95, y=160, curvature = -0.2, xend = 110, yend = ab[1] + ab[2]*110 + 20, arrow=arrow(angle=20, type='closed', length=unit(0.15, 'inches'))) +
+  scale_x_continuous(limits=c(77,143), expand=c(0,0)) +
+  scale_y_continuous(limits=c(42,230), expand=c(0,0))
+```
 
 ## Definitions
 
@@ -124,7 +161,7 @@ set.seed(2015)
 x <- rnorm(100, 3, 1)
 y <- 0.5 + 0.5*x + rnorm(100, 0, 0.3)
 par(mar=c(2,1,1,1), cex=1.5)
-plot(y ~ x, col="#00000020", xlim=c(0, max(x)+0.2), ylim=c(0, max(y)+0.2), pch=19, xlab="", ylab="", xaxt="n", yaxt="n", xaxs="i", yaxs="i")
+plot(y ~ x, col="#00000050", xlim=c(0, max(x)+0.2), ylim=c(0, max(y)+0.2), pch=19, xlab="", ylab="", xaxt="n", yaxt="n", xaxs="i", yaxs="i")
 line <- lm(y ~ x) 
 abline(line, lwd=2)
 xv <- c(1,5)
@@ -144,6 +181,17 @@ axis(1, at=0, line=0)
 
 - We only ever have a sample of data, thus our estimates are sample statistics, which we hope will be representative of
 the true parameters $\alpha$ and $\beta$ in the population.
+
+## Estimation of parameters
+
+```{r}
+# TODO: Have a graph here showing what x_i, y_i, epsilon_i, \hat{y}_i are.
+# As the line represents the average of y, it makes sense that the average of the residuals
+# is zero. We also want the best line: the best one will explain the most variation in y, so have
+# the least variation left over. Thus, we minimise the variance of the residuals.
+# this is the same as minimising the sum of squared residuals (SS_res)
+#
+```
 
 ## Estimation of parameters
 
@@ -175,7 +223,7 @@ $$
 
 ## Estimation of parameters
 
-<iframe src="http://it056230.massey.ac.nz:8080/apps/227215/shiny/leastsquares/" style="border: none"></iframe>
+<iframe src="http://shiny.massey.ac.nz/jcmarsha/leastsquares/" style="border: none"></iframe>
 
 # Linear models in RStudio
 
@@ -228,7 +276,7 @@ $$
 - The `Multiple R-squared` value is the proportion of variation in body weight explained by the model (i.e. explained by heart girth).
 $$
 \begin{aligned}
-R^2 &= \frac{\mathsf{Var_{Explained}}}{\mathsf{{Var}_{Bodywt}}} = \frac{\mathsf{Var_{Bodywt}} - \mathsf{Var_{Residuals}}}{\mathsf{Var_{Bodywt}}}\\
+R^2 &= \frac{\mathsf{Variance\ Explained}}{\mathsf{Total\ Variance}} = \frac{\mathsf{Total\ Variance} - \mathsf{Residual\ Variance}}{\mathsf{Total\ Variance}}\\
 &= \frac{\sigma_\mathsf{Y}^2 - \sigma_\mathsf{res}^2}{\sigma_\mathsf{Y}^2} = \frac{SS_\mathsf{total} - SS_\mathsf{res}}{SS_\mathsf{total}}
 \end{aligned}
 $$
@@ -238,7 +286,7 @@ $$
 
 ## $R^2$ for Donkeys
 
-<iframe src="http://it056230.massey.ac.nz:8080/apps/227215/shiny/rsquared/" style="border: none"></iframe>
+<iframe src="http://shiny.massey.ac.nz/jcmarsha/rsquared/" style="border: none"></iframe>
 
 ## Linear models in RStudio
 
@@ -421,7 +469,7 @@ end_table(is_pdf)
 
 ## Residuals versus fits
 
-<iframe src="http://it056230.massey.ac.nz:8080/apps/227215/shiny/linearity/" style="border: none"></iframe>
+<iframe src="http://shiny.massey.ac.nz/jcmarsha/linearity/" style="border: none"></iframe>
 
 ## Diagnostic plots: Normal Q-Q plot
 
@@ -493,7 +541,7 @@ end_table(is_pdf)
 
 ## Influential outliers
 
-<iframe src="http://it056230.massey.ac.nz:8080/apps/227215/shiny/influence/" style="border: none"></iframe>
+<iframe src="http://shiny.massey.ac.nz/jcmarsha/influence/" style="border: none"></iframe>
 
 ## Summary
 
