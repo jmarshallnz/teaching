@@ -1,0 +1,143 @@
+---
+title: "How to weigh a donkey in Morocco"
+author: "Jonathan Marshall"
+output:
+  html_document: default
+---
+
+## Introduction
+
+In this notebook we'll look at data collected on 385 donkeys used to transport goods to market in Morocco. It is a sample of the data collected for *Estimation of the liveweight and body condition of working donkeys in Morocco* by R.A. Pearson and M. Ouassat, published in the Veterinary Record, 1996. The following variables are available.
+
+Variable   Description
+--------   -----------
+Sex        Sex (male/female)
+Age        Age (years)
+Bodywt     Weight (kg)
+Heartgirth Girth at the heart (cm)
+Umbgirth   Girth at the umbilicus (cm)
+Length     Length from elbow to buttocks (cm)
+Height     Height to the withers (cm)
+
+We start by reading the data in from the web and looking at the first few rows:
+
+```{r}
+library(ggplot2)
+donkey = read.csv("http://www.massey.ac.nz/~jcmarsha/227215/data/donkey.csv")
+head(donkey)
+```
+
+We notice that the donkey data has a bunch of variables. Our interest is predicting body weight (`Bodywt`) using the other, more easily measureable things. Use of the `summary` command will give us some idea of how each of the columns are distributed:
+
+```{r}
+summary(donkey)
+```
+
+From this we see that the Bodyweight is somewhere between 52 and 222 kg, but that doesn't tell us much if we want to predict the body weight for a particular donkey. For that, we'll need to take advantage of the relationship between body weight and the other measures.
+
+### Relationship between body weight and other measures
+
+Let's see if there is a relationship between body weight and some of the other measurements. e.g. to assess body weight versus height we can use:
+
+```{r}
+ggplot(donkey, aes(x=Height, y=Bodywt)) + geom_point()
+```
+
+It's clear there is an increasing relationship between Bodyweight and Height as might be expected. This suggests we could use a particular donkey's height to get a better idea of its body weight.
+
+```{r}
+ggplot(donkey, aes(x=Length, y=Bodywt)) + geom_point()
+```
+
+```{r}
+ggplot(donkey, aes(x=Umbgirth, y=Bodywt)) + geom_point()
+```
+
+```{r}
+ggplot(donkey, aes(x=Heartgirth, y=Bodywt)) + geom_point(col='red')
+```
+
+```{r}
+ggplot(donkey, aes(x=Sex, y=Bodywt)) + geom_boxplot()
+```
+
+From the above we can see that there is increasing relationships between all the measures and body weight, as might be expected. Heartgirth seems to have the strongest relationship, as the points are most clustered around the trend. The relationship is perhaps a little bit curved. The boxplot for sex suggests little difference between the bodyweights for the different sexes.
+
+### Linear modelling of body weight
+
+The below code block estimates a linear trend between body weight and heartgirth
+
+```{r}
+lm1 <- lm(Bodywt ~ Heartgirth, data=donkey)
+summary(lm1)
+```
+
+From the output we can see that for each unit (cm) increase in Heartgirth, there is a corresponding 2.83kg increase in body weight on average. There's a little bit of uncertainty in this - a 95% confidence interval for the slope would be from $2.83 \pm 2\times 0.07 = (2.69, 2.97)$.
+
+The equation that relates body weight to heartgirth would be
+$$
+\mathsf{mean(Bodyweight)} = -194.5 + 2.83 \times \mathsf{Heartgirth}
+$$
+The P-value for `Heartgirth` is testing whether the slope could be 0. It is very unlikely to be so, as the P-value is very close to zero. This makes sense from what we see in the graph - and also just from common sense - we'd expect the girth of the donkey influences it's body weight!
+
+The $R^2$ output in the linear model summary is 0.8. This is a measure of the proportion of variation in body weight that is explained by our linear model (in this case, explained by heart girth). So it's saying that 80% of the variation we observe in donkey body weights is explained once we know the heartgirth of the donkey. So, once you know the heartgirth of the donkey, there's only about 20% of the variation in body weight left over.
+
+Our best guess for what the body weight of a donkey with heartgirth 110cm would be: $$-194.5 + 2.83 \times 110 = 116.8$$kg. We can do this in RStudio using the `predict` function:
+
+```{r}
+# predict the weight of a donkey with heart girth 110cm
+new_data <- data.frame(Heartgirth=110)
+predict(lm1, new_data)
+```
+
+We can improve on this prediction by also incorporating the uncertainty that we have in the slope and intercept:
+
+```{r}
+predict(lm1, new_data, interval="confidence")
+predict(lm1, new_data, interval="prediction")
+```
+
+The first prediction (with **confidence** interval) only accounts for the uncertainty in the mean body weight - recall the linear model equation is for the mean bodyweight across donkeys, not for an individual. Thus, you can consider this an estimate for the average bodyweight of donkeys with heartgirth 110cm. The second additionally incorporates the variation of individual donkeys around the average trend: You can consider it a **prediction** interval for an individual donkey with heartgirth 110cm. Obviously this one is wider.
+
+### Model diagnostics
+
+The residuals versus fitted plot is below.
+
+```{r, eval=FALSE}
+plot(lm1, which=1)
+```
+
+This shows that there is clear curvature in the residuals, so linearity may not hold. Also, we notice that the variation about the trend is increasing as we move from left to right (the points are fanning out more vertically) so equal variance also isn't very good. The implication is that our estimated relationship is likely a bit wrong.
+
+We try a log-log transformation below to see if this helps (we could also try looking at a plot of Bodywt vs Heartgirth on a log-log scale, e.g. by adding `scale_x_log10()` and `scale_y_log10()` to our `ggplot`).
+
+```{r}
+lm2 <- lm(log(Bodywt) ~ log(Heartgirth), data=donkey)
+summary(lm2)
+```
+
+The disadvantage with this model is it's less interpretable: The slope for heartgirth is now saying that a one unit change in the log of heartgirth produces a 2.58 unit change in the log of body weight. It isn't obvious what this means! If you rearrange the equation a bit by exponentiating each side we get something a little more interpretable:
+$$
+\begin{aligned}
+\log(\mathsf{Bodywt}) &= -7.39 + 2.58 \times \log(\mathsf{Heartgirth})\\
+\mathsf{Bodywt} &= 0.0006 \times \mathsf{Heartgirth}^{2.58}
+\end{aligned}
+$$
+So this is suggesting there is a power relationship between bodyweight and heartgirth. This kinda makes sense - the heartgirth is measuring circumference, while weight would more likely be proportional to volume.
+
+While we have the above disadvantages, perhaps we've nonetheless fixed the problem with the linear model assumptions not holding. Let's take a look:
+```{r}
+plot(lm2, which=1)
+```
+
+This looks much better - both linearity and equal variance look at though they hold. Also, if we look at the summary from `lm2` we note it has slightly better $R^2$ - it explains 82% of the variation instead of 80%. This, plus the improved model assumptions are probably enough to make up for the lack of interpretability.
+
+When we do our predictions, we have to remember to exponentiate the result. The linear model will take care of doing the log of heartgirth for us, but won't 'unlog' the answer.
+```{r}
+new_data = data.frame(Heartgirth=110)
+p1=predict(lm2, new_data, interval="confidence")
+p2=predict(lm2, new_data, interval="prediction")
+exp(p1)
+exp(p2)
+```
+We note the predicted weight is a bit lower, and the uncertainty ranges are a bit tighter compared to the others. This makes sense, as the log/log model is explaining more of the variation, so there's less variation left over.

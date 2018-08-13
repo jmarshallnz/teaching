@@ -1,0 +1,137 @@
+---
+title: "227.215 Biostats Lab 1"
+author: "Jonathan Marshall"
+graphics: yes
+output:
+  pdf_document: null
+  html_document: default
+---
+
+## Introduction
+
+In this lab we'll start looking at the **linear model**. The linear model forms the basis of much statistical analysis. It is the more general version of simple linear regression, and encompases regression, analysis of variance and many other situations. Later on, we'll also be looking at some extensions to the general linear model, such as mixed effects models which have particular application where data have been collected across multiple paddocks, farms or regions.
+
+We'll start by taking another look at the `donkeys` dataset we looked at last semester.
+
+Start by downloading the file `donkeys.Rmd` from Stream. Save it somewhere you can find it again (e.g. into Documents), then load up RStudio, and then use File->Open File... to load the notebook.
+
+## Exercise 1: Reminder - what was an R notebook again?
+
+1. Remember that an R notebook contains some special code at the top that describe the title and author of the analysis. Start by changing the author field to your own name.
+
+2. Recall that an R notebook is formatted with 'markdown', a very simple way to add formatting to text. Recall that the two hashes in front of the Introduction line specifies a level 2 heading (level 1 headings would use just one hash and be larger). Also, the title of the scientific paper we're sourcing the data from is surrounded by astericks. This will emphasise the title, which will result in italics in the final document.
+
+    And further down you'll see a table describing the data, and under that the first R **code block** whose purpose is to load up the `ggplot2` library so we're ready for plotting, then read the data in and take a look at it. The codeblock will be in a different coloured background, and will have a set of buttons in the upper right. You can click on the little green play button for example to run this code. Do this now. Notice when you do that there is a data frame called `donkey` in our Environment (top right pane) and the first 6 rows of that data frame has been inserted below the code block.
+
+3. A bit further down is another code block that computes a summary of the data. Run that one as well.
+
+4. Finally, there's another section (using a level 3 heading) and under that, some code to produce a plot. Run that as well to make sure it works too.
+
+5. Now that we've reminded ourselves a little bit about how RStudio works, try adding 4 further code blocks that produce plots of body weight versus Length, Heart girth, Umbilical girth, and Sex. Recall that an appropriate plot for Sex would be a boxplot rather than a scatter plot (i.e. use `geom_boxplot` instead of `geom_point`). You might want to try customising the plot a bit as well - remember you can change colour by adding `colour='red'` inside the `geom_point` part.
+
+6. Which variable do you think shows the **strongest** relationship with body weight? What criteria are you using to determine this? You might want to add a sentence or two to your notebook about this.
+
+7. Lastly, try compiling the notebook. Remember that you can do that by clicking on the `Knit` button on the tool bar.
+
+## Exercise 2: The linear model
+
+In this exercise we'll look at modelling the donkey `Bodywt` using the `Heartgirth`, like we saw in the first lecture. You should have noticed from the above plots that this was the best variable to use for modelling the `Bodywt`.
+
+1. Go back to your plot of body weight versus heart girth. Notice it is an increasing relationship, and is reasonably linear. We'll try and fit a straight line to these data. i.e. we'll try and fit a relationship that takes the form
+  $$
+  \mathsf{BodyWt} = a + b \times \mathsf{Heartgirth}
+  $$
+where $a$ is the **intercept**, and $b$ is the **slope** of the relationship. We need to figure out what $a$ and $b$ should be. We could do this by guessing using the graph (e.g. we could take a guess at $b$ by figuring out the rise over the run), but we've got a computer, so why not let it do it for us?  You can do this with the `lm` function, short for **linear model**. Add a new code block to your notebook to do this, and then request a summary:
+    ```{r, eval=FALSE}
+    lm1 <- lm(Bodywt ~ Heartgirth, data=donkey)
+    summary(lm1)
+    ```
+    The first line here fits the linear model, and saves the result in the object `lm1`. The second then gives you a summary of the fitted linear model object. Run the above.
+    
+    Notice the summary command gives quite a lot of information. We'll go through some of it here. **You might want to add some notes to your notebook about what the various bits are telling you**.
+    * We have two rows, one for the `Intercept`, and one labelled `Heartgirth` - this is the slope.
+    * The `Estimate` column gives us the values of each of these parameters might be in the population.
+    * The `Std. Error` column is a measure of how much out we might be in the estimation. The reason we have this is we have just a sample of donkeys - we haven't measured all possible Moroccan donkeys! So, just like a sample mean might be a bit out (and we use a confidence interval to estimate how much out we might be) the estimates of the intercept and slope might also be a bit out. The standard error is the standard deviation of those estimates. A 95% confidence interval for the slope would be:
+$$
+2.83 \pm 2 \times 0.071,
+$$
+just like the confidence interval for a mean.
+    * The `t value` column is giving the number of standard deviations away from 0 the slope and intercept estimates are (i.e. $39.74 = 2.82883 / 0.07118$).
+    * The `Pr(>|t|)` column is the P-values for each of these estimates. The null hypothesis being tested is whether the slope (or intercept) is zero.
+
+4. Write down the equation that relates the Body weight to the Heartgirth in your notebook.
+
+5. Think about what the P-value for the slope means. What would be your conclusion for this? Write some notes about this into your notebook. If you're not sure, discuss with those around you, or with Jonathan or the tutors.
+
+6. Think about what the $R^2$ value (at the bottom of the summary output) means for the relationship between body weight and heartgirth. If you don't know what $R^2$ refers to, try asking those around you, or google. Write some notes about this into your notebook.
+
+7. Suppose you wanted to predict the weight of a donkey. You measure the girth at the heart and find it is 110cm. What is your best guess as to the body weight?  *Hint: Use the equation to work this out.*
+
+8. Let's re-do part 7 using RStudio. We do this by creating a data frame with the data to predict on, and then use the `predict` function. Add a new code block to your notebook to do this:
+    ```{r, eval=FALSE}
+    # predict the weight of a donkey with heart girth 110cm
+    new_data <- data.frame(Heartgirth=110)
+    predict(lm1, new_data)
+    ```
+9. We can improve this prediction by taking into account how much variation we expect this prediction to have. The variation comes from two sources:
+    * The potential error in the line itself (we have just a sample, so our slope and intercept contain some error).
+    * The variation of individuals about the line (i.e. variation not explained by the model).
+
+    We can account for either the first or both of these in our predictions. Try the following:
+    ```
+    predict(lm1, new_data, interval="confidence")
+    predict(lm1, new_data, interval="prediction")
+    ```
+    The first accounts only for the error in the line itself. That is, it is a *confidence* interval for the **average** weight for all donkeys with heartgirth 110cm.  The second accounts for the error in the line plus the variation of individuals about the line. Thus, it gives a *prediction* interval for the weight of an **individual** donkey with heartgirth 110cm. This is the range we expect individuals to be in.
+
+## Exercise 3: Model diagnostics
+
+Recall that the assumptions of the linear model are **L**inearity, **I**ndependence, **N**ormality and **E**qual variance, with Linearity being the most important. Today we'll be looking at linearity and equal variance, both of which can be assessed using a plot of the residuals versus the fitted value.
+
+If linearity holds, we'd expect a plot of residuals vs fitted value to show no trend - the points should be scattered fairly constantly above and below the line - in particular we don't want to see a curve.
+
+If equal variance holds, we'd expect the scatter of points around the trend to be constant as the fitted value changes. You want it to be relatively even, and in particular not increasing from left to right (i.e. not spreading out).
+
+An example of a good plot (left) and bad plot (right) is shown below.
+
+```{r, fig.width=6, fig.height=2.5, echo=FALSE, dev='tikz', fig.align='center'}
+set.seed(2)
+x <- rnorm(100)
+y <- x + rnorm(100, sd=0.1)
+y2 <- exp(x/3 + rnorm(100, sd=0.1))
+par(mfrow=c(1,2), mar=c(4,4,2,2))
+plot(lm(y ~ x), which=1, sub.caption="")
+plot(lm(y2 ~ x), which=1, sub.caption="")
+```
+
+ You can see more examples using the interactive found here:
+ 
+ [**http://shiny.massey.ac.nz/jcmarsha/linearity**](http://shiny.massey.ac.nz/jcmarsha/linearity)
+
+Let's see how well our model for body weight does.
+
+1. Add a new code block to produce the diagnostic plot for the linear model you fit above using the following. The `which=1` below just tells RStudio to plot the first diagnostic plot which is the one we want.
+
+    ```{r, eval=FALSE}
+    # Residual vs fitted plot
+    plot(lm1, which=1)
+    ```
+
+2. Take a good look at the plot. Do you think linearity and equal variance hold? **add some notes about each assumption to your notebook**
+
+3. A transformation is one way to deal with the non-linearity of the model. Instead of modelling the body weight in terms of the heart girth directly, we could instead take log transforms of both body weight and heart girth to get rid of the curvature in the relationship.
+
+    ```{r, eval=FALSE}
+    # Let's try modelling the log of body weight versus log heartgirth to see if we
+    # get a better model.
+    lm2 <- lm(log(Bodywt) ~ log(Heartgirth), data=donkey)
+    summary(lm2)
+    ```
+
+4. Add the necessary code to produce the residual vs fitted plot for this new model. How is the assumption of linearity now? What about equal variance? *remember to add comments to your notebook*
+
+5. Compare the summary output of the two models you have. Which do you think is better? Why?
+
+6. Earlier we produced confidence and prediction intervals for a donkey with heartgirth equal to 110cm. Re-do these using your model. Remember that you'll need to exponentiate the resulting intervals using the `exp` function (Why?)
+
+7. How do these intervals compare with your previous ones? *Add some comments to your notebook about this*.

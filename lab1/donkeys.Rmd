@@ -1,0 +1,46 @@
+---
+title: "How to weigh a donkey in Morocco"
+author: "Joanne Blogs"
+output:
+  html_document: default
+---
+
+## Introduction
+
+In this notebook we'll look at data collected on 385 donkeys used to transport goods to market in Morocco. It is a sample of the data collected for *Estimation of the liveweight and body condition of working donkeys in Morocco* by R.A. Pearson and M. Ouassat, published in the Veterinary Record, 1996. The following variables are available.
+
+Variable   Description
+--------   -----------
+Sex        Sex (male/female)
+Age        Age (years)
+Bodywt     Weight (kg)
+Heartgirth Girth at the heart (cm)
+Umbgirth   Girth at the umbilicus (cm)
+Length     Length from elbow to buttocks (cm)
+Height     Height to the withers (cm)
+
+We start by reading the data in from the web and looking at the first few rows:
+
+```{r}
+library(ggplot2)
+donkey = read.csv("http://www.massey.ac.nz/~jcmarsha/227215/data/donkey.csv")
+head(donkey)
+```
+
+We notice that the donkey data has a bunch of variables. Our interest is predicting body weight (`Bodywt`) using the other, more easily measureable things. Use of the `summary` command will give us some idea of how each of the columns are distributed:
+
+```{r}
+summary(donkey)
+```
+
+From this we see that the Bodyweight is somewhere between 52 and 222 kg, but that doesn't tell us much if we want to predict the body weight for a particular donkey. For that, we'll need to take advantage of the relationship between body weight and the other measures.
+
+### Relationship between body weight and other measures
+
+Let's see if there is a relationship between body weight and some of the other measurements. e.g. to assess body weight versus height we can use:
+
+```{r}
+ggplot(donkey, aes(x=Height, y=Bodywt)) + geom_point()
+```
+
+It's clear there is an increasing relationship between Bodyweight and Height as might be expected. This suggests we could use a particular donkey's height to get a better idea of its body weight.
