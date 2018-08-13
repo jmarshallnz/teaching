@@ -1,0 +1,99 @@
+---
+title: "227.215 Biostats Lab 2"
+author: "Jonathan Marshall"
+output:
+  pdf_document: null
+  html_document: default
+graphics: yes
+---
+
+## Introduction ##
+
+In this lab we'll cover multiple linear regression, using the data on Moroccan donkeys. We'll also look at visualising model fit.
+
+We'll start by looking at the donkey data again, and then look at the data on petrels.
+
+## Exercise 1: Visualising the model
+
+Start by reloading your `donkeys.Rmd` from last time. In case you've misplaced it, you can download the one from the lab2 folder on stream.
+
+1. First off, click on the `Run` button the toolbar, and then `Run all chunks` to make sure we have everything ready to go.
+
+2. We'll visualise our linear model fits by using the `visreg` package. If you're using your own computer, you might first need to install this package using the `Packages` menu in the bottom right. Just click the install button and type in `visreg`, then install.
+
+3. Once you've installed the `visreg` package, start by visualising our first model. As we only have a single variable in the model (Heart girth) we can just call `visreg` directly on the model object:
+
+    ```{r, eval=FALSE}
+    # Visualise the model fit using the `visreg` package.
+    library(visreg)
+    visreg(lm1)
+    ```
+
+    Add the above to a new code block and run it. You should see that the fit is pretty good within the mid-range of `Heartgirth` but isn't so good at either end, where most of the observations are above the line rather than scattered on either side, due to the curvature. *Add a comment to your notebook about this*.
+
+4. Now try visualising the second linear model. You should notice that the x-axis is on the normal scale (even though we applied a log transformation in the model formula) but the y-axis is on the log scale. Nonetheless, the model fit should be a bit better, and will be curved. Notice that we've used a **linear** model to fit a curved relationship. The key is that the linearity of the model is in terms of the coefficients (each term can contain only one $\beta$ as a multiplier, and terms must be added together) not in terms of the way $y$ and $x$ are related. You can apply any transformation you like to $x$ and $y$ as needed to fit the data.
+
+5. You can also visualise the second linear model on the natural body weight scale by applying a transformation in the `visreg` command. Try the following:
+
+    ```{r, eval=FALSE}
+    visreg(lm2, trans=exp, partial=TRUE)
+    ```
+
+    The `trans=exp` uses exponentiation to transform the outcome variable. The `partial=TRUE` means that residuals (and thus data values) are plotted as points as well. You may want to change the y-axis label by adding `ylab="Body weight (kg)"` to the above command.
+
+    *Add some comments to your notebook about the model fit and how well you think it does. Notice that the confidence bands at the ends are larger than in the middle. Why is this?*
+
+## Exercise 2: Multiple regression ##
+
+In this exercise, we'll extend our linear model to take into account some of the other variables in the data.
+
+1. We'll start by adding in the umbilical girth to the first model (`lm1`). You can do that as follows.
+
+    ```{r, eval=FALSE}
+    # A linear model containing both heart and umbilical girths.
+    lm3 <- lm(Bodywt ~ Heartgirth + Umbgirth, data=donkey)
+    ```
+    
+2. Produce the model summary of this, and compare it to the model summary of `lm1`. You'll notice a few things.
+    * The estimate for `Heartgirth` will have changed.
+    * There is a new row for `Umbgirth`.
+
+3. Why do you think the estimate (and thus P-values etc) for `Heartgirth` changed?  What is the P-value for `Umbgirth` here testing? *add some notes to your notebook about this*.
+
+4. What is your conclusion about the relationship between `Bodywt`, `Heartgirth` and `Umbgirth`?
+
+5. Now add in both `Length` and `Height` to your linear model, and check the model summary. What is your conclusion about the relationship between `Bodywt` and `Height` ?
+
+6. Do a linear model relating `Bodywt` to only `Height`. You should find that `Height` is highly significant. Why is it not significant in the larger model?
+
+7. Try removing `Height` and adding `Sex` into your model. Recall that it didn't look as if there was an effect of sex when we saw the boxplot, or when we looked at a linear model containing just `Sex` in lectures. What is your conclusion now? Why would this be?
+
+8. Take a look at visualising your model with all four variables using `visreg`. You'll notice that it will produce 4 plots, one for each of the variables.
+
+    These are called **partial** residual plots. What they do is plot the relationship between the response and a single variable after holding all other variables constant (usually at their median). This allows you to see the effect of one variable after accounting for the others. Notice the relationship with `Height` isn't very strong. You can choose a particular variable by using the `xvar` variable. e.g. `visreg(lm4, xvar="Length")`.
+
+9. Take a look at the model diagnostics for the model with all covariates. Look at all 4 plots using `plot(lm4)`. *Add some notes to your R notebook as to whether the model assumptions are satisfied*.
+
+10. Compile your notebook and make sure it includes everything you want it to. You'll be wanting to refer back to it later.
+
+## Exercise 3
+
+In this exercise we'll look at the Petrels dataset from semester 1. Recall that last semester we found that there was an effect of sex on right wing lengths, with male birds generally being larger, and also there was an effect of area, with those in area 5 in particular being larger.
+
+**A question we couldn't answer last semester was whether the area effect we saw last semester was genuine, or whether it could just be due to more males in Area 5 compared to other areas.**
+
+1. Start by downloading the `petrels.Rmd` document from Stream and loading it into RStudio. Then run the first code block that is loading the libraries we'll need (`ggplot2` and `visreg`) reading the data in, and converting the `Area` variable to a factor.
+
+2. Remind yourself as to how many birds were in each area by producing a table of `Sex` vs `Area`. Remember that `table(data$col1, data$col2)` can be used for this, where `data` is the name of your dataset, and `col1` and `col2` are the column names you wish to tabulate.
+
+3. Remind yourself what the differences were in areas and in sex by doing plots of the right wing length versus sex and area.
+
+4. Produce a linear model for right wing length using `Sex` as a covariate. Take a look at the summary output. What is your conclusion?
+
+5. Now produce a linear model for right wing length using `Area` as a covariate. Recall that the overall P-value can be used to assess whether *any* of your covariates (in this case, just the area effect) is important or not. What is your conclusion?
+
+6. Next produce a linear model with both `Sex` and `Area` in it. What is your conclusion from this model? Which area has the largest and smallest wing lengths after accounting for sex?
+
+7. Try visualising your model using `visreg`. Check that the results make sense. You might want to compare your results from the model containing both Sex and Area with the one containing just Area - how has including Sex in the model altered the results?
+
+8. Take a look at the model diagnostics. Are the model assumptions satisifed?

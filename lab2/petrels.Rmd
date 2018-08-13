@@ -1,0 +1,29 @@
+---
+title: "Lab 2: Petrels"
+author: "CHANGE ME!"
+output: html_document
+---
+
+## Introduction
+
+In this notebook, we take another look at the data set on bycatch White-chinned Petrel *Procellaria aequinoctialis* caught predominantly by bottom longliners, tuna longliners, squid trawlers and general fish trawlers between 2000 and 2003.
+
+We start by reading the data in, loading the `ggplot2` and `visreg` packages, and convert the `Area` variable to a factor.
+
+```{r}
+library(ggplot2)
+library(visreg)
+petrels = read.csv("http://www.massey.ac.nz/~jcmarsha/227215/data/petrels.csv")
+petrels$Area = factor(petrels$Area)
+```
+
+In the following code chunk we remind ourselves what the distribution of `Sex` and `Area` are by producing a table, and also look at how the `R.Wing.Lth` changes with each of these variables using boxplots.
+
+```{r}
+```
+
+## Linear modelling
+
+Last semester we saw that there were differences in the size of birds between the areas - in particular, Area 5 had the largest birds. But, we also noticed that Area 5 also had the larger proportion of male birds, and male birds were larger than female. Thus, the size difference in Area 5 might just be down to having more male birds.
+
+Today, we'll see if this is true, but modelling the data so that we can see the affect of area after accounting for the differences in sex.
