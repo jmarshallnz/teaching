@@ -91,7 +91,7 @@ petrels <- read.csv("http://www.massey.ac.nz/~jcmarsha/227212/data/petrels.csv")
 petrels$Area <- as.factor(petrels$Area)
 petrels$Sex <- as.factor(petrels$Sex)
 par(mar=c(5,5,1,0), cex.axis=1.5, cex.lab=1.5)
-plot(R.Wing.Lth ~ Area, data=petrels, ylab="Right wing length (cm)")
+plot(R.Wing.Lth ~ Area, data=petrels, ylab="Right wing length (mm)")
 ```
 
 ## Example: Petrels {.fragile .smaller}
@@ -105,9 +105,9 @@ summary(mod)
 
 - The overall F-test's P-value suggests average right wing length differs between areas.
 
-- Summary table suggests that Area 5 has largest birds, having 4.14cm larger ring wing lengths compared to those in Area 1.
+- Summary table suggests that Area 5 has largest birds, having 4.14mm larger ring wing lengths compared to those in Area 1.
 
-- Birds in Area 6 are smallest, having 9.27 cm smaller right wing lengths compared to those in Area 1.
+- Birds in Area 6 are smallest, having 9.27 mm smaller right wing lengths compared to those in Area 1.
 
 - We can get confidence intervals for the mean using the predict function
 
@@ -209,7 +209,7 @@ co <- round(coef(mod2),2)
 
 - From ANOVA table, both `Area` and `Sex` are important to the right wing length.
 
-- From summary table, we see that males have `r co["SexMale"]`cm larger right wing length than females **after accounting for differences between areas**.
+- From summary table, we see that males have `r co["SexMale"]`mm larger right wing length than females **after accounting for differences between areas**.
 
 ```{r, echo=FALSE}
 mf = tapply(petrels$R.Wing.Lth, petrels$Sex, mean, na.rm=TRUE)
@@ -218,23 +218,23 @@ ar = tapply(petrels$R.Wing.Lth, petrels$Area, mean, na.rm=TRUE)
 ar = round(ar[5]-ar[1],2)
 ```
 
-- This doesn't mean that male birds have a `r co["SexMale"]`cm larger right wing length than females.
+- This doesn't mean that male birds have a `r co["SexMale"]`mm larger right wing length than females.
 
 - In fact
     ```{r}
     tapply(petrels$R.Wing.Lth, petrels$Sex, mean, na.rm=TRUE)
     ```
-    they're `r mf`cm larger across all areas.
+    they're `r mf`mm larger across all areas.
 
 ## Petrels: Conclusion
 
-- Similarly, birds in area 5 have `r co["Area5"]`cm larger right wing length than those in area 1 **after accounting for differences in sex**.
+- Similarly, birds in area 5 have `r co["Area5"]`mm larger right wing length than those in area 1 **after accounting for differences in sex**.
 
 - Again,
     ```{r}
     tapply(petrels$R.Wing.Lth, petrels$Area, mean, na.rm=TRUE)
     ```
-    they're `r ar`cm larger across both sexes.
+    they're `r ar`mm larger across both sexes.
 
 ## Summary
 
@@ -351,13 +351,13 @@ co3=round(coef(mod3),2)
 
 - While the interaction term isn't significant (thus all the interaction coefficients could be zero in the population) let's assess what each row represents.
 
-- The Intercept contains the first levels of each factor, so females in area 1 have on average `r co3["(Intercept)"]`cm right wing lengths.
+- The Intercept contains the first levels of each factor, so females in area 1 have on average `r co3["(Intercept)"]`mm right wing lengths.
 
-- The `SexMale` term is the difference to the baseline, so this describes how males in area 1 differ. They have right wing lengths `r co3["SexMale"]`cm larger.
+- The `SexMale` term is the difference to the baseline, so this describes how males in area 1 differ. They have right wing lengths `r co3["SexMale"]`mm larger.
 
-- The `Area2` term is the difference to the baseline, so this describes how females in area 2 differ from those in area 1. Their right wing lengths are `r -co3["Area2"]`cm smaller.
+- The `Area2` term is the difference to the baseline, so this describes how females in area 2 differ from those in area 1. Their right wing lengths are `r -co3["Area2"]`mm smaller.
 
-- The `SexMale:Area2` is the differential effect of males in area 2 over and above the `SexMale` and `Area2` effects. Compared with females in area 1, males in area 2 are $`r co3["SexMale"]`+`r co3["Area2"]`+`r co3["SexMale:Area2"]`=`r sum(co3[c("SexMale","Area2","SexMale:Area2")])`$cm larger.
+- The `SexMale:Area2` is the differential effect of males in area 2 over and above the `SexMale` and `Area2` effects. Compared with females in area 1, males in area 2 are $`r co3["SexMale"]`+`r co3["Area2"]`+`r co3["SexMale:Area2"]`=`r sum(co3[c("SexMale","Area2","SexMale:Area2")])`$mm larger.
 
 ## Visualising models using visreg
 
@@ -474,19 +474,6 @@ plot(Weight ~ Age, data=calf, col=Breed, pch=as.numeric(Treatment), xlab="Age (d
 legend('topleft', legend=levels(calf$Breed), col=1:3, pch=1, title="Breed")
 legend('bottomright', legend=levels(calf$Treatment), pch=1:2, title="Treatment")
 ```
-
-## Example: Calf weights
-
-- Want to see if high vs low treatment has an effect on weight gain.
-
-- Need to account for breed, and initial weight.
-
-- Weight gain is increase in weight as age increases. How does the slope change
-with treatment?
-
-- Slope can probably also differ by breed as well.
-
-- Need interactions for Age and Treatment and Age and Breed.
 
 ## Example: Calf weights
 
