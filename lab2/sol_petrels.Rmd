@@ -1,0 +1,88 @@
+---
+title: "Lab 2: Petrels"
+author: "CHANGE ME!"
+output: html_document
+---
+
+## Introduction
+
+In this notebook, we take another look at the data set on bycatch White-chinned Petrel *Procellaria aequinoctialis* caught predominantly by bottom longliners, tuna longliners, squid trawlers and general fish trawlers between 2000 and 2003.
+
+We start by reading the data in, loading the `ggplot2` and `visreg` packages, and convert the `Area` variable to a factor.
+
+```{r}
+library(ggplot2)
+library(visreg)
+petrels = read.csv("http://www.massey.ac.nz/~jcmarsha/227215/data/petrels.csv")
+petrels$Area = factor(petrels$Area)
+```
+
+In the following code chunk we remind ourselves what the distribution of `Sex` and `Area` are by producing a table, and also look at how the `R.Wing.Lth` changes with each of these variables using boxplots.
+
+```{r}
+```
+
+## Linear modelling
+
+Last semester we saw that there were differences in the size of birds between the areas - in particular, Area 5 had the largest birds. But, we also noticed that Area 5 also had the larger proportion of male birds, and male birds were larger than female. Thus, the size difference in Area 5 might just be down to having more male birds.
+
+Today, we'll see if this is true, but modelling the data so that we can see the affect of area after accounting for the differences in sex.
+
+
+In this notebook we'll take another look at data on Petrels that we looked at in semester 1
+
+See how many birds are in each area by sex:
+```{r}
+table(petrels$Sex, petrels$Area)
+```
+
+We notice that there is a higher proportion of males in area 5 compared to the other areas.
+
+A plot of right wing length vs sex and area
+```{r}
+par(mfrow=c(1,2), mar=c(4,4,2,2))
+plot(R.Wing.Lth ~ Sex, data=petrels)
+plot(R.Wing.Lth ~ Area, data=petrels)
+```
+Males are larger than females on average, and area 5 seems to have larger birds compared to other areas.
+
+A linear model for right wing length in terms of sex
+```{r}
+m1 <- lm(R.Wing.Lth ~ Sex, data=petrels)
+summary(m1)
+```
+Our conclusion would be that males are about 3.1mm larger on average than females, which are 385.2mm on average, and that there is quite a bit of evidence for this (P=0.0006)
+
+A model for right wing length in terms of area
+```{r}
+m2 <- lm(R.Wing.Lth ~ Area, data=petrels)
+summary(m2)
+```
+The overall P-value is small, suggesting something in the model is important, so Area must be important to right wing length. We see that Area 5 is largest and area 6 is smallest.
+
+A model with both Sex and Area
+```{r}
+m3 <- lm(R.Wing.Lth ~ Sex + Area, data=petrels)
+summary(m3)
+```
+
+Area 5 has largest and area 6 smallest wing lengths after accounting for sex.
+
+Visualising the model:
+
+```{r}
+par(mfrow=c(1,3), mar=c(4,4,2,2))
+library(visreg)
+visreg(m3)
+visreg(m2)
+```
+
+By the looks there is no difference in the effect of Area between the two models, so accounting for Sex doesn't change the area effects. This suggests that sex is probably not explaining the area effect, so our concern about area 5 having more males is probably not an issue.
+
+Model diagnostics
+```{r}
+par(mfrow=c(2,2), mar=c(4,4,2,2))
+plot(m3)
+```
+
+These look OK - no major evidence of non-linearity or non-constant variance, and normality looks OK (plus, large dataset!), so the model assumptions are likely fine.
