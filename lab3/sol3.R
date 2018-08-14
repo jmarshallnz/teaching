@@ -1,7 +1,6 @@
 #' ---
 #' title:  227.215 Biostats, Lamb birthweights
 #' author: Jonathan Marshall
-#' date:   16 August 2016
 #' ---
 
 #' ## Introduction
@@ -11,25 +10,6 @@
 births <- read.csv("http://www.massey.ac.nz/~jcmarsha/227215/data/birthweight.csv")
 head(births)
 
-#' ## Assessing whether the experiment is balanced
-#' 
-#' Each row in the data represents a lamb, so there are multiple rows for any ewe that has twins.
-#' 
-#' We start by pulling out just the columns that apply to the ewes, storing the result.
-ewe_columns = births[, c("DamID", "Feed", "Shorn")]
-nrow(ewe_columns)
-#' Next, we run `unique` on it to pull out only the unique rows, storing the result.
-ewes = unique(ewe_columns)
-nrow(ewes)
-#' Notice we only have 134 now, instead of the 204 we had previously. We can now do the table:
-table(ewes$Feed, ewes$Shorn)
-#' The experiment is almost perfectly balanced (same number of ewes in each treatment combination) with
-#' just two groups being 1 ewe different to the others.
-#' 
-#' The advantage of a balanced experiment is that the order of the factors in a linear model doesn't affect
-#' the p-values given in the ANOVA table. It's not a huge deal, but if you can make the experiment balanced
-#' it can help.
-#' 
 #' ## Exploratory data analysis
 #' 
 #' Plot of birthweight versus rank, sex, feed and shorn
@@ -39,44 +19,41 @@ plot(BirthWeight ~ Sex, data=births)
 plot(BirthWeight ~ Feed, data=births)
 plot(BirthWeight ~ Shorn, data=births)
 #' These plots suggest reasonable effects of rank and sex, but less clear effects of feed and shorn.
-
-#' Recall that the linear model assumptions are in terms of the residuals. We can often evaluate whether
-#' the hold directly for a linear model containing factor (categorical) variables, as the model is just
-#' fitting a mean in each group, which will usually be about where the median is (particularly if the
-#' assumptions hold!) and thus the distribution of observations within each group (i.e. within-group variation)
-#' is the distribution of the residuals. The model is accounting only for between-group variation.
-#' 
-#' The birthweight looks to be distributed reasonably symmetric within each level of the other factors, suggesting
-#' that the residuals (represented by the within-group variation) are close to being normally distributed.
-#' 
-#' The spread is pretty similar as well, suggesting the constant variance assumption will be met.
 #'
-#' The linearity assumption is OK as we're dealing with grouped data so any 'trends' are just differences in group means
-#' which means residuals within each group are always centered at 0 (remember: trend is residuals is due to the residuals not
-#' being centered at zero across all values of the covariates.)
+#' It's possible that we can't see much difference in the feed treatment as there is
+#' too much within-treatment variation due to the other variables like rank and sex.
 #' 
-#' The independence assumption can't be assessed by this plot. The way the data were collected the ewes were randomly assigned
-#' to treatment group and shorn group. The twin weights are likely to be correlated though, so perhaps the independence of residuals
-#' may not quite hold there.
+#' Plotting subsets show us this might be right
+par(mfrow=c(2,2), mar=c(3,3,2,2))
+plot(BirthWeight ~ Feed, data=subset(births, Rank == 'Twin'), main="Twins")
+plot(BirthWeight ~ Feed, data=subset(births, Rank == 'Single'), main="Singles")
+plot(BirthWeight ~ Feed, data=subset(births, Sex == 'Male'), main="Males")
+plot(BirthWeight ~ Feed, data=subset(births, Sex == 'Female'), main="Females")
+
+#' Using `ggplot2` gives nicer results. The default is to do a scatterplot
+#' which isn't much use, but using `geom='boxplot'` converts to boxplots.
+library(ggplot2)
+qplot(Feed, BirthWeight, data=births)
+qplot(Feed, BirthWeight, data=births, geom='boxplot')
+
+#' The main advantage of using ggplot is that you can facet over multiple
+#' plots quite easily. e.g. to facet based on rank or sex. Note that the scales
+#' are the same for all facets, so they're more easily comparable than the
+#' technique with `subset` used above.
+qplot(Feed, BirthWeight, data=births, geom='boxplot') + facet_wrap(~Rank)
+qplot(Feed, BirthWeight, data=births, geom='boxplot') + facet_wrap(~Sex)
+
+#' We can also facet on two variables at once, producing a grid of sex (rows)
+#' by rank (columns)
+qplot(Feed, BirthWeight, data=births, geom='boxplot') + facet_grid(Sex~Rank)
+
+#' Our conclusion is there is an effect of feed, but it's only really noticeable
+#' once we first account for rank and sex. The HM feed treatment seems to result
+#' in the lowest weight lambs.
 #'
 #' ## Statistical modelling
 #' 
-#' A linear model assessing whether shearing the ewe is important for lamb birthweight. The linear model equation would be
-#' $$
-#' \mathsf{Birthweight} = \alpha + \beta z
-#' $$
-#' where $z$ is an indicator variable with $z=1$ when the ewe was shorn, and $z=0$ when unshorn. This gives 
-#' $\mathsf{Birthweight}=\alpha$ when unshorn, and $\mathsf{Birthweight} = \alpha + \beta$ when shorn, so $\beta$
-#' will be the difference between unshorn and shorn.
-lm1 <- lm(BirthWeight ~ Shorn, data=births)
-anova(lm1)
-summary(lm1)
-#' The P-value of 0.14 from the ANOVA table suggests shorn is not important - i.e. there's insufficient evidence from this model
-#' to suggest a difference in birthweight of lambs to shorn and unshorn ewes. At this point we don't need to bother looking
-#' at the summary table: the summary table tells us about where the difference in groups lie, but we know there's no difference
-#' from the ANOVA table.
-
-#' A linear model assessing whether ewe nutrition is important for lamb birthweight. The linear model equation would be
+##' A linear model assessing whether ewe nutrition is important for lamb birthweight. The linear model equation would be
 #' $$
 #' \mathsf{Birthweight} = \alpha + \beta_{HM} z_{HM} + \beta_{MH} z_{MH} + \beta_{MM} z_{MM}
 #' $$
@@ -94,7 +71,7 @@ summary(lm2)
 #' positive is due to the HM and HH groups being the most distant possible pair we could look at: All other pairs of treatments are
 #' closer together than this one. It's not really a surprise that if we only look at the most distinct groups that there's
 #' evidence for a difference: We're being biased if we consider this is important while ignoring all the other pairs that show no difference!)
-
+#'
 #' A linear model containing all variables is below.
 lm3 <- lm(BirthWeight ~ Sex + Rank + Feed + Shorn, data=births)
 anova(lm3)
@@ -134,9 +111,24 @@ visreg(lm3)
 #' Notice this tells us the same thing as we got from the summary table: The HM group is lowest with the others
 #' somewhat similar to the HH group. Males are heavier, as are singles, and the shearing treatment seems to have
 #' a positive effect on weight. The blue lines are the model fit, and the grey bars are uncertainty (95\%).
-
+#'
+#' ## Interactions and model diagnostics
+#' 
+#' Adding an interaction between Shorn and Rank allows us to assess if the effect
+#' of shearing differs between those having twins and those having singles.
+lm4 <- lm(BirthWeight ~ Sex + Rank + Feed + Shorn + Rank:Shorn, data=births)
+anova(lm4)
+#' The `Rank:Shorn` variable is not significant from the anova table, so we'd
+#' conclude there isn't much evidence for the effect of shearing differing
+#' between singles and twins. We can see this in the visualisation as well
+visreg(lm4, "Shorn", by="Rank")
+#' Notice the Yes vs No differences are about the same in each plot, especially
+#' when considering their uncertainties. This confirms what the anova table was
+#' telling us. You can also do an overlay plot for this which shows the same thing
+visreg(lm4, "Shorn", by="Rank", overlay=TRUE)
+#' Model diagnostics are shown below
 par(mfrow=c(2,2), mar=c(4,4,2,2))
-plot(lm3)
+plot(lm4)
 #' We can see from the model diagnostics that
 #'  - There is no trend in the residuals vs fitted plot suggesting
 #'    the assumption of linearity is OK (residuals have mean 0 regardless of covariates).
@@ -159,4 +151,5 @@ plot(lm3)
 #'  shearing treatments don't apply equally to the twins (though I'm not sure how this would happen from a
 #'  biological perspective!)
 #'  
-#'  From this, we'd conclude the model assumptions are likely to hold, so our conclusions are likely OK.
+#'  From this, we'd conclude the model assumptions are likely to hold, with the possible exception of
+#'  independence. Our conclusions from the model are probably OK.

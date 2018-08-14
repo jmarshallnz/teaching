@@ -1,7 +1,6 @@
 ---
 title: "227.215 Biostats Lab 3"
 author: "Jonathan Marshall"
-date: "15 August 2016"
 output:
   pdf_document: null
   html_document: default
@@ -10,9 +9,7 @@ graphics: yes
 
 ## Introduction ##
 
-In this lab we'll look at a set of data on the birth weight of lambs, based on the data from a previous year's project. This will therefore be good practice for your project this year!
-
-Lamb birth weight is the single largest influence on survival of lambs in the first few days of life.  In this lab we'll be looking at a dataset on the birth weight of lambs collected during a trial at Massey in the late 1990s.
+In this lab we'll look at a set of data on the birth weight of lambs, based on the data from a previous year's project, taken from a trial at Massey in the late 1990s. This will therefore be good practice for your project this year!
 
 Mixed-aged, Border Leicester x Romney ($n=160$) ewes were randomly allocated after preganancy diagnosis to a factorial experiment involving two shearing treatments (shorn on day 70 vs not); two pregnancy ranks (single or twin); and four feeding regimes (HH, HM, MH, MM), where the first letter refers to feed during days 70-101 of pregancy, and the second during days 102-140.  The M (maintenance) feeding group were fed at a level calculated to maintain maternal conceptus-free weight, while the H (high) feeding group were fed to gain around 100g per day above this during the relevant period.
 
@@ -74,7 +71,7 @@ by the variables we know will make a difference. e.g. we could do
     library(ggplot2)
     qplot(Feed, BirthWeight, data=births)
     ```
-    You should get scatterplots. This is because the default 'geometry' to use is points. You can change this by adding `geom='boxplot'` to the `qplot` command to get boxplots.
+    You should get scatterplots. This is because the default 'geometry' to use is points. You can change this by adding `geom='boxplot'` to the `qplot` command to get boxplots. Other options are `geom='line'` for line plots and there are many more.
 
 6. The `ggplot2` library then allows us to split the data over multiple plots by 'adding on' the `facet_wrap` or `facet_grid` commands. Try:
     ```{r, eval=FALSE}
@@ -117,3 +114,24 @@ In this exercise we'll look at analysing the average birthweight with a linear m
     You can optionally add `overlay=TRUE` to overlay the effects rather than using side by side, and `gg=TRUE` for using the ggplot2 library instead.
     
 3. Check the model diagnostics for your model with the interaction. Are the model assumptions met?
+
+## Exercise 5: Remember to Vote!
+
+Lots of younger people are not enrolled to vote, while old people always vote. So remember to register and vote in the election this year.
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.width=6, fig.height=3, dev='tikz'}
+e <- read.csv("~/Downloads/electorate_default.csv", stringsAsFactors=FALSE)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(scales)
+d <- e %>% mutate(Total = as.numeric(gsub(",","",Est.Eligible.Population)),
+             Enrolled = as.numeric(gsub(",","",Total.Enrolled))) %>% select(Age, Total, Enrolled) %>% gather("Which", "Population", Total, Enrolled, convert=TRUE) %>%
+  filter(Age != "Total") %>% mutate(Which = factor(Which, levels=c("Total", "Enrolled")))
+ggplot(d) + geom_col(aes(x=Age, y=Population, fill=Which), position='dodge') +
+  scale_y_continuous(labels=comma) + theme_bw(base_size=10) + theme(legend.position="top", legend.title=element_blank()) + scale_fill_manual(values=c("grey70", "grey30"))
+```
+
+If you aren't already on the electoral role (and are a permanent resident or citizen), the easiest way to make sure you can vote is to rock up to an advanced voting place (on concourse between 11th and 22nd September). You can register and place a special vote all within 10 minutes or so.
+
+You can't register on election day, so make sure you do so beforehand!
