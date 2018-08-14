@@ -36,7 +36,7 @@ summary(donkey)
 
 From this we see that the Bodyweight is somewhere between 52 and 222 kg, but that doesn't tell us much if we want to predict the body weight for a particular donkey. For that, we'll need to take advantage of the relationship between body weight and the other measures.
 
-### Relationship between body weight and other measures
+## Relationship between body weight and other measures
 
 Let's see if there is a relationship between body weight and some of the other measurements. e.g. to assess body weight versus height we can use:
 
@@ -64,7 +64,7 @@ ggplot(donkey, aes(x=Sex, y=Bodywt)) + geom_boxplot()
 
 From the above we can see that there is increasing relationships between all the measures and body weight, as might be expected. Heartgirth seems to have the strongest relationship, as the points are most clustered around the trend. The relationship is perhaps a little bit curved. The boxplot for sex suggests little difference between the bodyweights for the different sexes.
 
-### Linear modelling of body weight
+## Linear modelling of body weight
 
 The below code block estimates a linear trend between body weight and heartgirth
 
@@ -100,7 +100,7 @@ predict(lm1, new_data, interval="prediction")
 
 The first prediction (with **confidence** interval) only accounts for the uncertainty in the mean body weight - recall the linear model equation is for the mean bodyweight across donkeys, not for an individual. Thus, you can consider this an estimate for the average bodyweight of donkeys with heartgirth 110cm. The second additionally incorporates the variation of individual donkeys around the average trend: You can consider it a **prediction** interval for an individual donkey with heartgirth 110cm. Obviously this one is wider.
 
-### Model diagnostics
+## Model diagnostics
 
 The residuals versus fitted plot is below.
 
@@ -145,7 +145,7 @@ We note the predicted weight is a bit lower, and the uncertainty ranges are a bi
 
 # Lab 2
 
-### Visualising the model
+## Visualising the model
 
 Visualise the model fit using the `visreg` package
 
@@ -176,7 +176,7 @@ The above plot shows the data on the natural scale and better allows us to see t
 which is slightly curved up. Notice the trend now captures (i.e. goes through) the values at the lower and upper
 heartgirths now. We'd expect our predictions for animals with such heartgirths to be considerably better.
 
-### Multiple regression
+## Multiple regression
  
 A linear model containing both heart and umbilical girths.
 ```{r}
@@ -204,20 +204,16 @@ summary(lm5)
 
 We see Height is related to body weight. The difference is that in the previous model we'd accounted for a lot of the variation in bodyweight already by using heart and umbilical girths and length. Over and above those, the height didn't provide additional useful information. But absent of the other measures, height is ofcourse useful!
 
-What about `Sex`? Recall that `Sex` wasn't important when we looked at the overall plots of weight vs sex last time (there was little difere)
-
-asn't important when we looked at the plots last time (there was little difference in the weight between male and femal eReplacing `Height` and replacing it with `Sex` gives:
+What about `Sex`? Recall that `Sex` wasn't important when we looked at the overall plots of weight vs sex last time. Replacing `Height` with `Sex` in `lm4` gives:
 
 ```{r}
 lm6 <- lm(Bodywt ~ Heartgirth + Umbgirth + Length + Sex, data=donkey)
 summary(lm6)
 ```
 
-We see that Sex is related to body weight after accounting for the other variables,
-while Sex wasn't important in the boxplots we looked at, or in the model we looked
-at in lectures. Reason for this is once we have explained most of what contributes
-to weight (i.e. body size) the things that contribute a bit less, such as Sex can
-now be important for explaining the rest of the variation in weight.
+We see that Sex is related to body weight after accounting for the other variables, while Sex wasn't important in the boxplots we looked at, or in the model we looked at in lectures. Reason for this is once we have explained most of what contributes to weight (i.e. body size) the things that contribute a bit less, such as Sex can now be important for explaining the rest of the variation in weight.
+
+## Visualising the model
 
 Let's visualise this model:
 ```{r}
@@ -225,28 +221,34 @@ par(mfrow=c(2,2), mar=c(4,4,2,2))
 visreg(lm6)
 ```
 
-Here we can see that heartgirth, umbilical girth and length all result in increasing
-weights, and males are a bit heavier than females.
+Here we can see that heartgirth, umbilical girth and length all result in increasing weights, and males are a bit heavier than females.
+
+## Model diagnostics
 
 And finally, assess model diagnostics
+
 ```{r}
 par(mfrow=c(2,2), mar=c(4,4,2,2))
 plot(lm6, add.smooth=FALSE)
 ```
-We can see that linearity and equal variance don't seem to hold very well. Note that
-the `add.smooth=FALSE` here turns off the red curves which can be a bit better for
-judging the residual plots. Ideally we should include a transformation.
+
+We can see that linearity and equal variance don't seem to hold very well. Note that the `add.smooth=FALSE` here turns off the red curves which can be a bit better for judging the residual plots. Ideally we should include a transformation.
 e.g. using a log transform for bodyweight is better:
+
 ```{r}
 lm7 <- lm(log(Bodywt) ~ Heartgirth + Umbgirth + Length + Sex, data=donkey)
 par(mfrow=c(2,2), mar=c(4,4,2,2))
 plot(lm7, add.smooth=FALSE)
 ```
+
 And this also explains about 1% more of the variation:
+
 ```{r}
 summary(lm7)
 ```
+
 The visreg plots look as though the model is fitting near the ends a bit better too
+
 ```{r}
 par(mfrow=c(2,2), mar=c(4,4,2,2))
 visreg(lm7, trans=exp, ylab="Bodyweight", partial=TRUE)
