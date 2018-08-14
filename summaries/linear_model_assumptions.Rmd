@@ -2,7 +2,10 @@
 title: "Linear model assumptions"
 author: "Jonathan Marshall"
 date: "27 July 2015"
-output: pdf_document
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
 graphics: yes
 ---
 
@@ -31,7 +34,7 @@ Notice that this equation is still 'linear' in the sense that the model coeffici
 
 Examples of good and bad residuals versus fitted values plots are shown below. The plot on the left is an example where there is no trend, while the plot on the right shows curvature. We'd want to fix up the plot on the right before we go further with the model.
 
-```{r, echo=FALSE, dev='tikz', fig.align='center', fig.width=6.5, fig.height=3}
+```{r, echo=FALSE, fig.align='center'}
 set.seed(6)
 n <- 50
 x <- rnorm(n)
@@ -42,11 +45,17 @@ plot(lm(y1 ~ x), which=1)
 plot(lm(y2 ~ x), which=1)
 ```
 
+You can see more examples using the interactive below, where you can add curvature (non-linearity) and see how the residuals vs fitted plot changes.
+
+<iframe width=800 height=540 src='http://it056230.massey.ac.nz:8080/apps/227215/shiny/linearity' />
+
+[**http://it056230.massey.ac.nz:8080/apps/227215/shiny/linearity**](http://it056230.massey.ac.nz:8080/apps/227215/shiny/linearity)
+
 ### Independence
 
 The independence assumption states that the residuals should be independent. Thus, the value that one residual takes should not depend on other residuals. An obvious example where this often does not hold is in time-series data, where the same measurement has been taken consecutively over time. In such a case you would expect the measurement time time $t$ to be more similar to the measurement at the previous time $t-1$ compared to a measurement much earlier. Depending on how well the linear model equation accounts for this, the dependence between $y$ observations may (and often does) translate into dependence between the residuals. This is often seen as a 'run' of positive or negative residuals in a row on a plot of residuals versus time, such as the plot below, where there are several runs of positive and negative residuals. This is called **auto-correlation** and is best fixed by fitting a model that accounts for this dependence within the residuals (part of a suite of models known as **Generalised linear models**).
 
-```{r, echo=FALSE, dev='tikz', fig.align='center', fig.width=4, fig.height=3}
+```{r, echo=FALSE, fig.align='center'}
 rho=0.9
 t <- 1:n
 eta <- rnorm(n) * 0.05
@@ -74,7 +83,7 @@ We assess the normality assumption of the residuals by doing a Normal quantile-q
 
 It should be noted that because of the **central limit theorem** deviances from normality aren't too much of a problem unless they're really strong or unless the sample size is small.  A large sample size will mean that the estimates of our coefficients will follow the appropriate $t$-distributions even if the residuals aren't normal (as long as they're not really far off!)
 
-```{r, echo=FALSE, dev='tikz', fig.align='center', fig.width=6.5, fig.height=3}
+```{r, echo=FALSE, fig.align='center'}
 y4 <- exp(5-1.5*x + rnorm(n)*0.03)
 par(mfrow=c(1,2))
 plot(lm(y1 ~ x), which=2)
@@ -85,7 +94,7 @@ plot(lm(y4 ~ x), which=2)
 
 The assumption that the residuals have common variance means that the variance shouldn't change as $Y$ or $X$ changes. This allows the common residual variance to be estimated from the residual sum of squares, and this is used in the formulae for standard errors. You typically assess this assumption using the Residual vs Fitted values plot (or the Scale-location plot). The thing to look for is that the residuals should lie in a band about 0 that has about the same width all the way across the range of fitted values. If the residuals look as though they 'fan out' then it is likely that a transformation may be needed. A log transform often does the trick, but there are other methods for dealing with this, particularly when we know why the residuals are behaving this way (such as **weighted regression** which we won't look into further!) Examples of good (right) and bad (left) are below.
 
-```{r, echo=FALSE, dev='tikz', fig.align='center', fig.width=6.5, fig.height=3}
+```{r, echo=FALSE, fig.align='center'}
 eps <- rnorm(n) * 1:n / 10
 x3 <- 1:n
 y5 <- x3 + eps
