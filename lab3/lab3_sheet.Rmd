@@ -27,54 +27,46 @@ Variable      Description
 
 Start by downloading the `lab3_lambs.Rmd` document from Stream and loading it into RStudio. Then run the first code block that is loading the libraries we'll need (`ggplot2` and `visreg`) and reading the data in.
 
-    ```{r, eval=FALSE}
-    #' Read in the lamb birthweight data
-    births <- read.csv("http://www.massey.ac.nz/~jcmarsha/227215/data/birthweight.csv")
-    head(births)
-    ```
+## Exercise 1: Exploratory analysis of birthweight data
 
-## Exercise 2: Exploratory analysis of birthweight data
+1. In the next block of code you'll see some code to produce a plot of `BirthWeight` versus `Rank`. Run that code block. Is there an effect of rank? Add a note or two to your notebook.
 
-1. Add some code and comments to your R script to produce some plots of `BirthWeight` versus the covariates `Rank`, `Sex`, `Feed` and `Shorn`.
+2. Add a new codeblock to produce graphs of `BirthWeight` versus `Sex`, `Feed` and `Shorn` - you can use the same code as was done for `Rank`. Is there differences in birth weight between the various groups? Why do you think you can't see much difference between the `Feed` treatment groups in these data?
 
-2. Why do you think you can't see much difference between the `Feed` treatment groups in these data?
-
-3. To try and better see what is going on, we could look at subsetting the data
-by the variables we know will make a difference. e.g. we could do
+3. To try and better see what is going on, we could look at subsetting the data by the variables we know will make a difference. e.g. we could do separate plots for twins and singles. Try this out. You might want to also look at male and female as well.
 
     ```{r, eval=FALSE}
-    plot(BirthWeight ~ Feed, data=subset(births, Rank == 'Twin'))
-    plot(BirthWeight ~ Feed, data=subset(births, Rank == 'Single'))
+    ggplot(subset(births, Rank == 'Twin'), aes(x=Feed, y=BirthWeight)) + geom_boxplot()
+    ggplot(subset(births, Rank == 'Single'), aes(x=Feed, y=BirthWeight)) + geom_boxplot()
     ```
 
-4. Try doing plots for male and female as well.
+4. A better way to do this is to utilise "small multiples" which share a common scale by facetting. e.g. try:
 
-5. An even better way to do this is to utilise the `ggplot2` library to produce "small multiples" which share a common scale. It works a little different to the standard plotting, in that the first two parameters are `x` and `y` rather than using a formula `y ~ x`. e.g. try:
     ```{r, eval=FALSE}
-    library(ggplot2)
-    qplot(Feed, BirthWeight, data=births)
+    ggplot(births, aes(x=Feed, y=BirthWeight)) + geom_boxplot() + facet_wrap(~Rank)
     ```
-    You should get scatterplots. This is because the default 'geometry' to use is points. You can change this by adding `geom='boxplot'` to the `qplot` command to get boxplots. Other options are `geom='line'` for line plots and there are many more.
 
-6. The `ggplot2` library then allows us to split the data over multiple plots by 'adding on' the `facet_wrap` or `facet_grid` commands. Try:
-    ```{r, eval=FALSE}
-    qplot(Feed, BirthWeight, data=births, geom='boxplot') + facet_wrap(~Rank)
-    ```
     Try also doing a plot of Birthweight versus feed for each sex.
 
-7. The `facet_grid` option can then be used to split over two variables in a grid. e.g. try adding
+5. The `facet_grid` option can then be used to split over two variables in a grid. e.g. try adding
     ```{r, eval=FALSE}
     facet_grid(Sex ~ Rank)
     ```
     in place of `facet_wrap` to put rows for each sex, and columns for each rank.
 
-8. What is your conclusion about the effect of feed on birthweight?
+6. What is your conclusion about the effect of feed on birthweight?
 
-## Exercise 3: Linear modelling of birthweight data
+## Exercise 2: Linear modelling of birthweight data
 
-In this exercise we'll look at analysing the average birthweight with a linear model. **Remember to add comments to your R script so that when you compile the notebook you have some commentary to look back on later.**
+In this exercise we'll look at analysing the average birthweight with a linear model. **Remember to add comments to your notebook so that you have some commentary to look back on later.**
 
-1. Fit a linear model to the birthweight data using only the `Feed` variable. Use the `anova` and `summary` tables to make a conclusion as to whether the feed treatment matters according to this model. Does this make sense based on what we've seen in the plots we did earlier?
+1. Fit a linear model to the birthweight data using only the `Feed` variable. Use the `anova` and `summary` tables to make a conclusion as to whether the feed treatment matters according to this model. Does this make sense based on what we've seen in the plots we did earlier? Recall you can do that with:
+
+    ```{r, eval=FALSE}
+    mod1 = lm(BirthWeight ~ Feed, data=births)
+    anova(mod1)
+    summary(mod1)
+    ```
 
 2. Fit a multivariable linear model using the four covariates `Sex`, `Rank`, `Feed` and `Shorn`. Use the `anova` and `summary` tables to make conclusions about the importance of each of these variables to birthweight. Note down whether these make sense given the plots we did earlier.
 
@@ -84,7 +76,7 @@ In this exercise we'll look at analysing the average birthweight with a linear m
 
 4. Visualise your results using the `visreg` package.
 
-## Exercise 4: Interactions and model diagnostics.
+## Exercise 3: Interactions and model diagnostics.
 
 1. Add an interaction to your multivariable model to assess whether the effect of shearing might differ between twins and singles. What is your conclusion?
 
