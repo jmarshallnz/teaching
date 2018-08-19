@@ -1,13 +1,12 @@
 ---
 title: "227.215 Biostats Lab 3"
-author: "Jonathan Marshall"
 output:
   pdf_document: null
   html_document: default
 graphics: yes
 ---
 
-## Introduction ##
+## Introduction
 
 In this lab we'll look at a set of data on the birth weight of lambs, based on the data from a previous year's project, taken from a trial at Massey in the late 1990s. This will therefore be good practice for your project this year!
 
@@ -26,29 +25,13 @@ Variable      Description
 `Feed`        The feed regime of the ewe (HH, HM, MH, HH).
 `Shorn`       Whether the ewe was shorn during pregnancy (Yes, No).
 
-## Exercise 1: Create a new R script file
-
-1. You can create a new RStudio project for this lab if you like (or use a previous one - up to you).
-
-2. Remember that you can add a special 'metadata' block to the top of the script that allows you to set the title and author. Copy and paste the following code block, then change the author as appropriate. There's a bunch of other stuff you can do to format up R notebooks (e.g. headings, subheadings, bullet points, emphasis etc.) that can be found in the summary sheet on stream.
-
-    ```{r, eval=FALSE}
-    #' ---
-    #' title:  227.215 Biostats, Lamb birthweight analysis
-    #' author: Joanne Blogs
-    #' date:   25 August 2017
-    #' ---
-    ```
-    
-4. Add the following code to read the dataset in and take a look at the first few rows.
+Start by downloading the `lab3_lambs.Rmd` document from Stream and loading it into RStudio. Then run the first code block that is loading the libraries we'll need (`ggplot2` and `visreg`) and reading the data in.
 
     ```{r, eval=FALSE}
     #' Read in the lamb birthweight data
     births <- read.csv("http://www.massey.ac.nz/~jcmarsha/227215/data/birthweight.csv")
     head(births)
     ```
-
-5. Compile your notebook and make sure the title and author etc. have been correctly set in the HTML or Word document.
 
 ## Exercise 2: Exploratory analysis of birthweight data
 
@@ -114,24 +97,3 @@ In this exercise we'll look at analysing the average birthweight with a linear m
     You can optionally add `overlay=TRUE` to overlay the effects rather than using side by side, and `gg=TRUE` for using the ggplot2 library instead.
     
 3. Check the model diagnostics for your model with the interaction. Are the model assumptions met?
-
-## Exercise 5: Remember to Vote!
-
-Lots of younger people are not enrolled to vote, while old people always vote. So remember to register and vote in the election this year.
-
-```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.width=6, fig.height=3, dev='tikz'}
-e <- read.csv("~/Downloads/electorate_default.csv", stringsAsFactors=FALSE)
-library(ggplot2)
-library(dplyr)
-library(tidyr)
-library(scales)
-d <- e %>% mutate(Total = as.numeric(gsub(",","",Est.Eligible.Population)),
-             Enrolled = as.numeric(gsub(",","",Total.Enrolled))) %>% select(Age, Total, Enrolled) %>% gather("Which", "Population", Total, Enrolled, convert=TRUE) %>%
-  filter(Age != "Total") %>% mutate(Which = factor(Which, levels=c("Total", "Enrolled")))
-ggplot(d) + geom_col(aes(x=Age, y=Population, fill=Which), position='dodge') +
-  scale_y_continuous(labels=comma) + theme_bw(base_size=10) + theme(legend.position="top", legend.title=element_blank()) + scale_fill_manual(values=c("grey70", "grey30"))
-```
-
-If you aren't already on the electoral role (and are a permanent resident or citizen), the easiest way to make sure you can vote is to rock up to an advanced voting place (on concourse between 11th and 22nd September). You can register and place a special vote all within 10 minutes or so.
-
-You can't register on election day, so make sure you do so beforehand!
