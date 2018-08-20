@@ -16,7 +16,8 @@ output:
 
 ```{r setup, echo=FALSE}
 library(knitr)
-opts_chunk$set(dev.args=list(bg='transparent'), comment="")
+library(ggplot2); theme_set(theme_bw(base_size=15) + theme(plot.background = element_blank()))
+opts_chunk$set(dev.args=list(bg='transparent'), comment="", warning=FALSE)
 #print(knit_hooks$get('output'))
 knit_hooks$set(output=function (x, options) {
 #  cat("OPTIONS=", names(options), "\n")
@@ -75,7 +76,7 @@ It also gives uncertainties, i.e. confidence intervals.
 ## The F-statistic for factors
 
 $$
-F = \frac{(\sigma^2_\mathsf{total} - \sigma^2_\mathsf{res})/p}{\sigma^2_\mathsf{res}/(n-p-1)}
+F = \frac{\mathsf{Variation\ explained}}{\mathsf{Variation\ unexplained}} = \frac{(\sigma^2_\mathsf{total} - \sigma^2_\mathsf{res})/p}{\sigma^2_\mathsf{res}/(n-p-1)}
 $$
 
 - The numerator is variation explained by the model. In this case this is variation between groups, as the model is just giving a different mean to each group.
@@ -87,11 +88,10 @@ $$
 ## Example: Petrels
 
 ```{r, echo=FALSE, fig.width=9.5}
-petrels <- read.csv("http://www.massey.ac.nz/~jcmarsha/227212/data/petrels.csv")
+petrels <- read.csv("http://www.massey.ac.nz/~jcmarsha/227215/data/petrels.csv")
 petrels$Area <- as.factor(petrels$Area)
 petrels$Sex <- as.factor(petrels$Sex)
-par(mar=c(5,5,1,0), cex.axis=1.5, cex.lab=1.5)
-plot(R.Wing.Lth ~ Area, data=petrels, ylab="Right wing length (mm)")
+ggplot(petrels, aes(x=Area, y=R.Wing.Lth)) + geom_boxplot() + ylab("Right wing length (mm)")
 ```
 
 ## Example: Petrels {.fragile .smaller}
@@ -293,7 +293,7 @@ Both drugs    $\mathsf{mean}(y)=\alpha + \beta_A + \beta_B$
 
 ## Example: Hypothetical drugs
 
-<iframe src="http://it056230.massey.ac.nz:8080/apps/227215/shiny/twoway/" style="border: none"></iframe>
+<iframe src="http://shiny.massey.ac.nz/jcmarsha/twoway/" style="border: none"></iframe>
 
 ## Interactions: Hypothetical drugs
 
@@ -320,7 +320,7 @@ Thus, $\beta_{AB}$ can be used to measure whether or not the effects of the two 
 
 ## Example: Hypothetical drugs
 
-<iframe src="http://it056230.massey.ac.nz:8080/apps/227215/shiny/twoway/" style="border: none"></iframe>
+<iframe src="http://shiny.massey.ac.nz/jcmarsha/twoway/" style="border: none"></iframe>
 
 ## Interactions in RStudio
 
@@ -377,28 +377,28 @@ visreg(mod3, "Area", by="Sex", overlay=TRUE)
 
 ```{r, echo=FALSE, fig.width=9.5, fig.height=5.5}
 par(mar=c(4,4,0,0))
-visreg(mod2, "Area", by="Sex")
+visreg(mod2, "Area", by="Sex", gg=TRUE)
 ```
 
 ## visreg: Model with interaction
 
 ```{r, echo=FALSE, fig.width=9.5, fig.height=5.5}
 par(mar=c(4,4,0,0))
-visreg(mod3, "Area", by="Sex")
+visreg(mod3, "Area", by="Sex", gg=TRUE)
 ```
 
 ## visreg: without interaction (`overlay=TRUE`)
 
 ```{r, echo=FALSE, fig.width=9.5, fig.height=5.5, warning=FALSE}
 par(mar=c(4,4,1,0))
-visreg(mod2, "Area", by="Sex", overlay=TRUE)
+visreg(mod2, "Area", by="Sex", overlay=TRUE, gg=TRUE)
 ```
 
 ## visreg: with interaction (`overlay=TRUE`)
 
 ```{r, echo=FALSE, fig.width=9.5, fig.height=5.5, warning=FALSE}
 par(mar=c(4,4,1,0))
-visreg(mod3, "Area", by="Sex", overlay=TRUE)
+visreg(mod3, "Area", by="Sex", overlay=TRUE, gg=TRUE)
 ```
 
 ## Other types of interaction
@@ -424,10 +424,8 @@ The model fit is thus two parallel lines, separated by $\beta_2$.
 
 ```{r, echo=FALSE, fig.width=8.5, fig.height=5.5, fig.align='center'}
 calf <- read.csv("http://www.massey.ac.nz/~jcmarsha/227215/data/calfweight.csv")
-par(mar=c(4,4,1,2))
-plot(Weight ~ Age, data=calf, col=Breed, pch=as.numeric(Treatment), xlab="Age (days)", ylab="Weight (kg)")
-legend('topleft', legend=levels(calf$Breed), col=1:3, pch=1, title="Breed")
-legend('bottomright', legend=levels(calf$Treatment), pch=1:2, title="Treatment")
+ggplot(calf, aes(x=Age, y=Weight, col=Breed, shape=Treatment)) + geom_point(size=3, alpha=0.8) +
+  xlab("Age (days)") + ylab("Weight (kg)")
 ```
 
 ## Example: Calf weights
@@ -439,14 +437,14 @@ anova(c1)
 
 ## Example: Calf weights
 
-```{r, fig.width=8, fig.height=5.5, fig.align='center'}
-visreg(c1, "Age", by="Treatment", overlay=TRUE)
+```{r, fig.width=8, fig.height=5, fig.align='center'}
+visreg(c1, "Age", by="Treatment", overlay=TRUE, gg=TRUE)
 ```
 
 ## Example: Calf weights
 
-```{r, fig.width=8, fig.height=5.5, fig.align='center'}
-visreg(c1, "Age", by="Breed", overlay=TRUE)
+```{r, fig.width=8, fig.height=5, fig.align='center'}
+visreg(c1, "Age", by="Breed", overlay=TRUE, gg=TRUE)
 ```
 
 ## Interaction of numeric variables and factors
@@ -469,10 +467,8 @@ The model fit is thus two separate lines.
 ## Example: Calfweights
 
 ```{r, echo=FALSE, fig.width=8, fig.height=5.5, fig.align='center'}
-par(mar=c(4,4,1,2))
-plot(Weight ~ Age, data=calf, col=Breed, pch=as.numeric(Treatment), xlab="Age (days)", ylab="Weight (kg)")
-legend('topleft', legend=levels(calf$Breed), col=1:3, pch=1, title="Breed")
-legend('bottomright', legend=levels(calf$Treatment), pch=1:2, title="Treatment")
+ggplot(calf, aes(x=Age, y=Weight, col=Breed, shape=Treatment)) + geom_point(size=3, alpha=0.8) +
+  xlab("Age (days)") + ylab("Weight (kg)")
 ```
 
 ## Example: Calf weights
@@ -491,14 +487,14 @@ summary(c2)
 
 ## Calf weights{.smaller}
 
-```{r, fig.width=8, fig.height=5.5, fig.align='center'}
-visreg(c2, "Age", by="Breed", overlay=TRUE)
+```{r, fig.width=8, fig.height=5, fig.align='center'}
+visreg(c2, "Age", by="Breed", overlay=TRUE, gg=TRUE)
 ```
 
 ## Calf weights{.smaller}
 
-```{r, fig.width=8, fig.height=5.5, fig.align='center'}
-visreg(c2, "Age", by="Treatment", overlay=TRUE)
+```{r, fig.width=8, fig.height=5, fig.align='center'}
+visreg(c2, "Age", by="Treatment", overlay=TRUE, gg=TRUE)
 ```
 
 ## Diagnostics
@@ -525,14 +521,14 @@ plot(c3, add.smooth=FALSE)
 
 ## Better model: Fit{.smaller}
 
-```{r, fig.width=8, fig.height=5.5, fig.align='center'}
-visreg(c3, "Age", by="Breed", trans=exp, partial=TRUE, overlay=TRUE, ylab="Weight")
+```{r, fig.width=8, fig.height=5, fig.align='center'}
+visreg(c3, "Age", by="Breed", trans=exp, partial=TRUE, overlay=TRUE, ylab="Weight", gg=TRUE)
 ```
 
 ## Better model: Fit{.smaller}
 
-```{r, fig.width=8, fig.height=5.5, fig.align='center'}
-visreg(c3, "Age", by="Treatment", trans=exp, partial=TRUE, overlay=TRUE, ylab="Weight")
+```{r, fig.width=8, fig.height=5, fig.align='center'}
+visreg(c3, "Age", by="Treatment", trans=exp, partial=TRUE, overlay=TRUE, ylab="Weight", gg=TRUE)
 ```
 
 ## Another problem though!
@@ -549,28 +545,19 @@ calf identifier.
 
 ## Another problem?
 
-```{r, fig.width=9, fig.height=4.5, fig.align='center', echo=2}
-par(mar=c(4,5,0,1))
-boxplot(resid(c3) ~ Calf, data=calf, xlab="Calf", ylab="Residual")
+```{r, fig.width=9, fig.height=4.5, fig.align='center', echo=TRUE}
+calf_pred = broom::augment(c3, data=calf)
+ggplot(calf_pred, aes(x=Calf, group=Calf, y=.resid)) + geom_boxplot() + ylab("Residual")
 ```
 
-## Solution: See lab 4!
+## Solution: See lab 4!{.smaller}
 
-```{r, eval=FALSE}
+```{r, echo=1:2, fig.width=9, fig.height=5, fig.align='center'}
 library(nlme)
 mixed = lme(log(Weight) ~ log(BirthWeight) + Breed + Treatment + Age + 
             Breed:Age + Treatment:Age, random=~1|Calf, data=calf)
-boxplot(resid(mixed) ~ Calf, data=calf)
-```
-
-## Solution: See lab 4!
-
-```{r, echo=FALSE, fig.width=9, fig.height=5, fig.align='center'}
-library(nlme)
-mixed = lme(log(Weight) ~ log(BirthWeight) + Breed + Treatment + Age + 
-            Breed:Age + Treatment:Age, random=~1|Calf, data=calf)
-par(mar=c(4,4,0,1))
-boxplot(resid(mixed) ~ Calf, data=calf, xlab="Calf", ylab="Residual")
+calf_mixed = broom::augment(mixed, data=calf)
+ggplot(calf_mixed, aes(x=Calf, group=Calf, y=.resid)) + geom_boxplot() + ylab("Residual")
 ```
 
 ## Learning outcomes
