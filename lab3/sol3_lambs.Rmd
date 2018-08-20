@@ -1,6 +1,7 @@
 ---
-title:  227.215 Biostats, Lamb birthweights
-author: Jonathan Marshall
+title: "227.215 Biostats, Lamb birthweights"
+author: "Jonathan Marshall"
+output: pdf_document
 ---
 
 ## Introduction
@@ -33,54 +34,51 @@ head(births)
 
 ## Exploratory data analysis
 
-Plot of birthweight versus rank, sex, feed and shorn
-```{r}
-par(mfrow=c(2,2), mar=c(4,4,1,1))
-plot(BirthWeight ~ Rank, data=births)
-plot(BirthWeight ~ Sex, data=births)
-plot(BirthWeight ~ Feed, data=births)
-plot(BirthWeight ~ Shorn, data=births)
-```
-These plots suggest reasonable effects of rank and sex, but less clear effects of feed and shorn.
-
-It's possible that we can't see much difference in the feed treatment as there is
-too much within-treatment variation due to the other variables like rank and sex.
-
-Plotting subsets show us this might be right
+Plot of birthweight versus rank
 
 ```{r}
-par(mfrow=c(2,2), mar=c(3,3,2,2))
-plot(BirthWeight ~ Feed, data=subset(births, Rank == 'Twin'), main="Twins")
-plot(BirthWeight ~ Feed, data=subset(births, Rank == 'Single'), main="Singles")
-plot(BirthWeight ~ Feed, data=subset(births, Sex == 'Male'), main="Males")
-plot(BirthWeight ~ Feed, data=subset(births, Sex == 'Female'), main="Females")
+ggplot(births, aes(x=Rank, y=BirthWeight)) + geom_boxplot()
 ```
 
-Using `ggplot2` gives nicer results. The default is to do a scatterplot which isn't much use, but using `geom='boxplot'` converts to boxplots.
+This shows that rank has a clear effect on birthweight, with singles weight around 1kg more than twins.
+
+Plots of birthweight versus sex, feed and shorn
 
 ```{r}
-library(ggplot2)
-qplot(Feed, BirthWeight, data=births)
-qplot(Feed, BirthWeight, data=births, geom='boxplot')
+ggplot(births, aes(x=Sex, y=BirthWeight)) + geom_boxplot()
+ggplot(births, aes(x=Feed, y=BirthWeight)) + geom_boxplot()
+ggplot(births, aes(x=Shorn, y=BirthWeight)) + geom_boxplot()
 ```
 
-The main advantage of using ggplot is that you can facet over multiple
-plots quite easily. e.g. to facet based on rank or sex. Note that the scales
-are the same for all facets, so they're more easily comparable than the
-technique with `subset` used above.
+There is a clear effect of sex, with males being heavier by about 400g or so, but less clear effects of feed and shorn.
+
+It's possible that we can't see much difference in the feed treatment as there is too much within-treatment variation due to the other variables like rank and sex (the smaller lambs within each feed are likely twins, the largest likely singles).
+
+Plotting subsets show us this might be right - the differences between feeds are more clear in the subsets.
 
 ```{r}
-qplot(Feed, BirthWeight, data=births, geom='boxplot') + facet_wrap(~Rank)
-qplot(Feed, BirthWeight, data=births, geom='boxplot') + facet_wrap(~Sex)
+ggplot(subset(births, Rank == 'Twin'), aes(x=Feed, y=BirthWeight)) + geom_boxplot()
+ggplot(subset(births, Rank == 'Single'), aes(x=Feed, y=BirthWeight)) + geom_boxplot()
+ggplot(subset(births, Sex == 'Male'), aes(x=Feed, y=BirthWeight)) + geom_boxplot()
+ggplot(subset(births, Sex == 'Female'), aes(x=Feed, y=BirthWeight)) + geom_boxplot()
 ```
 
-We can also facet on two variables at once, producing a grid of sex (rows) by rank (columns)
+Using facetting to produce small multiples is better:
 
 ```{r}
-qplot(Feed, BirthWeight, data=births, geom='boxplot') + facet_grid(Sex~Rank)
+ggplot(births, aes(x=Feed, y=BirthWeight)) + geom_boxplot() + facet_wrap(~Rank)
+ggplot(births, aes(x=Feed, y=BirthWeight)) + geom_boxplot() + facet_wrap(~Sex)
 ```
 
-Our conclusion is there is an effect of feed, but it's only really noticeable once we first account for rank and sex. The HM feed treatment seems to result in the lowest weight lambs.
+These are better as the plots are side-by side and the scales are the same, so we can see not only the differences between the feeds within each sex or rank, but also the differences between the ranks and sexes.
+
+Using `facet_grid` instead is even better as it gives rows for the first variable and columns for the second.
+
+```{r}
+ggplot(births, aes(x=Feed, y=BirthWeight)) + geom_boxplot() + facet_grid(Sex ~ Rank)
+```
+
+Notice that the pattern of feed is similar in all panels: the `HM` treatment produces the lowest weights on average, while the other three are reasonably similar. Our conclusion is there is an effect of feed, but it's only really noticeable once we first account for rank and sex.
 
 ## Statistical modelling
 
@@ -152,13 +150,13 @@ anova(lm4)
 The `Rank:Shorn` variable is not significant from the anova table, so we'd conclude there isn't much evidence for the effect of shearing differing between singles and twins. We can see this in the visualisation as well
 
 ```{r}
-visreg(lm4, "Shorn", by="Rank")
+visreg(lm4, "Shorn", by="Rank", gg=TRUE)
 ```
 
 Notice the Yes vs No differences are about the same in each plot, especially when considering their uncertainties. This confirms what the anova table was telling us. You can also do an overlay plot for this which shows the same thing:
 
 ```{r}
-visreg(lm4, "Shorn", by="Rank", overlay=TRUE)
+visreg(lm4, "Shorn", by="Rank", overlay=TRUE, gg=TRUE)
 ```
 
 Model diagnostics are shown below
