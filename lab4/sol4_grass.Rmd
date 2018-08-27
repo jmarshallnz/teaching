@@ -1,0 +1,113 @@
+---
+title: "227.215 Biostats, Grass platemeter measurements"
+author: "Jonathan Marshall"
+output: pdf_document
+---
+
+## Introduction ##
+
+Today we're looking at some grass measurement data collected by you in Semester 1 using grass plate meters. We'll be using the excel sheet provided on Stream, and expanding on the analysis that Cory Matthews did earlier.
+
+We start by reading in the data sheet that Cory Matthews put together and load some packages we'll need today. One of them is new - the `nlme` package which contains some more general linear modelling functionality (models with random effects) that we'll be using below. If you're running this on your own computer you might need to install this package - see the Packages menu in the bottom right of RStudio.
+
+```{r}
+library(nlme)
+library(ggplot2)
+library(visreg)
+grass = read.csv("http://www.massey.ac.nz/~jcmarsha/227215/data/RisingPlateTest.csv")
+```
+
+Note that the `grass` data here was taken from the `Raw Data` sheet in `RisingPlateTest.xlsx` that Cory Matthews supplied in 227.212. You can get a copy in the Lab 4 folder on stream. You might want to download that file and look at it in Excel. The `Analysis` tab has the output from two linear models - one with just Paddock in it (on the left) and one with both Person and Paddock in it - on the right. You should be able to see the Analysis of Variance tables - we'll be reproducing those below.
+
+In the next code block we convert the `Paddock`, `Person`, and `Group` columns to factors (grouping variables) as that's what they are - the numbers aren't measurements. This enables RStudio to correctly interpret these as groups - notice that the `summary` output has correctly tallied up the number of observations for each person and paddock, rather than giving means.
+
+```{r}
+grass$Group   = factor(grass$Group)
+grass$Paddock = factor(grass$Paddock)
+grass$Person  = factor(grass$Person)
+summary(grass)
+```
+
+```{r}
+ggplot(grass, aes(x=Paddock, y=Cover)) + geom_boxplot()
+```
+
+We can see from the above that there seems to be clear differences between paddocks, with paddocks 3-5 being higher, then paddock 6. The rest are lower. But there is quite a lot of spread, with some clear outliers. This is likely a combination of between-measure variation and between-person variation.
+
+A plot of person versus cover shows that there is less variation per person, but this might be somewhat masked by the fact that each individual person only measured each paddock once, so the within-person variation is mostly due to different paddocks. But some people's measures (e.g. person 12) are quite different to other people's.
+```{r}
+ggplot(grass, aes(x=Person, y=Cover)) + geom_boxplot()
+```
+
+## Linear modelling
+
+A linear model for paddock is as follows
+```{r}
+mod1 = lm(Cover ~ Paddock, data=grass)
+anova(mod1)
+summary(mod1)
+```
+
+From this we can see that there is clear evidence for a difference in cover between the paddocks - Paddock explains around 74% of the variation in cover, which is quite a lot considering it's just a grouping variable.
+
+Using `visreg` to visualise the model gives
+```{r}
+visreg(mod1)
+```
+
+Note that this is similar to the diagram on the left hand side of the Excel spreadsheet from Cory.
+
+To account for the variation between people we'll try adding `Person` to our model.
+
+```{r}
+mod2 = lm(Cover ~ Person + Paddock, data=grass)
+anova(mod2)
+```
+
+The problem with this model is two fold:
+
+1. We can't use it for future measurements unless the same people are doing the measuring, as we'll need the individual 'person' effect, and we won't know that for future people.
+
+2. If we **don't** include the people in the model (to get around problem 1) then the residuals won't be independent, so any conclusions from the model may be wrong. This is because repeat measures were taken by the same people, so we'd expect measures taken by the same person to be more similar to each other than to measures taken by other people (due to the person effect).
+
+Ideally we'll want to account for the variation between people while not actually having to estimate a separate mean for each person. This will account for the lack of independence in the residuals, and also allow us to predict for new people measuring in the future.
+
+We do this by incorporating `Person` as a **random effect**
+
+## Mixed model
+
+```{r}
+mixed = lme(Cover ~ Paddock, random=~1|Person, data=grass)
+anova(mixed)
+```
+
+We again see that `Paddock` is important, but note there's no extra line for `Person`. Nonetheless, individuals have been adjusted for in the model - we can see this from the `summary` output:
+
+```{r}
+summary(mixed)
+```
+
+Note the addition of the "Random effects" section. The 114.9 is a measure of the between-person variation, while the 323 is a measure of left-over (within-person) variation. In this case, there's more variation in the measures done by the same person compared with the measures done by different people (after accounting for the different paddock averages ofcourse!) This suggests that taking measurements with a plate meter requires a bit of practice!
+
+## Bonus extras
+
+One way to see the lack of independence in the residuals of our first model (`mod1` above) is to plot the residuals by person. To do this, we can use the `broom` library to augment the model output with our data. This adds some extra columns to our data.frame with fitted values and residuals etc.
+
+```{r}
+extra = broom::augment(mod1, grass)
+head(extra)
+```
+
+We can now use this to do plots. e.g. if we want to assess whether the residuals cluster by person (as would be the case in lack of independence) we can:
+```{r}
+ggplot(extra, aes(x=Person, y=.resid)) + geom_boxplot()
+```
+
+This isn't actually too bad, but we see that some people have consistently high readings (e.g. persons 13-15), while others are consistently low (e.g. persons 10,11). It does look like the residuals are clustered by person to some extent, thus independence does not hold.
+
+In this case, it probably won't make much difference in so far as our model conclusion would be the same - the effect of Paddock is so stark, that getting the model specification a bit wrong won't alter things too much. We can compare this to the model where we include `Person` as a random effect:
+
+```{r}
+mixed_extra = broom::augment(mixed, grass)
+ggplot(mixed_extra, aes(x=Person, y=.resid)) + geom_boxplot()
+```

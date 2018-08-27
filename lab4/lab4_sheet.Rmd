@@ -13,55 +13,54 @@ This lab is a short one - we'll look at a set of data on plate meter measurement
 
 **After** you're done, feel free to work on your assignment.
 
-## Exercise 1: Create a new R script
+Today we're looking at some grass measurement data collected by you in Semester 1 using grass plate meters. We'll be using the excel sheet provided on Stream, and expanding on the analysis that Cory Matthews did earlier.
 
-In this exercise we'll look at some grass measurement data collected by Animal Production students in 2013 using grass plate meters.
+Start by downloading the `lab4_grass.Rmd` notebook from Stream, save it and load it into RStudio.
 
-1. Create a new R script file, and copy and paste the metadata block from your lab3.R script into it, changing the title.
+1. You should notice the first code block is loading up some libraries and reading the data in. The data has been taken directly from `RisingPlateTest.xlsx` that Cory Matthews supplied in 227.212. You can get a copy in the Lab 4 folder on stream. Download it and have a look at it in Excel. The `Analysis` tab has the output from two linear models - one with just Paddock in it (on the left) and one with both Person and Paddock in it - on the right. You should be able to see the Analysis of Variance tables - we'll be reproducing those below.
 
-2. Add the following lines to read in the grass measurement data and take a look at the summary.
+2. The next code block is converting some of the columns to grouping variables and then producing a summary. You might want to also take a look (click on `grass` in the Environment tab) and compare to the Excel sheet `Raw Data` to notice they're the same.
 
-    ```{r, eval=FALSE}
-    #' Read in data on grass measurements
-    grass <- read.csv("http://www.massey.ac.nz/~jcmarsha/227215/data/grass.csv")
-    summary(grass)
-    ```
+3. Add a code block to produce a plot of Cover by Paddock. Which Paddocks have the most grass? Are there any outliers? What would the within-paddock variation be due to? Add some comments to your notebook.
 
-3. Add some code and comments to your R script to produce some plots of `metread` versus the covariates `farm`, `paddock`, and `person`.
+4. Add another code block to produce a plot of Cover by Person. Is there evidence of between-person variation? What is making up the within-person variation? Add some comments to your notebook.
 
-4. Is there any graphical evidence that the plate meter readings changes between farms, paddocks or the person using the meter? Add some comments to your R script.
+## Linear modelling
 
-5. Build a linear model to assess whether the plate meter readings differ by farm. What is your conclusion? Add some comments to your R script.
+We'll now reproduce the results that Cory Matthews generated in the `Analysis` tab. We'll start with a linear model for Cover containing just Paddock.
 
-6. A number of different students did the measurements. Add some comments to your R script about why this will likely mean the residuals are not independent.
+1. Add a new code block and produce a linear model, anova and summary tables. The formula you'll want for `lm` will be `Cover ~ Paddock`.
 
-7. One way to fix the lack of independence is to account for the `person` effect in the model. Build a linear model incorporating `person` as well as `farm`. What is your conclusion now about whether plate meter readings differ by farm?
+2. Use `visreg` to visualise this model. Compare your results to the `Analysis` tab in the Excel sheet.
 
-## Exercise 2: Incorporating a random effect for person
+The problem with the above model is we're not accounting for the between-person variation. Therefore the independence assumption is almost certainly not satisfied, as the measurements taken by each person are likely to be more similar to each other (within person) than they are to measurements taken by different people (between people).
 
-The problem with our linear model from part 7 is that by including the person in the model, we can no longer predict what the average measurement will be on those farms should **other** people take them. Our model is restricted to just the people that did the initial measures.
+3. One way around that is to add Person to the model. Do this by using the formula `Cover ~ Person + Paddock`. Notice I've put Person first, as I suspect there'll be variation between the people taking the measurements, so I account for that first before looking for differences between paddocks. Produce the `anova` table for this - it should be the same as what is in the `Analysis` sheet.
+
+4. Use `visreg` to visualise the results - do they make sense given what we saw earlier in the plots of the data?
+
+## Using a random person effect
+
+The problem with our linear model above is that by including the person in the model, we can no longer predict what the average measurement will be on those paddocks should **other** people take them: our model is restricted to just the people that did the initial measures. This isn't much use if we want to use it next year for a different group of students.
 
 Ideally, we'd want to account for the variation between people while not having to include it in the model for prediction.
 
-We can do this by treating the person variable as **random**. The basic idea is that we have multiple residuals for each person, so the average of the residuals for a particular person could be treated as that persons effect on the measurement.  We basically rewrite the residuals as
+We can do this by treating the person variable as **random**. The basic idea is that we have multiple residuals for each person (from the multiple measures each person took), so the average of the residuals for a particular person could be treated as that persons effect on the measurement.  We basically rewrite the residuals as
 
 $$
 \epsilon_{ij} = \mathsf{person}_i + \eta_{ij}
 $$
 
-where $\epsilon_{ij}$ is the $j$-th residual of person $i$ from the linear model with just farm in it, $\mathsf{person}_i$ is the average residual for person $i$, and $\eta_{ij}$ is the left-over $j$-th after subtracting out the person level average. That way these left-overs are hopefully independent, as the person effect has been taken out.
+where $\epsilon_{ij}$ is the $j$-th residual of person $i$ from the linear model with just paddock in it, $\mathsf{person}_i$ is the average residual for person $i$, and $\eta_{ij}$ is the left-over $j$-th after subtracting out the person level average. That way these left-overs are hopefully independent, as the person effect has been taken out.
 
-We do this in such a way that the mean of the person effects is 0. Thus, to predict for a new person, we just set the person effect to 0 and incorporate the variation in the person effects into prediction intervals.
+We do this in such a way that the mean of the person effects is 0. To predict for a new person, we just set the person effect to 0 and incorporate the variation in the person effects into prediction intervals.
 
-To do this in R, we use the `nlme` library, which stands for "non-linear mixed effects". The mixed is because we're mixing normal linear model coefficients (fixed effects) with random effects.
+To do this in RStudio, we use the `nlme` library, which stands for "non-linear mixed effects". The mixed is because we're mixing normal linear model coefficients (fixed effects) with random effects.
 
-1. Start by loading the library in and fitting a model
+1. Add the following code to fit the people as a random effect.
 
     ```{r, eval=FALSE}
-    #' Load in the nlme library
-    library(nlme)
-    #' Fit a model incorporating a random effect for person
-    mixed <- lme(metread ~ farm, random=~1|person, data=grass)
+    mixed = lme(Cover ~ Paddock, random=~1|Person, data=grass)
     ```
 
     The `random` bit here can be read as specifying separate mean (intercept) for each person.
