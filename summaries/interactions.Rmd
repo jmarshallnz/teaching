@@ -1,7 +1,6 @@
 ---
 title: "Interactions"
 author: "Jonathan Marshall"
-date: "11 August 2015"
 output: pdf_document
 graphics: yes
 ---
@@ -63,49 +62,125 @@ The anova table below suggests there is an effect of `Sex`, an effect of `Area`,
 anova(mod)
 ```
 
-We know they're not significant, but to find out what the differences are, we can use the summary table
+We know they're not significant, but to find out what the differences are (even though they're not meaningful), we can use the summary table
 ```{r}
 summary(mod)
 ```
-This table is a little bit tricky to interpret, but let's give it a go. The easiest way to consider it is to first work out what is in the baseline (Sex=1, males and Area=1) and then work out what each of the entries must then mean, as each coefficient is just a difference from the baseline.
+This table is a little bit tricky to interpret, but let's give it a go. The easiest way to consider it is to first work out what is in the baseline (Sex=Female and Area=1) and then work out what each of the entries must then mean, as each coefficient is just a difference from the baseline.
 
-So, male birds in area 1 (the baseline) have right wing length of 389.9 cm. Because we have interaction terms, the `Sex2` coefficient no longer refers to all female birds, but rather just the birds in the baseline (in this case birds in area 1). Thus, female birds in area 1 have 0.8cm smaller right wing lengths.
+So, female birds in area 1 (the baseline) have right wing length of 389.1 cm. Because we have interaction terms, the `SexMale` coefficient no longer refers to all male birds, but rather just the birds in the baseline (in this case birds in area 1). Thus, male birds in area 1 have 0.8cm larger right wing lengths compared to the females in area 1.
 
-The `Area2` coefficient again only applies (as we have the interaction term) to the baseline. Thus it is comparing males in area 2 vs males in area 1.
+The `Area2` coefficient again only applies (as we have the interaction term) to the baseline. Thus it is comparing females in area 2 vs females in area 1.
 
-What if we want to compare females in area 2 to males in area 1? Well, in that case Sex=2 and Area=2 so we'd get the contribution from the `Sex2` line (-0.8) plus the contribution from the `Area2` line (-5.64) plus the contribution from the `Sex2:Area2` line (-2.73) Thus, females in area 2 are $-0.8 + -5.64 + -2.73 = -9.17$, so 9.17 cm smaller right wing length compared to males in area 1.
+What if we want to compare males in area 2 to females in area 1? Well, in that case Sex=Male and Area=2 so we'd get the contribution from the `SexMale` line (0.8) plus the contribution from the `Area2` line (-8.37) plus the contribution from the `SexMale:Area2` line (2.73) Thus, males in area 2 are $0.8 + -8.37 + 2.73 = -4.84$, so 4.84 cm smaller right wing length compared to females in area 1.
 
-What about females in area 2 compared to males in area 2? Well, males in area 2 would have the `Area2` coefficient, while females would have the `Area2` coefficient plus the `Sex2` and `Sex2:Area2` coefficients. So the difference will be the `Sex2` and `Sex2:Area2` coefficients, so $-5.64 + -2.73=-8.37$, thus 8.37cm smaller.
+What about males in area 2 compared to females in area 2? Well, females in area 2 would have the `Area2` coefficient, while males would have the `Area2` coefficient plus the `SexMale` and `SexMale:Area2` coefficients. So the difference will be the `SexMale` and `SexMale:Area2` coefficients, so $0.8 + 2.73=3.53$, thus males in area 2 are 3.53cm larger than females in area 2.
 
 And so on! It can be easier sometimes to just use the `predict` function to work out the means of each of the combinations we want. The `expand.grid` function is helpful here.
 
 ```{r}
-new_data <- expand.grid(Sex=factor(1:2), Area=factor(1:6))
+new_data <- expand.grid(Sex=c("Female", "Male"), Area=factor(1:6))
 new_data$MeanRightWingLength <- predict(mod, new_data)
 new_data
 ```
 
 Some explanation of this code-magic! The `expand.grid` function just gives us all combinations of the two (or more) things we pass in. In this case it gives us all 12 combinations of `Sex` and `Area`. The next line is doing the prediction and then putting the result of the prediction into the `new_data` data frame in a new column called `MeanRightWingLength`. The last line just prints it out.
 
-Notice the prediction for females in area 2 (380.74) is 9.17 units smaller than males in area 1 (389.91) just like we worked out above.
+Notice the prediction for males in area 2 (384.28) is 4.84 units smaller than females in area 1 (389.12) just like we worked out above.
 
-A way to see this graphically with the raw data (rather than looking at the model fit above) is to do a plot using the `interaction` function
+A way to see this graphically with the raw data (rather than looking at the model fit above) is to do boxplots for area coloured by sex
 
 ```{r, dev='tikz'}
-plot(R.Wing.Lth ~ interaction(Sex, Area), data=petrels, border=c("black", "red"))
+library(ggplot2)
+ggplot(na.omit(petrels), aes(x=Area, y=R.Wing.Lth, col=Sex)) + geom_boxplot() + theme_bw()
 ```
 
-Each pair of plots (black and red) are an area, with black being males and red being females. What you should be able to see is that on the whole, females are smaller than the corresponding males in each area, and in the most part the difference in centers is about the same. e.g. see area 2, 3, 4, 5 are similar differences with females being smaller in each area. Area 1 and 6 seems like there's not much difference in size between the sexes, but this could have arisen by chance according to our model. Below I've plotted the model fits on top of the data (in blue for the model with interaction, in red for the model without interactions).
+What you should be able to see is that on the whole, females are smaller than the corresponding males in each area, and in the most part the difference in centers is about the same. e.g. see area 2, 3, 4, 5 are similar differences with females being smaller in each area. Area 1 and 6 seems like there's not much difference in size between the sexes, but this could have arisen by chance according to our model. Below I've plotted the model fits on top of the data (in blue for the model with interaction, in red for the model without interactions).
 
 ```{r, echo=FALSE, fig.height=7, dev='tikz'}
-par(mfrow=c(2,1), mar=c(2,3,2,2))
-plot(R.Wing.Lth ~ interaction(Sex, Area), data=petrels, border=c("#0000003f", "#ff00003f"))
-segments(1:12-0.5, new_data$MeanRightWingLength, 1:12+0.5, col="blue", lwd=2)
-legend("topright", legend="With interaction", lwd=2, col="blue", bty="n", text.col="blue")
-plot(R.Wing.Lth ~ interaction(Sex, Area), data=petrels, border=c("#0000003f", "#ff00003f"))
-segments(1:12-0.5, predict(lm(R.Wing.Lth ~ Sex + Area, data=petrels), new_data), 1:12+0.5, col="red", lwd=2)
-legend("topright", legend="No interaction", lwd=2, col="red", text.col="red", bty="n")
+library(patchwork)
+library(visreg)
+m1 = lm(R.Wing.Lth ~ Sex + Area, data=petrels)
+m2 = lm(R.Wing.Lth ~ Sex * Area, data=petrels)
+g1 = visreg(m1, "Area", by="Sex", gg=TRUE, line.par = list(col='red'))
+g2 = visreg(m2, "Area", by="Sex", gg=TRUE)
+g1 / g2 * theme_bw()
 ```
 
 As you can see, the model without interactions (red) has a constant difference between the sexes in each area, while the model
 with interactions (blue) is allowing different differences between the sexes in each area. However, the blue and red lines aren't really all that different, which is what the P-value for the interaction term was measuring (the differences in the blue lines compared to the red could have arisen by chance).
+
+## Interactions between numeric and factor variables
+
+When we have numeric and factor variables in the same model, then we need to remember that the intercept will take the baseline levels of all variables, including the numeric ones, which always have baseline 0. Thus, the intercept may no longer be meaningful, as 0 may not be a meaningful value for the numeric measure.
+
+Consider an example where we have the weight of three breeds of calf from birth to weaning.
+
+```{r echo=FALSE, dev='tikz', message=FALSE}
+library(dplyr)
+calf = read.csv("http://www.massey.ac.nz/~jcmarsha/227215/data/calfweight.csv") %>%
+  filter(Treatment == "High") %>% select(-Treatment, -BirthWeight)
+ggplot(calf, aes(x=Age, y=Weight, col=Breed)) + geom_point() + theme_bw()
+```
+
+From this we can see that the calves grow over time, and that there seems to be a difference between the breeds. One model for this is the simple additive model where weight depends on breed and age:
+
+```{r, echo=TRUE}
+mod1 = lm(Weight ~ Age + Breed, data=calf)
+anova(mod1)
+summary(mod1)
+```
+
+We can see from the ANOVA table that everything is important (this is also obvious from the plot). From the summary table we see an Age effect which will be the increase in weight as Age goes up by 1 day, and the Breed effects for Jersey and Cross Breeds versus the baseline group Holstein Friesian. The Intercept would represent the baseline group when Age is 0 which in this case is probably meaningful (birth weight of Holstein Friesian calves). To get the birth weight of Jersey calves, we'd take the intercept and add on the Jersey effect (so it'd be $34.8-17.6 = 17.2$kg). Notice that this applies regardless of age. e.g. at day 10, HF calves will weigh $34.82 + 10 \times 0.8 = 42.82$kg, while Jersey calves would weigh $34.82 + 10 \times 0.8 - 17.6 = 25.22$kg. The difference between these is just 17.6kg, the Jersey calf effect. Thus, we're assuming in the model setup that whatever the difference between the breeds is applies equally regardless of age: If they're born 10kg apart, they'll still be 10kg apart at weaning. This probably isn't very realistic! The model fit can be visualised with visreg:
+
+```{r, echo=TRUE, dev='tikz'}
+visreg(mod1, "Age", by="Breed", gg=TRUE, overlay=TRUE) + theme_bw()
+```
+
+Notice the lines are parallel, always the same difference in weight between them. We also see this doesn't fit the data particularly well - the data seem to be suggesting that we need different slopes for the different lines. Thus, the effect of Age on Weight needs to differ by breed: We need separate coefficients for Age for each Breed. We can do this with an interaction between Age and Breed:
+
+```{r, echo=TRUE, dev='tikz'}
+mod2 = lm(Weight ~ Age + Breed + Age:Breed, data=calf)
+anova(mod2)
+```
+
+The ANOVA table shows that the interaction is important, which suggests there is evidence for the effect of age differing by breed (i.e. different growth rates for the different breeds). The summary table provides the various growth rates:
+
+```{r}
+summary(mod2)
+```
+
+From here we see that the Age effect now only represents the growth for the baseline group (HF), which we need to modify for each of the other groups by adding their interactions (just like we altered the Sex effect for Area 2 in the petrels example). The 0.84kg/day applies to HF. The growth rate for Jerseys is $0.84 - 0.13 = 0.71$kg/day, while for XB is $0.84 - 0.03 = 0.81$kg/day. Notice also what the BreedJE term represents: This is the alteration of the Jersey breed needed when Age = 0. So Jersey's start of 11.7kg lighter than HF (similarly, Crossbreeds are 7.8kg lighter). In addition, they both grow slower, so these differences increase over time. At age 50 days for example, Jerseys would be $11.7 + 50 \times -0.129 = -18.15$kg heavier (i.e. 18.15kg lighter). Again, visreg makes this clear:
+
+```{r, echo=TRUE, dev='tikz'}
+visreg(mod2, "Age", by="Breed", overlay=TRUE, gg=TRUE) + theme_bw()
+```
+
+The lines are no longer parallel and fit the data better. Notice that the XB and HF lines are almost parallel though - that's because the Age:BreedXB effect is small (-0.03kg) so there's only 30g/day difference between them which over 100 days is only 3kg difference in a 100kg calf. The P-value from the summary table tells us that this specific difference may not be important. Jersey's however are definitely slower growing.
+
+Lastly, we could work out the individual equations from the full model equation which would be:
+$$
+\mathsf{Weight} = 33.15 + 0.84 \times \mathsf{Age}  -11.7 \times \mathsf{Breed}_\mathsf{JE} - 7.8 \times \mathsf{Breed}_\mathsf{XB} - 0.13 \times \mathsf{Age} \times \mathsf{Breed}_\mathsf{JE} - 0.03 \times \mathsf{Age} \times \mathsf{Breed}_\mathsf{HF},
+$$
+where the $\mathsf{Breed}_\mathsf{JE}$ etc are 1 if you're a Jersey, and 0 otherwise. This is actually 3 separate equations in one:
+
+- If a calf is HF, then $\mathsf{Breed}_\mathsf{JE}=0$ and $\mathsf{Breed}_\mathsf{HF}=0$ so you just get
+$$
+\mathsf{Weight} = 33.15 + 0.84 \times \mathsf{Age}
+$$
+
+- If a calf is JE then $\mathsf{Breed}_\mathsf{JE}=1$ and $\mathsf{Breed}_\mathsf{HF}=0$ so that
+$$
+\begin{aligned}
+\mathsf{Weight} &= 33.15 + 0.84 \times \mathsf{Age}  -11.7 - 0.13 \times \mathsf{Age}\\
+& = 21.45 + 0.71 \times \mathsf{Age}
+\end{aligned}
+$$
+
+- If a calf is HF then $\mathsf{Breed}_\mathsf{JE}=0$ and $\mathsf{Breed}_\mathsf{HF}=1$ so that
+$$
+\begin{aligned}
+\mathsf{Weight} &= 33.15 + 0.84 \times \mathsf{Age} - 7.8 \times \mathsf{Breed}_\mathsf{XB} - 0.03 \times \mathsf{Age} \times \mathsf{Breed}_\mathsf{HF}\\
+& = 25.35 + 0.81 \times \mathsf{Age}
+\end{aligned}
+$$
