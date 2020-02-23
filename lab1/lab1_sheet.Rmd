@@ -59,21 +59,21 @@ just like the confidence interval for a mean.
     * The `t value` column is giving the number of standard deviations away from 0 the slope and intercept estimates are (i.e. $39.74 = 2.82883 / 0.07118$).
     * The `Pr(>|t|)` column is the P-values for each of these estimates. The null hypothesis being tested is whether the slope (or intercept) is zero.
 
-4. Write down the equation that relates the Body weight to the Heartgirth in your notebook.
+2. Write down the equation that relates the Body weight to the Heartgirth in your notebook.
 
-5. Think about what the P-value for the slope means. What would be your conclusion for this? Write some notes about this into your notebook. If you're not sure, discuss with those around you, or with Jonathan or the tutors.
+3. Think about what the P-value for the slope means. What would be your conclusion for this? Write some notes about this into your notebook. If you're not sure, discuss with those around you, or with Jonathan or the tutors.
 
-6. Think about what the $R^2$ value (at the bottom of the summary output) means for the relationship between body weight and heartgirth. If you don't know what $R^2$ refers to, try asking those around you, or google. Write some notes about this into your notebook.
+4. Think about what the $R^2$ value (at the bottom of the summary output) means for the relationship between body weight and heartgirth. If you don't know what $R^2$ refers to, try asking those around you, or google. Write some notes about this into your notebook.
 
-7. Suppose you wanted to predict the weight of a donkey. You measure the girth at the heart and find it is 110cm. What is your best guess as to the body weight?  *Hint: Use the equation to work this out.*
+5. Suppose you wanted to predict the weight of a donkey. You measure the girth at the heart and find it is 110cm. What is your best guess as to the body weight?  *Hint: Use the equation to work this out.*
 
-8. Let's re-do part 7 using RStudio. We do this by creating a data frame with the data to predict on, and then use the `predict` function. Add a new code block to your notebook to do this:
+6. Let's re-do the prediction using RStudio. We do this by creating a data frame with the data to predict on, and then use the `predict` function. Add a new code block to your notebook to do this:
     ```{r, eval=FALSE}
     # predict the weight of a donkey with heart girth 110cm
     new_data <- data.frame(Heartgirth=110)
     predict(lm1, new_data)
     ```
-9. We can improve this prediction by taking into account how much variation we expect this prediction to have. The variation comes from two sources:
+7. We can improve this prediction by taking into account how much variation we expect this prediction to have. The variation comes from two sources:
     * The potential error in the line itself (we have just a sample, so our slope and intercept contain some error).
     * The variation of individuals about the line (i.e. variation not explained by the model).
 
