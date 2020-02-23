@@ -19,7 +19,7 @@ graphics: yes
 library(knitr)
 library(ggplot2); theme_set(theme_bw(base_size=15))
 library(patchwork)
-opts_chunk$set(dev.args=list(bg='transparent'), comment="", warning=FALSE)
+opts_chunk$set(dev.args=list(bg='transparent'), comment="", warning=FALSE, echo=FALSE)
 #print(knit_hooks$get('output'))
 knit_hooks$set(output=function (x, options) {
 #  cat("OPTIONS=", names(options), "\n")
@@ -68,7 +68,7 @@ Height     Height to the withers (cm)
 
 ## Relationships: Donkeys
 
-```{r, echo=FALSE, fig.align="center", fig.width=8, fig.height=5}
+```{r, fig.align="center", fig.width=8, fig.height=5}
 donkey <- read.csv("http://www.massey.ac.nz/~jcmarsha/227215/data/donkey.csv")
 g1 <- ggplot(donkey, aes(x=Heartgirth, y=Bodywt)) + geom_point(col=col_points)
 g2 <- ggplot(donkey, aes(x=Umbgirth, y=Bodywt)) + geom_point(col=col_points)
@@ -79,7 +79,7 @@ g1 + g2 + g3 + g4 + plot_layout(ncol=2)
 
 ## Relationships: Donkeys
 
-```{r, echo=FALSE, fig.align="center"}
+```{r, fig.align="center"}
 ggplot(donkey, aes(x=Sex, y=Bodywt)) + geom_boxplot() + coord_flip()
 ```
 
@@ -105,7 +105,7 @@ ggplot(donkey, aes(x=Sex, y=Bodywt)) + geom_boxplot() + coord_flip()
 
 ## Linear modelling
 
-```{r, echo=FALSE, fig.align="center", fig.width=8, fig.height=5}
+```{r, fig.align="center", fig.width=8, fig.height=5}
 ab <- coef(lm(Bodywt ~ Heartgirth, data=donkey))
 ggplot(donkey, aes(x=Heartgirth, y=Bodywt)) + geom_point(col=col_points) +
   geom_abline(intercept=ab[1], slope=ab[2]) + ylab("Response (Body weight in kg)") +
@@ -118,7 +118,7 @@ ggplot(donkey, aes(x=Heartgirth, y=Bodywt)) + geom_point(col=col_points) +
 
 ## Linear modelling
 
-```{r, echo=FALSE, fig.align="center", fig.width=8, fig.height=5}
+```{r, fig.align="center", fig.width=8, fig.height=5}
 l <- lm(Bodywt ~ Heartgirth, data=donkey)
 ab <- coef(l)
 p <- as.data.frame(predict(l, newdata=data.frame(Heartgirth=70:150), interval='prediction'))
@@ -132,7 +132,7 @@ ggplot(donkey, aes(x=Heartgirth, y=Bodywt)) + geom_point(col=col_points) +
   annotate('curve', x=120, y=80, curvature = -0.2, xend = 110, yend = ab[1] + ab[2]*110-2, arrow=arrow(angle=20, type='closed', length=unit(0.15, 'inches'))) +
   annotate('line', x=70:150, y = p[,2], linetype = 'dotted') +
   annotate('line', x=70:150, y = p[,3], linetype = 'dotted') +
-  annotate('text', x=95, y=160, label = expression(atop("Variation in body weight", "around the mean (unexplained)")), hjust=1) +
+  annotate('text', x=95, y=160, label = expression(atop("Variation in body weight", "not explained")), hjust=1) +
   annotate('curve', x=95, y=160, curvature = -0.2, xend = 110, yend = ab[1] + ab[2]*110 + 20, arrow=arrow(angle=20, type='closed', length=unit(0.15, 'inches'))) +
   scale_x_continuous(limits=c(77,143), expand=c(0,0)) +
   scale_y_continuous(limits=c(42,230), expand=c(0,0))
@@ -155,7 +155,7 @@ where $\alpha$ is the **intercept** or **baseline**, and $\beta$ is the **slope*
 
 ## Definitions
 
-```{r, echo=FALSE, fig.align="center"}
+```{r, fig.align="center"}
 # generate some data for a generic plot
 set.seed(2015)
 x <- rnorm(100, 3, 1)
@@ -184,13 +184,69 @@ the true parameters $\alpha$ and $\beta$ in the population.
 
 ## Estimation of parameters
 
-```{r}
-# TODO: Have a graph here showing what x_i, y_i, epsilon_i, \hat{y}_i are.
-# As the line represents the average of y, it makes sense that the average of the residuals
-# is zero. We also want the best line: the best one will explain the most variation in y, so have
-# the least variation left over. Thus, we minimise the variance of the residuals.
-# this is the same as minimising the sum of squared residuals (SS_res)
-#
+```{r, fig.align="center"}
+# generate some data for a generic plot
+set.seed(2015)
+x <- rnorm(100, 3, 1)
+y <- 0.5 + 0.5*x + rnorm(100, 0, 0.3)
+par(mar=c(2,2,1,1), cex=1.5)
+plot(y ~ x, col="#00000030", xlim=c(0, max(x)+0.2), ylim=c(0, max(y)+0.2), pch=19, xlab="", ylab="", xaxt="n", yaxt="n", xaxs="i", yaxs="i")
+x_i <- x[15]; y_i <- y[15]
+y_h <- predict(line, data.frame(x=x_i))
+line <- lm(y ~ x) 
+#abline(line, lwd=2)
+lines(c(x_i, x_i), c(-4, y_i), lty='dotted')
+lines(c(-4, x_i), c(y_i, y_i), lty='dotted')
+points(x_i, y_i, col="#00000080", pch=19)
+axis(1, at=x_i, line=0, labels=expression(x[i]))
+axis(2, at=y_i, line=0, labels=expression(y[i]), las=1)
+```
+
+## Estimation of parameters
+
+```{r, fig.align="center"}
+# generate some data for a generic plot
+set.seed(2015)
+x <- rnorm(100, 3, 1)
+y <- 0.5 + 0.5*x + rnorm(100, 0, 0.3)
+par(mar=c(2,2,1,1), cex=1.5)
+plot(y ~ x, col="#00000030", xlim=c(0, max(x)+0.2), ylim=c(0, max(y)+0.2), pch=19, xlab="", ylab="", xaxt="n", yaxt="n", xaxs="i", yaxs="i")
+x_i <- x[15]; y_i <- y[15]
+y_h <- predict(line, data.frame(x=x_i))
+line <- lm(y ~ x) 
+abline(line, lwd=2)
+lines(c(x_i, x_i), c(-4, y_i), lty='dotted')
+lines(c(-4, x_i), c(y_i, y_i), lty='dotted', col="#00000080")
+lines(c(-4, x_i), c(y_h, y_h), lty='dotted')
+points(x_i, y_i, col="#00000080", pch=19)
+points(x_i, y_h, col="#00000080", pch=19)
+axis(1, at=x_i, line=0, labels=expression(x[i]))
+axis(2, at=c(y_h, y_i), line=0, labels=expression(hat(y)[i], y[i]), las=1)
+```
+
+## Estimation of parameters
+
+```{r, fig.align="center"}
+# generate some data for a generic plot
+library(shape)
+set.seed(2015)
+x <- rnorm(100, 3, 1)
+y <- 0.5 + 0.5*x + rnorm(100, 0, 0.3)
+par(mar=c(2,2,1,1), cex=1.5)
+plot(y ~ x, col="#00000030", xlim=c(0, max(x)+0.2), ylim=c(0, max(y)+0.2), pch=19, xlab="", ylab="", xaxt="n", yaxt="n", xaxs="i", yaxs="i")
+x_i <- x[15]; y_i <- y[15]
+y_h <- predict(line, data.frame(x=x_i))
+line <- lm(y ~ x) 
+abline(line, lwd=2, col="#00000080")
+lines(c(x_i, x_i), c(-4, y_i), lty='dotted')
+lines(c(-4, x_i), c(y_i, y_i), lty='dotted', col="#00000080")
+lines(c(-4, x_i), c(y_h, y_h), lty='dotted')
+points(x_i, y_i, col="#00000080", pch=19)
+points(x_i, y_h, col="#00000080", pch=19)
+Arrows(x_i, y_h, x_i, y_i, col='black', arr.adj = 1, arr.width= 0.3, arr.type="triangle", lwd=2)
+text(x_i, mean(c(y_h, y_i)), col='black', adj=c(1.5, 0.5), expression(epsilon[i]), cex=2)
+axis(1, at=x_i, line=0, labels=expression(x[i]))
+axis(2, at=c(y_h, y_i), line=0, labels=expression(hat(y)[i], y[i]), las=1)
 ```
 
 ## Estimation of parameters
@@ -211,9 +267,9 @@ $$
 
 ## Estimation of parameters
 
-- We minimise the **residual sum of squares**
+- We minimise the **residual variance**
 $$
-SS_\mathsf{res} = \sum_{i=1}^n (y_i - (\alpha + \beta x_i))^2
+\mathsf{Var}_\mathsf{res} = \frac{1}{n}\sum_{i=1}^n (y_i - (\alpha + \beta x_i))^2
 $$
 - The values of $\alpha$ and $\beta$, found using calculus, are **least squares estimates**.
 
@@ -229,21 +285,21 @@ $$
 
 ## Linear models in RStudio
 
-```{r, eval=FALSE}
+```{r, echo=TRUE, eval=FALSE}
 mod <- lm(Bodywt ~ Heartgirth, data=donkey)
 summary(mod)
 ```
 
 ## Linear models in RStudio {.fragile}
 
-```{r, comment="", echo=FALSE}
+```{r, comment=""}
 mod <- lm(Bodywt ~ Heartgirth, data=donkey)
 summary(mod)
 ```
 
 ## Linear models in RStudio
 
-```{r, echo=FALSE}
+```{r}
 s <- summary(mod)$coefficients
 ```
 - The `Estimate` column gives us the values of our coefficients.
@@ -277,7 +333,7 @@ $$
 $$
 \begin{aligned}
 R^2 &= \frac{\mathsf{Variance\ Explained}}{\mathsf{Total\ Variance}} = \frac{\mathsf{Total\ Variance} - \mathsf{Residual\ Variance}}{\mathsf{Total\ Variance}}\\
-&= \frac{\sigma_\mathsf{Y}^2 - \sigma_\mathsf{res}^2}{\sigma_\mathsf{Y}^2} = \frac{SS_\mathsf{total} - SS_\mathsf{res}}{SS_\mathsf{total}}
+&= \frac{\sigma_\mathsf{Y}^2 - \sigma_\mathsf{res}^2}{\sigma_\mathsf{Y}^2}
 \end{aligned}
 $$
 - A high $R^2$ value suggests that the model explains a lot of the variation of the outcome variable.
@@ -286,7 +342,25 @@ $$
 
 ## $R^2$ for Donkeys
 
-<iframe src="http://shiny.massey.ac.nz/jcmarsha/rsquared/" style="border: none"></iframe>
+```{r, fig.align="center", fig.width=8, fig.height=5}
+l <- lm(Bodywt ~ Heartgirth, data=donkey)
+ab <- coef(l)
+p <- as.data.frame(predict(l, newdata=data.frame(Heartgirth=70:150), interval='prediction'))
+ggplot(donkey, aes(x=Heartgirth, y=Bodywt)) + geom_point(col=col_points) +
+  geom_abline(intercept=ab[1], slope=ab[2]) + ylab("Response (Body weight in kg)") +
+  xlab("Explanatory variable (Heart girth in cm)") +
+#  annotate('segment', x=91, y = ab[1] + ab[2]*90, xend = 135, yend = ab[1] + ab[2]*90, arrow=arrow(angle=20, type='closed', ends = 'both', length=unit(0.15, 'inches'))) +
+#  annotate('text', x=(91+135)/2, y=ab[1] + ab[2]*90, label="Variation in heart girth", vjust=-0.3) +
+  annotate('segment', x=90, y = ab[1] + ab[2]*90, xend = 136, yend = ab[1] + ab[2]*136, arrow=arrow(angle=20, type='closed', ends = 'both', length=unit(0.15, 'inches')), size=1) +
+  annotate('text', x=120, y=80, label=expression(atop("Variation in "* bold(mean)*" body weight", "explained by heart girth: 80%")), hjust=0, parse=TRUE) +
+  annotate('curve', x=120, y=80, curvature = -0.2, xend = 110, yend = ab[1] + ab[2]*110-2, arrow=arrow(angle=20, type='closed', length=unit(0.15, 'inches'))) +
+  annotate('line', x=70:150, y = p[,2], linetype = 'dotted') +
+  annotate('line', x=70:150, y = p[,3], linetype = 'dotted') +
+  annotate('text', x=95, y=160, label = expression(atop("Variation in body weight", "unexplained: 20%")), hjust=1) +
+  annotate('curve', x=95, y=160, curvature = -0.2, xend = 110, yend = ab[1] + ab[2]*110 + 20, arrow=arrow(angle=20, type='closed', length=unit(0.15, 'inches'))) +
+  scale_x_continuous(limits=c(77,143), expand=c(0,0)) +
+  scale_y_continuous(limits=c(42,230), expand=c(0,0))
+```
 
 ## Linear models in RStudio
 
@@ -310,7 +384,7 @@ $$
 
 - In RStudio we can use the `predict` function for this:
 
-```{r, comment=""}
+```{r, echo=TRUE, comment=""}
 predict(mod, newdata = data.frame(Heartgirth=120))
 ```
 
@@ -318,20 +392,20 @@ predict(mod, newdata = data.frame(Heartgirth=120))
 
 - We can utilise the standard errors of our estimates to give uncertainty for the predicted **mean**. This is a **confidence interval**.
 
-    ```{r, comment=""}
+    ```{r, echo=TRUE, comment=""}
     new.data <- data.frame(Heartgirth=120)
     predict(mod, new.data, interval="confidence")
     ```
 
 - We can combine this with the variance of the residuals to give a prediction for the spread of individual values. This is a **prediction interval**.
 
-    ```{r, comment=""}
+    ```{r, echo=TRUE, comment=""}
     predict(mod, new.data, interval="prediction")
     ```
 
 ## Prediction in RStudio: Two at once {.fragile}
 
-```{r, comment=""}
+```{r, echo=TRUE, comment=""}
 new.data <- data.frame(Heartgirth=c(100,120))
 predict(mod, new.data, interval="confidence")
 predict(mod, new.data, interval="prediction")
@@ -339,7 +413,7 @@ predict(mod, new.data, interval="prediction")
 
 ## Prediction
 
-```{r, echo=FALSE, fig.align='center', fig.width=7, fig.height=5}
+```{r, fig.align='center', fig.width=7, fig.height=5}
 par(mar=rep(0,4), cex=1.5)
 plot(y ~ x, col="#00000050", xlim=c(min(x)-0.25, max(x)+0.25), ylim=c(min(x)-0.25, max(y)+0.25), pch=19, xlab="", ylab="", xaxt="n", yaxt="n", xaxs="i", yaxs="i")
 xv <- seq(0,6,0.01)
@@ -357,7 +431,7 @@ legend("bottomright", fill=c("#00000060", "#00000020"), legend=c("Confidence int
 
 **L**inearity
 
- - Residuals don't depend on $x$.
+ - Residuals don't depend on $x$. The trend is correctly modelled.
 
 **I**ndependence
 
@@ -369,7 +443,7 @@ legend("bottomright", fill=c("#00000060", "#00000020"), legend=c("Confidence int
 
 **E**qual variance
 
- - Residuals have constant variance.
+ - Residuals have constant variance. The variation doesn't change as we move along the trend.
 
 ## {.bigequation .flexbox .vcenter}
 
@@ -418,7 +492,7 @@ $$
 
 ## Diagnostic plots: Residuals versus fits
 
-```{r, results='asis', echo=FALSE, fig.height=6, fig.width=4.5, out.extra=''}
+```{r, results='asis', fig.height=6, fig.width=4.5, out.extra=''}
 # hack-hack
 is_pdf <- rmarkdown::all_output_formats("lecture1.Rmd")[1] == "beamer_presentation"
 start_table <- function(is_pdf) {
@@ -473,7 +547,7 @@ end_table(is_pdf)
 
 ## Diagnostic plots: Normal Q-Q plot
 
-```{r, results='asis', echo=FALSE, fig.height=6, fig.width=4.5, out.extra=''}
+```{r, results='asis', fig.height=6, fig.width=4.5, out.extra=''}
 start_table(is_pdf)
 par(omi=c(2,0,0,0), mar=rep(0,4))
 plot(mod, which=2, pch=19, col="#00000040", xaxt="n")
@@ -487,13 +561,13 @@ next_column(is_pdf)
 
 - Central limit theorem means this can generally be ignored.
 
-```{r, results='asis', echo=FALSE, out.extra=''}
+```{r, results='asis', out.extra=''}
 end_table(is_pdf)
 ```
 
 ## Diagnostic plots: Scale-location plot
 
-```{r, results='asis', echo=FALSE, fig.height=6, fig.width=4.5, out.extra=''}
+```{r, results='asis', fig.height=6, fig.width=4.5, out.extra=''}
 start_table(is_pdf)
 par(omi=c(2,0,0,0), mar=rep(0,4))
 plot(mod, which=3, pch=19, col="#00000040", xaxt="n")
@@ -505,13 +579,13 @@ next_column(is_pdf)
 
 - Residuals versus fit often tells you this just as well.
 
-```{r, results='asis', echo=FALSE, out.extra=''}
+```{r, results='asis', out.extra=''}
 end_table(is_pdf)
 ```
 
 ## Diagnostic plots: Residuals versus Leverage
 
-```{r, results='asis', echo=FALSE, fig.height=6, fig.width=4.5, out.extra=''}
+```{r, results='asis', fig.height=6, fig.width=4.5, out.extra=''}
 start_table(is_pdf)
 par(omi=c(2,0,0,0), mar=rep(0,4))
 plot(mod, which=5, pch=19, col="#00000040", xaxt="n")
@@ -523,7 +597,7 @@ next_column(is_pdf)
 
 - Points outside Cook's distance of 1 have excessive influence.
 
-```{r, results='asis', echo=FALSE, out.extra=''}
+```{r, results='asis', out.extra=''}
 end_table(is_pdf)
 ```
 
