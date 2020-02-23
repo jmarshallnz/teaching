@@ -112,21 +112,21 @@ The summary table suggests that
   - The HM feed treatment differs from the HH feed treatment, with ewes on the HM treatment being lighter by 450g than those on the HH treatment. The others seem similar to HH treatment.
   - Ewes that were shorn tend to have heavier lambs (by about 240g).
 
-In earlier models both feed and shearing weren't significant. Now they are. The reason is that we've accounted for a bunch of the variation in the data by include Sex and Rank which we **know** affect birthweight. By accounting for some of the variation, we've reduced the remaining residual variation, thus being able to pick out the smaller between-group variation due to feed and shearing.
+In earlier models feed wasn't significant. Now it is. The reason is that we've accounted for a bunch of the variation in the data by include Sex and Rank which we **know** affect birthweight. By accounting for some of the variation, we've reduced the remaining residual variation, thus being able to pick out the smaller between-group variation due to feed and shearing.
 
 ```{r}
 new_data <- data.frame(Sex='Male', Rank='Twin', Shorn='No', Feed='HM')
 predict(lm3, new_data, interval="prediction")
 ```
 
-We can see a male twin born to an unshorn ewe on the HM feed treatment would be 4.45kg on average, and we'd expect to be between 2.84 and 6.06kg 95% of the time.
+We can see a male twin born to an unshorn ewe on the HM feed treatment would be 4.45kg on average, and we'd expect to be between 2.84 and 6.06kg 95% of the time. Remember that we use prediction intervals to account for both uncertainty in the average and variation of individuals around the average. i.e. we use it to predict individuals. Note here the prediction isn't all that useful - I suspect a bunch of you could supply a similar estimate just from what you know about the likely size of twin lambs! The reason is our model is only including grouping variables, so can only be good at averages for the groups - it has nothing to explain variation about the average. From the $R^2$ term it only explains 33% of the variation in birthweights.
 
 ```{r}
 new_data <- data.frame(Sex='Female', Rank='Single', Shorn='No', Feed='MM')
 predict(lm3, new_data, interval="confidence")
 ```
 
-We can see that female singles born to unshorn ewes on the MM feed treatment would be 5.56kg on avaerage, and we're 95% confident that the average is between 5.23 and 5.90kg.
+We can see that female singles born to unshorn ewes on the MM feed treatment would be 5.56kg on avaerage, and we're 95% confident that the average is between 5.23 and 5.90kg. We use a confidence interval here as the question asked for an average. Thus, incorporate uncertainty in the average, but not variation in individuals around the average. This is why it is a tigher interval.
 
 We can visualise the model fit (essentially visualising what the summary table is telling us) with `visreg`
 
