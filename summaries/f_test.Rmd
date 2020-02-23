@@ -1,0 +1,150 @@
+---
+title: "The F test"
+author: "Jonathan Marshall"
+date: "29 July 2015"
+output: pdf_document
+graphics: yes
+---
+
+## Introduction
+
+A linear model is a statistical model used for estimating the average of a numeric variable (typically called the **response** or **outcome** and denoted as $y$ in these notes), where we allow that average to vary based on the value(s) of one or more other variables (typically called **covariates** or **explanatory variables** and denoted as $x_1, \ldots, x_p$). We do this by allowing the average in $y$ to change as those variables $x$ change by linking $y$ to $x$ via a **linear model equation**.
+
+The simplest case to consider is **simple linear regression**, where we have a numeric outcome variable $y$ that we wish to relate to a single numeric covariate $x$ using a straight-line relationship. This can be done using the equation
+
+$$
+\mathsf{mean}(y) = \alpha + \beta x
+$$
+
+where $\alpha$ and $\beta$ are the y-intercept and slope, respectively. See the figure below for an example.
+
+```{r, echo=FALSE, dev='tikz', fig.align='center', fig.width=4, fig.height=3}
+source("../common/simple_linear_regression.R")
+example <- gen_simple_regression_data()
+plot_slope_intercept(example, cex=1, tikz=TRUE)
+```
+
+## Key points
+
+There are two key things to remember with linear models.
+
+### 1. We are always estimating a mean
+
+In the linear model, we're always estimating the **mean** of the outcome variable. Thus, our linear model 'fit' can be considered to go through where we expect the average of the outcome variable would be for each given value of the covariate. The observations (actual $y_i$ values) will then be scattered around that model fit, with the amount of scatter equal to the variation in the **residuals**. A good model fit will have little variation in the residuals, whereas a poor model fit will have large variation in the residuals.
+
+### 2. We usually only have a sample
+
+Almost all the data you encounter will be a sample from some population. What we're really interested in is estimating the mean of the outcome variable in the **population** not just the sample.  Thus, we have to consider the variation that we'd expect to occur from sample to sample due to the sampling process. This is incorporated in the **standard error** of the coefficients $\alpha$ and $\beta$. By taking the standard error into account, it means we can apply the understanding gained from the linear model to new observations from the population, rather than to only observations from the sample we have. For example, we can **predict** the outcome variable for a new observation based on it's observed covariates, without having to measure the outcome variable.
+
+## Fitting linear models in RStudio
+
+We can fit a linear model by hand, by going through the methods detailed on the summary sheet on least squares, but in practice a statistical package will do this for us. In RStudio this can be done using the `lm` command.
+
+For example, the dataset plotted above is named `example` and features columns `y` and `x` so we can fit a linear model using
+
+```{r}
+mod <- lm(y ~ x, data=example)
+mod
+```
+
+The first line fits the linear model, where the `lm` statement is saying "fit a linear model to y in terms of x using the example data, and put the output into the variable mod". The second line then prints out `mod`. You'll notice it gives us the values of the intercept and the coefficient of $x$.
+
+### Summary table
+
+You can get even more information on the linear model using the `summary` command
+
+```{r}
+summary(mod)
+```
+
+This gives information at the top about how the residuals are distributed, then gives a block about the coefficients, and finally a block underneath that which summarises the model fit. We'll primarily be looking at the `Coefficients` block, and the last two lines of the model fit block.
+
+```{r, echo=FALSE}
+mod_c  <- round(as.numeric(summary(mod)$coefficients[,1]),2)
+mod_se <- round(as.numeric(summary(mod)$coefficients[,2]),3)
+mod_p  <- round(as.numeric(summary(mod)$coefficients[,4]),3)
+```
+
+Notice the coefficients for `(Intercept)` and `x` are `r mod_c[1]` and `r mod_c[2]` respectively. Thus, the model formula is
+$$
+\mathsf{mean}(y) = `r mod_c[1]` + `r mod_c[2]` x
+$$
+so that for each unit increase in $x$, there is a corresponding `r mod_c[2]` unit increase in $y$.
+
+### Standard errors
+
+The summary table also gives us the standard errors of these coefficients. This is a measure of the amount that we'd expect them to change from sample to sample due to the sampling process, just like the standard error for the sample mean tells us how the sample mean is likely to change from sample to sample.
+
+In fact, just like the sample mean, it turns out that $\alpha$ and $\beta$ have $t$-distributions. Thus, we'd expect that 95% of the time we'll be within 2 standard errors of the population values of $\alpha$ and $\beta$. This allows us to construct a **confidence interval** for the population values from our sample values. e.g. for the slope $\beta$, we'd be 95% confident that the interval
+$$
+`r mod_c[2]` \pm 2 \times `r mod_se[2]` = (`r mod_c[2] - 2*mod_se[2]`, `r mod_c[2] + 2*mod_se[2]`).
+$$
+would capture the true slope. This allows us to say something about the population, not just the sample. For example, it is clear that the slope is positive in the population (as the interval is entirely positive) so there is almost certainly an increasing relationship between $x$ and $y$ in the population.
+
+### Hypothesis tests using the P-value
+
+The summary table also gives us a P-value associated with each coefficient. This is the P-value for the hypothesis test
+$$
+\begin{aligned}
+H_0 &: \textrm{The coefficient is zero},\\
+H_a &: \textrm{The coefficient is non-zero}.
+\end{aligned}
+$$
+For the slope $\beta$, under the null hypothesis we assume $\beta=0$ so that the mean of $y$ doesn't change as $x$ changes. This is equivalent to testing "does the average of $y$ change as $x$ changes?" or "is $y$ related to $x$?"  A significant P-value ($P < 0.05$) confirms that these are correct (by rejecting the null), while an insignificant P-value ($P > 0.05$) suggests we have insufficient evidence that $y$ is related to $x$.
+
+The P-value is then the likelihood that the coefficient from our sample would arise by chance alone if it was actually zero in the population. From our summary table above, we see that the P-value for the slope is small ($P \approx `r mod_p[2]`$) thus it is unlikely that the relationship we observe in the sample arises by chance. This is consistent with the confidence interval we computed above that showed that the population slope was likely positive.
+
+### Overall model fit
+
+The `Multiple R-squared` value in the table is a measure of the proportion of variance explained by the model. It is computed by working out the variance of the residuals, $\sigma_\mathsf{res}^2$ and the overall variance of $y$, $\sigma_\mathsf{Y}^2$ and computing one minus the ratio of these:
+$$
+R^2 = 1 - \frac{\sigma_\mathsf{res}^2}{\sigma_\mathsf{Y}^2} = \frac{\sigma_\mathsf{Y}^2 - \sigma_\mathsf{res}^2}{\sigma_\mathsf{Y}^2}
+$$
+From the formula, you can see that we're taking the proportion of variation left over after fitting the model away from one, thus must have the proportion explained by the model. The higher the $R^2$, the better the model fit to the data.
+
+The `F-statistic` value in the table is also a measure of overall fit. You can see more about this in the summary sheet on the F-test.
+
+## Prediction
+
+Once we have the model coefficients, we can write down the equation linking the covariates $x$ to the output variable $y$, and thus we can predict the mean of $y$ for a given set of values of $x$.
+
+In RStudio we do this using the `predict` command. It takes in the linear model object (the result of the `lm` command) as well as a new data frame that holds the values of the covariates that we wish to use for prediction. For example, to compute the mean of $y$ given that $x=-1$ or $x=1$ on the above example we could use
+
+```{r}
+new.data <- data.frame(x = c(-1, 1))
+predict(mod, new.data)
+```
+
+```{r, echo=FALSE}
+ci <- round(predict(mod, new.data, interval="confidence"),2)
+pi <- round(predict(mod, new.data, interval="prediction"),2)
+```
+This means that we'd expect the average of $y$ to be equal to `r ci[1,1]` when $x=-1$ and equal to `r ci[2,1]` when $x=1$. This is literally the same as substituting $x=-1$ and $x=1$ into the linear model equation $\mathsf{mean}(y) = `r mod_c[1]` + `r mod_c[2]` x$.
+
+### Confidence intervals for the average
+
+We know that the coefficients $\alpha$ and $\beta$ are just estimates and aren't necessarily the true values from the population, so to predict the average of observations in the population, we'll want to include the standard errors to compute a confidence interval. We can do this by specifying `interval="confidence"` in the `predict` function as follows.
+
+```{r}
+predict(mod, new.data, interval="confidence")
+```
+
+The interpretation of this is exactly the same as the interpretation of a confidence interval for the mean: We're 95% confident that the average of $y$ when $x=-1$ is between `r ci[1,2]` and `r ci[1,3]`, and when $x=1$ is between `r ci[2,2]` and `r ci[2,3]`. The key here is that we're predicting the **mean** of observations. i.e. if we took a bunch of observations with $x=1$ what would the average of the $y$ values be?
+
+### Prediction intervals for individuals
+
+On the other hand, we may instead wish to provide a range in which we're confident that the $y$ values of **individual** observations would lie. To do so, we'll need to account for the average, the standard errors, as well as the variation of individuals about the average (the residual variance). We can do this by specifying `interval="prediction"` to the `predict` function as follows.
+
+```{r}
+predict(mod, new.data, interval="prediction")
+```
+
+Our interpretation is that we're 95% confident that the $y$ value of individuals will be between `r pi[1,2]` and `r pi[1,3]` when $x=-1$ and between `r pi[1,2]` and `r pi[1,3]` when $x=1$. Notice how much wider the prediction intervals are compared to the confidence intervals: That's due to accounting for the residual variation in the model.
+
+The plot below shows the confidence and prediction intervals for the above data for all values of $x$ by plotting confidence and prediction bands. You can see that the confidence band is thinner in the middle of the data as that is where we have the most confidence (due to having most of the data) while it gets wider towards the end, as we have fewer data points. Also, towards the end the observations have higher "leverage" as they can tilt the line, altering the slope more easily than the observations in the middle which have to fight against the rest of the data to move the line.
+
+The prediction interval is a lot wider and will (on the average) encompass 95% of the observations. You can see on the plot below that a few of the observations are outside this band - it should be around 5%. Indeed, in this example there's 100 points and around 5 of them are outside the prediction interval (one above, four below).
+
+```{r, echo=FALSE, dev='tikz', fig.align='center', fig.width=4, fig.height=3}
+plot_intervals(example, cex=1)
+```

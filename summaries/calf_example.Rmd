@@ -1,0 +1,88 @@
+---
+title: "Analysis of calf weight experiment"
+author: "Jonathan Marshall"
+date: "03/09/2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+library(dplyr)
+library(ggplot2)
+library(visreg)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Consider an example where we have the weight of three breeds of calf from birth to weaning.
+
+```{r echo=TRUE, dev='tikz', message=FALSE}
+calf = read.csv("http://www.massey.ac.nz/~jcmarsha/227215/data/calfweight.csv")
+ggplot(calf, aes(x=Age, y=Weight, col=Breed, shape=Treatment)) + geom_point() + theme_bw()
+```
+
+From this we can see that the calves grow over time, and that there seems to be a difference between the breeds. It's hard to tell if there's a difference in treatments, but if we look closely, the round dots are maybe higher than the triangles at the same age and in the same breed? One model for this is the simple additive model where weight depends on breed, age and treatment:
+
+```{r, echo=TRUE}
+mod1 = lm(Weight ~ Age + Breed + Treatment, data=calf)
+anova(mod1)
+summary(mod1)
+```
+
+We can see from the ANOVA table that everything is important (this confirms what we saw in the plot). From the summary table we see an Age effect which will be the increase in weight as Age goes up by 1 day, and the Breed effects for Jersey and Cross Breeds versus the baseline group Holstein Friesian. The teatment effect is for the low treatment group vs the high treatment group (which is in the baseline). The Intercept would represent the baseline group when Age is 0 which in this case is probably meaningful (birth weight of Holstein Friesian calves on high treatment). To get the birth weight of Jersey calves on high treatment, we'd take the intercept and add on the Jersey effect (so it'd be $35.1-16.9 = 18.2$kg). Notice that this applies regardless of age. e.g. at day 10, HF calves on high treatment will weigh $35.1 + 10 \times 0.77 = 42.8$kg, while Jersey calves on high treatment would weigh $35.1 + 10 \times 0.77 - 16.9 = 25.9$kg. The difference between these is just 16.9kg, the Jersey calf effect. Thus, we're assuming in the model setup that whatever the difference between the breeds is applies equally regardless of age: If they're born 10kg apart, they'll still be 10kg apart at weaning. This probably isn't very realistic!
+
+Further, we're assuming the difference of treatment is the same regardless of breed and regardless of age. This is definitely not realistic! If it applies regardless of age, then at age 0 (birth) we're assuming the low treatment group is 3kg lighter, and it stays that way throughout the experiment. This is a structural problem with the model: A realistic setup would allow the effect of treatment to change by age: we'd expect no difference between the treatment groups at birth, as they are randomly allocated to each group, while we'd expect the treatment to have some effect at higher ages (presumably the high feed treatment group would grow faster, so their weight would increase faster - we'd have a different slope in the age vs weight plot for the high treatment group).
+
+The model fit can be visualised with visreg, which allows us to see this structural problem:
+
+```{r, echo=TRUE, dev='tikz'}
+visreg(mod1, "Age", by="Treatment", gg=TRUE, overlay=TRUE) + theme_bw()
+```
+
+Notice the lines are parallel, always the same difference in weight between them. We also see this doesn't fit the data particularly well - the data seem to be suggesting that we need different slopes for the different lines. Thus, the effect of Age on Weight needs to differ by treatment: We need separate coefficients for Age for each treatment We can do this with an interaction between Age and Treatment. Note that this would be the case even if the data were fitting OK - we know the groups should be similar weight at the start, so the model should be setup to allow this to occur.
+
+```{r, echo=TRUE, dev='tikz'}
+mod2 = lm(Weight ~ Age + Breed + Treatment + Age:Treatment, data=calf)
+anova(mod2)
+```
+
+The ANOVA table shows that the interaction is important, which suggests there is evidence for the effect of age differing by treatment (i.e. different growth rates for the different treatments). The summary table provides the various growth rates:
+
+```{r}
+summary(mod2)
+```
+
+From here we see that the Age effect now only represents the growth for the baseline group (High treatment), which we need to modify for the low treatment group by adding their interactions (just like we altered the Sex effect for Area 2 in the petrels example). The 0.8kg/day applies to the high treatment group. The growth rate for the low treatment group will be $0.8 - 0.07 = 0.73$kg/day. Notice also what the TreatmentLow term represents: This is the alteration of the low treatment group needed when Age = 0. So the low treatment group starts off just 0.09kg lighter than the high treatment group, and there's a lot of uncertainty in that (the standard error is an order of magnitude larger) - i.e. the difference between the groups at day 0 could in fact be 0, which is what we'd expect (the P-value here confirms this!) So the groups start the same at age 0. At age 50 days for example, the low treatment group would be $50 \times -0.068 = -3.4$kg heavier (i.e. 3.4kg lighter). Again, visreg makes this clear:
+
+```{r, echo=TRUE, dev='tikz'}
+visreg(mod2, "Age", by="Treatment", overlay=TRUE, gg=TRUE) + theme_bw()
+```
+
+The lines are no longer parallel and fit the data better. Notice that the low and high lines are almost in the same place at age 0 which makes sense for this study - we'd expect the weight to be the same. The model isn't enforcing this, just allowing it - if the data showed that the weights were different at day 0, then the lines could differ here. Plus, you see the clear difference in the treatment - it alters the growth rate. Note that even if there was no evidence for a difference in treatment, we'd probably still want to stick with this model over the previous one, as it makes more sense structurally.
+
+Lastly, we could work out the individual equations for each group from the full model equation which would be:
+$$
+\mathsf{Weight} = 33.5 + 0.8 \times \mathsf{Age}  -16.8 \times \mathsf{Breed}_\mathsf{JE} - 7.3 \times \mathsf{Breed}_\mathsf{XB} - 0.085 \times \mathsf{Treatment}_\mathsf{Low} - 0.068 \times \mathsf{Age} \times \mathsf{Treatment}_\mathsf{Low},
+$$
+where the $\mathsf{Breed}_\mathsf{JE}$ etc are 1 if you're a Jersey, and 0 otherwise. This is actually 6 separate equations in one:
+
+- If a calf is HF on the high treatment, then $\mathsf{Breed}_\mathsf{JE}=0$, $\mathsf{Breed}_\mathsf{XB}=0$ and $\mathsf{Treatment}_\mathsf{Low}=0$ so you get
+$$
+\mathsf{Weight} = 33.5 + 0.8 \times \mathsf{Age}
+$$
+
+- If a calf is HF on the low treatment, then $\mathsf{Breed}_\mathsf{JE}=0$, $\mathsf{Breed}_\mathsf{XB}=0$ and $\mathsf{Treatment}_\mathsf{Low}=1$ so you get
+$$
+\begin{aligned}
+\mathsf{Weight} &= 33.5 + 0.8 \times \mathsf{Age}  - 0.085 - 0.068 \times \mathsf{Age}\\
+& = 33.42 + 0.73 \times \mathsf{Age}
+\end{aligned}
+$$
+
+- If a calf is JE on the low treatment then $\mathsf{Breed}_\mathsf{JE}=1$, $\mathsf{Breed}_\mathsf{XB}=0$ and $\mathsf{Treatment}_\mathsf{Low}=1$ so that
+$$
+\begin{aligned}
+\mathsf{Weight} &= 33.5 + 0.8 \times \mathsf{Age} - 16.8 - 0.085 - 0.068 \times \mathsf{Age}\\
+& = 16.62 + 0.73 \times \mathsf{Age}
+\end{aligned}
+$$
+
+Finally, note that structurally the model is likely still wrong: while it's allowing the growth rate (effect of age) to vary by treatment, we're still assuming that the effect of age (i.e. growth rate) is the same for each breed - i.e. the difference between the breeds is the same at day 0 and day 50. This is probably not true, or at least we'd have prior evidence that it is unlikely to be the case. Thus, structurally, we should be including an interaction between age and breed as well.
