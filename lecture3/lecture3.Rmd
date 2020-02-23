@@ -3,15 +3,15 @@ title: "Linear models 3"
 author: "Jonathan Marshall"
 date: ''
 output:
-  ioslides_presentation:
-    css: jm.css
-    highlight: tango
-    widescreen: yes
   beamer_presentation:
     highlight: tango
     includes:
       in_header: ../header.tex
     keep_tex: yes
+  ioslides_presentation:
+    css: jm.css
+    highlight: tango
+    widescreen: yes
 ---
 
 ```{r setup, echo=FALSE}
@@ -376,14 +376,12 @@ visreg(mod3, "Area", by="Sex", overlay=TRUE)
 ## visreg: Model without interaction
 
 ```{r, echo=FALSE, fig.width=9.5, fig.height=5.5}
-par(mar=c(4,4,0,0))
 visreg(mod2, "Area", by="Sex", gg=TRUE)
 ```
 
 ## visreg: Model with interaction
 
 ```{r, echo=FALSE, fig.width=9.5, fig.height=5.5}
-par(mar=c(4,4,0,0))
 visreg(mod3, "Area", by="Sex", gg=TRUE)
 ```
 
