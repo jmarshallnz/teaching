@@ -13,11 +13,11 @@ This lab is a short one - we'll look at a set of data on plate meter measurement
 
 **After** you're done, feel free to work on your assignment.
 
-Today we're looking at some grass measurement data collected by you in Semester 1 using grass plate meters. We'll be using the excel sheet provided on Stream, and expanding on the analysis that Cory Matthews did earlier.
+Today we're looking at some grass measurement data similar to that collected by you using grass plate meters. We'll be using the excel sheet provided on Stream, and expanding on an analysis that Cory Matthews did earlier.
 
 Start by downloading the `lab4_grass.Rmd` notebook from Stream, save it and load it into RStudio.
 
-1. You should notice the first code block is loading up some libraries and reading the data in. The data has been taken directly from `RisingPlateTest.xlsx` that Cory Matthews supplied in 227.212. You can get a copy in the Lab 4 folder on stream. Download it and have a look at it in Excel. The `Analysis` tab has the output from two linear models - one with just Paddock in it (on the left) and one with both Person and Paddock in it - on the right. You should be able to see the Analysis of Variance tables - we'll be reproducing those below.
+1. You should notice the first code block is loading up some libraries and reading the data in. The data has been taken directly from `RisingPlateTest.xlsx` that Cory Matthews supplied. You can get a copy in the Lab 4 folder on stream. Download it and have a look at it in Excel. The `Analysis` tab has the output from two linear models - one with just Paddock in it (on the left) and one with both Person and Paddock in it - on the right. You should be able to see the Analysis of Variance tables - we'll be reproducing those below.
 
 2. The next code block is converting some of the columns to grouping variables and then producing a summary. You might want to also take a look (click on `grass` in the Environment tab) and compare to the Excel sheet `Raw Data` to notice they're the same.
 
@@ -69,6 +69,6 @@ To do this in RStudio, we use the `nlme` library, which stands for "non-linear m
 
 3. Notice that the summary table gives you some information about your random effects. The `Intercept` value is the standard deviation of the per-person random effect (i.e. between-person variability), while the `Residual` value is the standard deviation of the left-over residuals after accounting for people (i.e. the within-person variability). You should notice that there is more within-person variation than there is between-person variation.
 
-4. Summarise your results in a few comments in your R script file.
+4. Summarise your results in a few comments in your markdown file.
 
 5. All the best for the rest of the course! I'd love to get feedback from you on the biostats portion of the course - feel free to tell me what you think via email or an anonymous note under my door! It'd be great to get a representative sample of responses, so it's important that I get the *meh* responses as well as the *awesome* and *you suck* responses! :)

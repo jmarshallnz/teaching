@@ -1,11 +1,11 @@
 ---
 title:  227.215 Biostats, Grass platemeter measurements
-author: Jonathan Marshall
+author: CHANGE ME!
 ---
 
 ## Introduction ##
 
-Today we're looking at some grass measurement data collected by you in Semester 1 using grass plate meters. We'll be using the excel sheet provided on Stream, and expanding on the analysis that Cory Matthews did earlier.
+Today we're looking at some grass measurement data similar to that collected by you using grass plate meters. We'll be using the excel sheet provided on Stream, and expanding on an analysis that Cory Matthews did earlier.
 
 We start by reading in the data sheet that Cory Matthews put together and load some packages we'll need today. One of them is new - the `nlme` package which contains some more general linear modelling functionality (models with random effects) that we'll be using below. If you're running this on your own computer you might need to install this package - see the Packages menu in the bottom right of RStudio.
 
@@ -16,7 +16,7 @@ library(visreg)
 grass = read.csv("http://www.massey.ac.nz/~jcmarsha/227215/data/RisingPlateTest.csv")
 ```
 
-Note that the `grass` data here was taken from the `Raw Data` sheet in `RisingPlateTest.xlsx` that Cory Matthews supplied in 227.212. You can get a copy in the Lab 4 folder on stream. You might want to download that file and look at it in Excel. The `Analysis` tab has the output from two linear models - one with just Paddock in it (on the left) and one with both Person and Paddock in it - on the right. You should be able to see the Analysis of Variance tables - we'll be reproducing those below.
+Note that the `grass` data here was taken from the `Raw Data` sheet in `RisingPlateTest.xlsx` that Cory Matthews supplied. You can get a copy in the Lab 4 folder on stream. You might want to download that file and look at it in Excel. The `Analysis` tab has the output from two linear models - one with just Paddock in it (on the left) and one with both Person and Paddock in it - on the right. You should be able to see the Analysis of Variance tables - we'll be reproducing those below.
 
 In the next code block we convert the `Paddock`, `Person`, and `Group` columns to factors (grouping variables) as that's what they are - the numbers aren't measurements. This enables RStudio to correctly interpret these as groups - notice that the `summary` output has correctly tallied up the number of observations for each person and paddock, rather than giving means.
 
