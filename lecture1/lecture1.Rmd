@@ -15,7 +15,7 @@ output:
 graphics: yes
 ---
 
-```{r setup, echo=FALSE}
+```{r setup, include=FALSE}
 library(knitr)
 library(ggplot2); theme_set(theme_bw(base_size=15))
 library(patchwork)
