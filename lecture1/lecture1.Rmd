@@ -279,7 +279,7 @@ $$
 
 ## Estimation of parameters
 
-<iframe src="http://shiny.massey.ac.nz/jcmarsha/leastsquares/" style="border: none"></iframe>
+<iframe src="https://shiny.massey.ac.nz/jcmarsha/leastsquares/" style="border: none"></iframe>
 
 # Linear models in RStudio
 
@@ -543,7 +543,7 @@ end_table(is_pdf)
 
 ## Residuals versus fits
 
-<iframe src="http://shiny.massey.ac.nz/jcmarsha/linearity/" style="border: none"></iframe>
+<iframe src="https://shiny.massey.ac.nz/jcmarsha/linearity/" style="border: none"></iframe>
 
 ## Diagnostic plots: Normal Q-Q plot
 
@@ -615,7 +615,7 @@ end_table(is_pdf)
 
 ## Influential outliers
 
-<iframe src="http://shiny.massey.ac.nz/jcmarsha/influence/" style="border: none"></iframe>
+<iframe src="https://shiny.massey.ac.nz/jcmarsha/influence/" style="border: none"></iframe>
 
 ## Summary
 

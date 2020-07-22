@@ -293,7 +293,7 @@ Both drugs    $\mathsf{mean}(y)=\alpha + \beta_A + \beta_B$
 
 ## Example: Hypothetical drugs
 
-<iframe src="http://shiny.massey.ac.nz/jcmarsha/twoway/" style="border: none"></iframe>
+<iframe src="https://shiny.massey.ac.nz/jcmarsha/twoway/" style="border: none"></iframe>
 
 ## Interactions: Hypothetical drugs
 
@@ -320,7 +320,7 @@ Thus, $\beta_{AB}$ can be used to measure whether or not the effects of the two 
 
 ## Example: Hypothetical drugs
 
-<iframe src="http://shiny.massey.ac.nz/jcmarsha/twoway/" style="border: none"></iframe>
+<iframe src="https://shiny.massey.ac.nz/jcmarsha/twoway/" style="border: none"></iframe>
 
 ## Interactions in RStudio
 
