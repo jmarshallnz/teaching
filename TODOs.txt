@@ -1,0 +1,5 @@
+TODOs for 2021:
+
+1. Switch from markdown + PDF to markdown.
+
+2. Consider screencasting the solution?
