@@ -1,9 +1,7 @@
 ---
-title: 'Lab 2: Petrels'
-author: "Jonathan"
-output:
-  pdf_document: default
-  html_document: default
+title: "Lab 2: Petrels"
+author: "Jonathan Marshall"
+output: html_document
 ---
 
 ## Introduction
@@ -23,11 +21,23 @@ In the following code chunk we remind ourselves what the distribution of `Sex` a
 
 ```{r}
 table(petrels$Sex, petrels$Area)
-ggplot(subset(petrels, !is.na(Sex)), aes(x=Sex, y=R.Wing.Lth)) + geom_boxplot()
-ggplot(petrels, aes(x=Area, y=R.Wing.Lth)) + geom_boxplot()
 ```
 
-We notice that there is a higher proportion of males in area 5 compared to the other areas, and they have the largest right wing length. Males are also larger than females. Notice the use of `subset` to get rid of the NA values from `Sex`. This is to prevent a third boxplot consisting of the NA values (in addition to Male and Female).
+We note that Area 5 has the highest proportion of male birds. Area 3 and 6 have the fewest birds.
+
+```{r}
+ggplot(na.omit(petrels)) +
+  geom_boxplot(aes(x=Sex, y=R.Wing.Lth))
+```
+
+On average, the right wing length of male birds is a little bit higher than female birds, but otherwise the distributions are similar.
+
+```{r}
+ggplot(petrels) +
+  geom_boxplot(aes(x=Area, y=R.Wing.Lth))
+```
+
+Area 5 birds are larger on average than the other areas, but a bit of overlap. Shapes and spreads are similar.
 
 ## Linear modelling
 
@@ -35,57 +45,40 @@ Last semester we saw that there were differences in the size of birds between th
 
 Today, we'll see if this is true, but modelling the data so that we can see the affect of area after accounting for the differences in sex.
 
-A linear model for right wing length in terms of sex
-
 ```{r}
-m1 <- lm(R.Wing.Lth ~ Sex, data=petrels)
-summary(m1)
+lm1 <- lm(R.Wing.Lth ~ Area, data=petrels)
+summary(lm1)
 ```
 
-Our conclusion would be that males are about 3.1mm larger on average than females, which are 385.2mm on average, and that there is quite a bit of evidence for this (P=0.0006)
-
-A model for right wing length in terms of area
+Our conclusion is that something in the model is important (overall P value is small). Area is the only thing in the model, so Area is important for explaining differences in right wing length (i.e. there's differences between areas). We can look at the coefficients to see where those differences are. e.g. Area 5 is largest, Area 6 is smallest.
 
 ```{r}
-m2 <- lm(R.Wing.Lth ~ Area, data=petrels)
-summary(m2)
+lm2 <- lm(R.Wing.Lth ~ Sex, data=petrels)
+summary(lm2)
 ```
 
-Remember when assessing a single factor with more than 2 levels we can use the overall P-value. This is tiny, suggesting something in the model is important, so Area must be important to right wing length. We see that Area 5 is largest and area 6 is smallest.
-
-And finally a model with both Sex and Area:
+Overall P-value is small, so Sex is important. It explains less than 2% of the variation in right wing length. Males are larger than Females by about 3.1 mm.
 
 ```{r}
-m3 <- lm(R.Wing.Lth ~ Sex + Area, data=petrels)
-summary(m3)
+lm3 <- lm(R.Wing.Lth ~ Sex + Area, data=petrels)
+summary(lm3)
 ```
 
-There definitely still seems to be an effect of area even after accounting for sex. Area 5 has largest and area 6 smallest wing lengths after accounting for sex. 
+After including Sex and Area in the model, the effect sizes of both have been moderated a little (suggesting that some of the effect of Area is explained by Sex, and some of the effect of Sex is explained by Area) but nonetheless the effect directions and magnitudes are similar: Males larger, Area 5 larger, Areas 2-4 and 6 are smaller compared to base line group.
 
-### Visualising the model
-
-First we can look at the effect of Sex after accounting for area, where we see Males are larger.
+Let's visualise the models:
 
 ```{r}
-library(visreg)
-visreg(m3, "Sex")
+visreg(lm1)
 ```
-
-We can then look at the effect of area after accounting for Sex. It's useful to compare the results from the model with sex in it (m3) and the one with area alone (m2)
 
 ```{r}
-par(mfrow=c(1,2), mar=c(4,4,2,2))
-visreg(m3, "Area", main="Adjusted for Sex")
-visreg(m2, main="Unadjusted")
+visreg(lm3)
 ```
-
-By the looks there is no difference in the effect of Area between the two models, so accounting for Sex doesn't change the area effects. This suggests that sex is probably not explaining the area effect, so our concern about area 5 having more males is probably not an issue.
-
-### Model diagnostics
+The patterns we see for Area are the same in both models: Controlling for Sex has little effect on the overall conclusion. So, we can be confident that the Area 5 birds aren't larger on average just due to more male birds, as we've now controlled for that.
 
 ```{r}
-par(mfrow=c(2,2), mar=c(4,4,2,2))
-plot(m3)
+plot(lm3)
 ```
 
-These look OK - no major evidence of non-linearity or non-constant variance, and normality looks OK (plus, large dataset!), so the model assumptions are likely fine.
+No problem here: Linearity looks fine so does equal variance. Normality is good too. No observations with high influence, so all good!
